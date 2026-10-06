@@ -2,24 +2,19 @@
 Authentication tests. Run from the backend/ folder:
     python -m pytest -q
 
-These use a throwaway in-memory SQLite database (NOT your MySQL one), so they never
-touch the seeded data or change your 200 students / 50 companies.
+The `client` fixture (see conftest.py) uses a throwaway in-memory SQLite database,
+NOT your MySQL one, so tests never touch the seeded data.
 """
 from datetime import datetime, timedelta, timezone
 
 import jwt
 import pytest
 from fastapi import Depends
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 from app import models
 from app.config import JWT_ALGORITHM, JWT_SECRET
 from app.core.deps import require_company, require_student
 from app.core.security import create_access_token, hash_password, verify_password
-from app.database import Base, get_db
 from app.main import app
 
 
@@ -32,25 +27,6 @@ def _student_only(student: models.Student = Depends(require_student)):
 @app.get("/_test/company-only")
 def _company_only(company: models.Company = Depends(require_company)):
     return {"id": company.id}
-
-
-@pytest.fixture()
-def client():
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-
-    def override_get_db():
-        db = Session()
-        try:
-            yield db
-        finally:
-            db.close()
-
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
-    app.dependency_overrides.clear()
 
 
 STUDENT = {"name": "Ada Lovelace", "email": "Ada@Example.com", "password": "Secret123", "college": "SJSU"}

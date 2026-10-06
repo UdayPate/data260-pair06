@@ -12,10 +12,11 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import SQLAlchemyError
 
 from .config import FRONTEND_PORT, PAIR_STR, UPLOAD_DIR
-from .routers import auth
+from .routers import auth, companies, meta, students
 
 logger = logging.getLogger("handshake")
 
@@ -40,8 +41,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Folder for resumes and profile pictures (git ignores it, so create it if missing).
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# Folders for uploads (git ignores them, so create them if missing).
+PROFILE_PICS_DIR = os.path.join(UPLOAD_DIR, "profile_pics")
+os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
+os.makedirs(os.path.join(UPLOAD_DIR, "resumes"), exist_ok=True)
+
+# Profile pictures are public (like on LinkedIn), so we serve ONLY that sub-folder.
+# Resumes are private: the uploads/resumes folder is deliberately NOT mounted here.
+# They will be sent through a login-protected endpoint that checks who is asking.
+app.mount("/media/profile_pics", StaticFiles(directory=PROFILE_PICS_DIR), name="profile_pics")
 
 
 @app.exception_handler(SQLAlchemyError)
@@ -53,6 +61,9 @@ async def database_error_handler(request: Request, exc: SQLAlchemyError):
 
 
 app.include_router(auth.router)
+app.include_router(students.router)
+app.include_router(companies.router)
+app.include_router(meta.router)
 
 
 @app.get("/health", tags=["Health"], summary="Is the API running?")
