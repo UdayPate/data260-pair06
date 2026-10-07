@@ -15,6 +15,7 @@ from ..core.uploads import delete_upload, public_url, save_profile_picture
 from ..database import get_db
 from ..models import Student, StudentExperience, StudentSkill
 from ..schemas.profile import ExperienceOut, PictureResponse, StudentProfile, StudentUpdate
+from ..services.skill_sync import sync_skills
 
 router = APIRouter(prefix="/students", tags=["Student profile"])
 
@@ -30,22 +31,6 @@ def to_student_profile(s: Student) -> StudentProfile:
         skills=sorted((k.skill for k in s.skills), key=str.lower),
         experience=[ExperienceOut.model_validate(e) for e in experiences],
     )
-
-
-def _sync_skills(student: Student, new_skills: list) -> None:
-    """Make the student's skill rows match `new_skills`, changing as little as possible.
-    (We diff instead of delete-all + insert-all because the table has a UNIQUE
-    (student_id, skill) rule, and re-inserting a skill in the same save would clash.)"""
-    existing = {row.skill.lower(): row for row in student.skills}
-    wanted = {skill.lower(): skill for skill in new_skills}
-    for key, row in list(existing.items()):
-        if key not in wanted:
-            student.skills.remove(row)          # delete-orphan removes it from MySQL
-        elif row.skill != wanted[key]:
-            row.skill = wanted[key]             # same skill, spelling/casing fixed
-    for key, text in wanted.items():
-        if key not in existing:
-            student.skills.append(StudentSkill(skill=text))
 
 
 @router.get("/me", response_model=StudentProfile, summary="View my profile")
@@ -69,7 +54,7 @@ def update_my_profile(body: StudentUpdate, student: Student = Depends(require_st
     for field, value in data.items():
         setattr(student, field, value)
     if skills is not None:
-        _sync_skills(student, skills)
+        sync_skills(student.skills, skills, lambda text: StudentSkill(skill=text))
     if experience is not None:
         student.experiences = [StudentExperience(**item) for item in experience]
 

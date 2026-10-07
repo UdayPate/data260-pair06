@@ -1,20 +1,19 @@
 """
 Company profile endpoints (own profile only, via /companies/me).
 
-Note for later: when we add a public "view any company" route (/companies/{company_id}),
-it must be declared AFTER these /me routes, otherwise FastAPI would try to read the
-word "me" as a company id.
+Order matters: the public "view any company" route (/companies/{company_id}) is declared
+AFTER the /me routes, otherwise FastAPI would try to read the word "me" as a company id.
 """
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from ..core.deps import require_company
+from ..core.deps import Identity, get_identity, require_company
 from ..core.uploads import delete_upload, public_url, save_profile_picture
 from ..database import get_db
 from ..models import Company
-from ..schemas.profile import CompanyProfile, CompanyUpdate, PictureResponse
+from ..schemas.profile import CompanyProfile, CompanyPublic, CompanyUpdate, PictureResponse
 
 router = APIRouter(prefix="/companies", tags=["Company profile"])
 
@@ -71,3 +70,12 @@ def upload_my_logo(file: UploadFile = File(..., description="PNG, JPEG or WebP, 
         raise
     delete_upload(old_path)
     return PictureResponse(profile_pic_url=public_url(new_path))
+
+
+# Declared AFTER the /me routes on purpose (see the note at the top of this file).
+@router.get("/{company_id}", response_model=CompanyPublic, summary="View any company's public profile")
+def get_company(company_id: int, identity: Identity = Depends(get_identity), db: Session = Depends(get_db)):
+    company = db.get(Company, company_id)
+    if company is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Company not found")
+    return CompanyPublic.from_company(company)

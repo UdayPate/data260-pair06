@@ -30,14 +30,19 @@ COMPANY = {"name": "Acme Corp", "email": "hr@acme.com", "password": "Secret123",
 
 
 @pytest.fixture()
-def client():
-    """A test client wired to a fresh, empty in-memory database."""
+def session_factory():
+    """Creates a fresh, empty in-memory database and returns a way to open sessions on it."""
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    yield sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    engine.dispose()
 
+
+@pytest.fixture()
+def client(session_factory):
+    """A test client wired to that in-memory database."""
     def override_get_db():
-        db = Session()
+        db = session_factory()
         try:
             yield db
         finally:
@@ -47,6 +52,14 @@ def client():
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def db(session_factory):
+    """Direct database access for tests that need rows the API would refuse to create
+    (e.g. an already-expired job). Remember to db.commit()."""
+    with session_factory() as session:
+        yield session
 
 
 @pytest.fixture()

@@ -189,13 +189,15 @@ def make_jobs(companies):
     cats = [m.JobCategory.internship, m.JobCategory.full_time, m.JobCategory.part_time, m.JobCategory.on_campus]
     # The first few jobs are fixed "scenarios" so Part B's required tests always have
     # matching data (remote data science internships, internships in each city).
-    scenarios = [("Data Science", True, None)] * 3 + [("Data Analyst", False, c) for c in CITY_SET]
+    # (title, remote?, fixed city, skills the job must list)
+    ds_skills, da_skills = ["Python", "Machine Learning"], ["SQL", "Python"]
+    scenarios = [("Data Science", True, None, ds_skills)] * 3 + [("Data Analyst", False, c, da_skills) for c in CITY_SET]
     jobs = []
     for i in range(N_JOBS):
         category = rng.choices(cats, weights=[40, 25, 20, 15])[0]
         city_fixed = None
         if i < len(scenarios):
-            base, is_remote, city_fixed = scenarios[i]
+            base, is_remote, city_fixed, _ = scenarios[i]
             category, company = m.JobCategory.internship, rng.choice(others)
             title = f"{base} Intern"
             skill_pool = ["Python", "Machine Learning", "Data Analysis", "SQL", "Statistics", "Pandas"]
@@ -209,14 +211,20 @@ def make_jobs(companies):
             title = f"{base} Intern" if category == m.JobCategory.internship else base
             skill_pool, is_remote = field["skills"], rng.random() < 0.15
         skills = rng.sample(skill_pool, rng.randint(2, min(5, len(skill_pool))))
+        if i < len(scenarios):  # planted jobs always list the skills the Part B tests search for
+            skills = list(dict.fromkeys(scenarios[i][3] + skills))[:5]
         lo, hi, period = salary_for(category)
         posted = ANCHOR_DATE - timedelta(days=rng.randint(1, 60))
         city = city_fixed or rng.choice(CITY_SET)
         where = "Remote" if is_remote else f"{city}, {STATE}"
+        span = rng.randint(20, 90)   # (same random draw as before, so the rest of the data is unchanged)
+        # Planted scenario jobs stay open until at least January so the Part B tests keep
+        # working on grading day. All other jobs close 20-90 days after they were posted.
+        deadline = ANCHOR_DATE + timedelta(days=90 + span) if i < len(scenarios) else posted + timedelta(days=span)
         job = m.Job(
             company=company, title=title, category=category, city=city, state=STATE,
             is_remote=is_remote, salary_min=lo, salary_max=hi, pay_period=period,
-            posting_date=posted, deadline=posted + timedelta(days=rng.randint(20, 90)),
+            posting_date=posted, deadline=deadline,
             contact_email=company.contact_email,
             description=(f"{company.name} is hiring a {title} ({where}). "
                          f"Ideal candidates have experience with {', '.join(skills)}. "

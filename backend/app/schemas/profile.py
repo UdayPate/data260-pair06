@@ -15,6 +15,7 @@ from typing import Annotated, ClassVar, FrozenSet, List, Optional
 from pydantic import (BaseModel, ConfigDict, EmailStr, Field, StringConstraints,
                       ValidationInfo, field_validator, model_validator)
 
+from ..core.uploads import public_url
 from ..skills import ALL_SKILLS, MAJORS
 from .auth import Name, _validate_email
 
@@ -59,7 +60,7 @@ def _validate_phone(value: Optional[str]) -> Optional[str]:
     return value
 
 
-class _PartialUpdate(BaseModel):
+class PartialUpdate(BaseModel):
     """Base class for update schemas: forbids unknown fields and turns a blank string
     into None for the fields listed in `clearable` (so the form can clear a field)."""
     model_config = ConfigDict(extra="forbid")
@@ -92,7 +93,7 @@ class ExperienceIn(BaseModel):
         return self
 
 
-class StudentUpdate(_PartialUpdate):
+class StudentUpdate(PartialUpdate):
     required = frozenset({"name", "email", "college"})
     clearable = frozenset({"date_of_birth", "city", "state", "country", "career_objective",
                            "degree", "major", "graduation_year", "cgpa", "phone"})
@@ -176,7 +177,7 @@ class StudentProfile(BaseModel):
 
 
 # ---------- company ----------
-class CompanyUpdate(_PartialUpdate):
+class CompanyUpdate(PartialUpdate):
     required = frozenset({"name", "email", "location"})
     clearable = frozenset({"state", "industry", "description", "contact_email",
                            "contact_phone", "website"})
@@ -216,6 +217,27 @@ class CompanyProfile(BaseModel):
     contact_phone: Optional[str]
     website: Optional[str]
     profile_pic_url: Optional[str]
+
+
+class CompanyPublic(BaseModel):
+    """What OTHER people may see about a company (no login email)."""
+    id: int
+    name: str
+    location: str
+    state: Optional[str]
+    industry: Optional[str]
+    description: Optional[str]
+    contact_email: Optional[str]
+    contact_phone: Optional[str]
+    website: Optional[str]
+    profile_pic_url: Optional[str]
+
+    @classmethod
+    def from_company(cls, c) -> "CompanyPublic":
+        return cls(id=c.id, name=c.name, location=c.city, state=c.state, industry=c.industry,
+                   description=c.description, contact_email=c.contact_email,
+                   contact_phone=c.contact_phone, website=c.website,
+                   profile_pic_url=public_url(c.profile_pic_path))
 
 
 class PictureResponse(BaseModel):
