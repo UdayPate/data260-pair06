@@ -19,7 +19,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Company, Student
+from ..models import Company, Job, Student
 from .security import decode_access_token
 
 # Makes Swagger UI show an "Authorize" button where you paste a token.
@@ -80,3 +80,18 @@ def require_company(identity: Identity = Depends(get_identity)) -> Company:
     if identity.role != "company":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Companies only")
     return identity.user
+
+
+def get_owned_job(
+    job_id: int,
+    company: Company = Depends(require_company),
+    db: Session = Depends(get_db),
+) -> Job:
+    """The job in the URL (/jobs/{job_id}/...), but ONLY if it belongs to the logged-in
+    company. 404 = no such job, 403 = it exists but belongs to someone else."""
+    job = db.get(Job, job_id)
+    if job is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Job not found")
+    if job.company_id != company.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "You can only manage your own job postings")
+    return job

@@ -1,7 +1,7 @@
 """
-File upload helpers (profile pictures now, resume PDFs in a later step).
+File upload helpers: profile pictures (public) and resume PDFs (private).
 
-Safety rules we follow:
+Safety rules we follow (pictures AND resumes):
   * We NEVER use the filename the user sent. We make our own name, so nobody can
     upload "../../something" to write outside the uploads folder.
   * We check the file's first bytes ("magic bytes"), not just the extension or the
@@ -21,6 +21,7 @@ from fastapi import HTTPException, UploadFile, status
 from .. import config  # read config.UPLOAD_DIR at call time (lets tests point it at a temp folder)
 
 MAX_IMAGE_BYTES = 2 * 1024 * 1024  # 2 MB
+MAX_RESUME_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
 def detect_image_type(data: bytes) -> Optional[str]:
@@ -53,18 +54,57 @@ def save_profile_picture(file: UploadFile, owner_type: str, owner_id: int) -> st
     return rel_path
 
 
+def _inside(base: str, target: str) -> bool:
+    """True if `target` is inside folder `base` (guards against '../' tricks)."""
+    try:
+        return os.path.commonpath([base, target]) == base
+    except ValueError:      # e.g. paths on different drives on Windows
+        return False
+
+
 def delete_upload(rel_path: Optional[str]) -> None:
     """Delete a stored file. Silently ignores missing files and paths outside UPLOAD_DIR."""
     if not rel_path:
         return
     base = os.path.abspath(config.UPLOAD_DIR)
     target = os.path.abspath(os.path.join(base, rel_path))
-    if os.path.commonpath([base, target]) != base:
+    if not _inside(base, target):
         return
     try:
         os.remove(target)
     except FileNotFoundError:
         pass
+
+
+def save_resume(file: UploadFile, student_id: int, job_id: int) -> str:
+    """Validate and store an uploaded resume. Only real PDFs are accepted: the file must
+    START with the PDF signature "%PDF-" (we do not trust the filename or Content-Type)."""
+    data = file.file.read(MAX_RESUME_BYTES + 1)
+    if not data:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "The uploaded file is empty")
+    if len(data) > MAX_RESUME_BYTES:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, "Resume must be 5 MB or smaller")
+    if not data.startswith(b"%PDF-"):
+        raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "Resume must be a PDF file")
+
+    rel_path = f"resumes/app_{student_id}_{job_id}_{uuid.uuid4().hex[:12]}.pdf"
+    abs_path = os.path.join(config.UPLOAD_DIR, rel_path)
+    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+    with open(abs_path, "wb") as f:
+        f.write(data)
+    return rel_path
+
+
+def resume_file_path(rel_path: Optional[str]) -> Optional[str]:
+    """Absolute path of a stored resume, or None if it is missing or is NOT inside the
+    resumes folder (so a bad value in the database can never expose other files)."""
+    if not rel_path:
+        return None
+    base = os.path.abspath(os.path.join(config.UPLOAD_DIR, "resumes"))
+    target = os.path.abspath(os.path.join(config.UPLOAD_DIR, rel_path))
+    if not _inside(base, target) or not os.path.isfile(target):
+        return None
+    return target
 
 
 def public_url(rel_path: Optional[str]) -> Optional[str]:

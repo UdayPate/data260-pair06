@@ -14,11 +14,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from ..core.deps import Identity, get_identity, require_company
+from ..core.deps import Identity, get_identity, get_owned_job, require_company
 from ..core.uploads import public_url
 from ..database import get_db
-from ..models import Company, Job, JobCategory, JobSkill, PayPeriod
-from ..schemas.jobs import CompanyMini, JobCreate, JobDetail, JobPage, JobUpdate, MyJob, MyJobsPage
+from ..models import Application, Company, Job, JobCategory, JobSkill, PayPeriod
+from ..schemas.jobs import ApplicationRef, CompanyMini, JobCreate, JobDetail, JobPage, JobUpdate, MyJob, MyJobsPage
 from ..services.jobs import (applicant_counts, check_job_rules, search_jobs, summary_fields,
                              to_detail, to_summary, total_pages)
 from ..services.skill_sync import sync_skills
@@ -31,15 +31,6 @@ def _rules_or_422(**kwargs) -> None:
         check_job_rules(**kwargs)
     except ValueError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc))
-
-
-def _owned_job_or_error(db: Session, job_id: int, company: Company) -> Job:
-    job = db.get(Job, job_id)
-    if job is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Job not found")
-    if job.company_id != company.id:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "You can only change your own job postings")
-    return job
 
 
 # ---------------- company: create / list own / edit ----------------
@@ -85,9 +76,7 @@ def my_jobs(
 
 
 @router.patch("/{job_id}", response_model=JobDetail, summary="Edit one of my job postings (company only)")
-def update_job(job_id: int, body: JobUpdate, company: Company = Depends(require_company),
-               db: Session = Depends(get_db)):
-    job = _owned_job_or_error(db, job_id, company)
+def update_job(body: JobUpdate, job: Job = Depends(get_owned_job), db: Session = Depends(get_db)):
     data = body.model_dump(exclude_unset=True)
     skills = data.pop("skills", None)
 
@@ -141,4 +130,10 @@ def get_job(job_id: int, identity: Identity = Depends(get_identity), db: Session
     job = db.get(Job, job_id)
     if job is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Job not found")
-    return to_detail(job)
+    detail = to_detail(job)
+    if identity.role == "student":
+        mine = db.scalar(select(Application).where(Application.student_id == identity.user.id,
+                                                   Application.job_id == job.id))
+        if mine is not None:
+            detail.my_application = ApplicationRef(id=mine.id, status=mine.status, applied_at=mine.applied_at)
+    return detail

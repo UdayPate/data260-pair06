@@ -4,12 +4,12 @@ Schemas for job postings.
 JobCreate / JobUpdate   - what a company sends (input rules).
 JobSummary / JobDetail  - what the API sends back (JobSummary for lists, JobDetail for one job).
 """
-from datetime import date
+from datetime import date, datetime
 from typing import Annotated, List, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, field_validator
 
-from ..models import JobCategory, PayPeriod
+from ..models import ApplicationStatus, JobCategory, PayPeriod
 from .auth import Name
 from .profile import CompanyPublic, PartialUpdate, Short, Title, normalize_skills
 
@@ -99,11 +99,20 @@ class JobSummary(BaseModel):
     skills: List[str]
 
 
+class ApplicationRef(BaseModel):
+    """The logged-in student's own application to this job (if any)."""
+    id: int
+    status: ApplicationStatus
+    applied_at: datetime
+
+
 class JobDetail(JobSummary):
     company: CompanyPublic                  # full public company profile instead of the mini one
     description: str
     contact_email: Optional[str]
     posted_days_ago: int
+    my_application: Optional[ApplicationRef] = Field(
+        None, description="Set only when a student who already applied views the job")
 
 
 class MyJob(JobSummary):
