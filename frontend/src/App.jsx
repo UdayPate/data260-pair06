@@ -10,6 +10,7 @@ import JobSearch from "./pages/JobSearch";
 import Login from "./pages/Login";
 import MyApplications from "./pages/MyApplications";
 import MyEvents from "./pages/MyEvents";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Signup from "./pages/Signup";
 import StudentDirectory from "./pages/StudentDirectory";
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/events/:id" element={<ProtectedRoute><EventDetail /></ProtectedRoute>} />
           <Route path="/students" element={<ProtectedRoute role="student"><StudentDirectory /></ProtectedRoute>} />
           <Route path="/students/:id" element={<ProtectedRoute><StudentView /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute role="student"><Profile /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Container>

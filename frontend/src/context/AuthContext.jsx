@@ -86,9 +86,22 @@ export function AuthProvider({ children }) {
     clearSession(false);
   }, [clearSession]);
 
+  // After the profile is saved the name may have changed; keep the top bar in step.
+  const updateUserName = useCallback((name) => {
+    setSession((current) => {
+      if (!current || current.user.name === name) return current;
+      const next = { ...current, user: { ...current.user, name } };
+      saveSession(next);
+      return next;
+    });
+  }, []);
+
   const value = useMemo(
-    () => ({ user: session?.user ?? null, isAuthenticated: Boolean(session), checking, sessionExpired, login, signup, logout }),
-    [session, checking, sessionExpired, login, signup, logout]
+    () => ({
+      user: session?.user ?? null, isAuthenticated: Boolean(session), checking, sessionExpired,
+      login, signup, logout, updateUserName,
+    }),
+    [session, checking, sessionExpired, login, signup, logout, updateUserName]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

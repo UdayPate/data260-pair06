@@ -7,7 +7,8 @@ export const NAV_LINKS = {
     { to: "/applications", label: "My applications" },
     { to: "/events", label: "Events", end: true },
     { to: "/events/registered", label: "My events" },
-    { to: "/students", label: "Students" },
+    { to: "/students", label: "Students", end: true },
+    { to: "/profile", label: "My profile" },
   ],
   company: [{ to: "/", label: "Home", end: true }],
 };

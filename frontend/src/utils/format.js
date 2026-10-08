@@ -1,3 +1,5 @@
+import { API_URL } from "../config";
+
 // Small helpers that turn data into readable text.
 export function formatDate(value) {
   if (!value) return "";
@@ -42,4 +44,18 @@ export function formatRange(start, end) {
   };
   if (!start && !end) return "";
   return `${start ? fmt(start) : "?"} – ${end ? fmt(end) : "Present"}`;
+}
+
+// Picture addresses from the server look like "/media/profile_pics/x.png" (no host).
+// The browser must ask the API server for them, not the React dev server.
+export const mediaUrl = (path) => (path ? (/^https?:/i.test(path) ? path : `${API_URL}${path}`) : null);
+
+export const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+
+export function checkImageFile(file) {
+  if (!file) return "Choose a picture.";
+  if (!/\.(png|jpe?g|webp)$/i.test(file.name)) return "The picture must be a PNG, JPEG or WebP image.";
+  if (file.size === 0) return "That file is empty.";
+  if (file.size > MAX_IMAGE_BYTES) return "The picture must be 2 MB or smaller.";
+  return "";
 }

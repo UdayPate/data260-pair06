@@ -1,6 +1,7 @@
 import Badge from "react-bootstrap/Badge";
 import Card from "react-bootstrap/Card";
 import { Link, useParams } from "react-router-dom";
+import Avatar from "../components/Avatar";
 import ErrorAlert from "../components/ErrorAlert";
 import Loading from "../components/Loading";
 import { useAsync } from "../hooks/useAsync";
@@ -22,9 +23,7 @@ export default function StudentView() {
       <Card>
         <Card.Body>
           <div className="d-flex gap-3 align-items-center mb-3">
-            {s.profile_pic_url && (
-              <img src={s.profile_pic_url} alt={`${s.name}`} width="72" height="72" className="rounded-circle" style={{ objectFit: "cover" }} />
-            )}
+            <Avatar name={s.name} url={s.profile_pic_url} size={72} />
             <div>
               <h1 className="h3 mb-1">{s.name}</h1>
               <div className="text-muted">
