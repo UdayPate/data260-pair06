@@ -64,6 +64,12 @@ export default function JobDetail() {
               <ApplyBox job={job} onApplied={reload} />
             </div>
           )}
+          {user.role === "company" && user.id === company.id && (
+            <div className="d-flex gap-2 mb-3">
+              <Link to={`/company/jobs/${job.id}/applicants`} className="btn btn-primary">View applicants</Link>
+              <Link to={`/company/jobs/${job.id}/edit`} className="btn btn-outline-secondary">Edit</Link>
+            </div>
+          )}
           <Card data-testid="company-card">
             <Card.Body>
               <Card.Title as="h2" className="h6">About {company.name}</Card.Title>

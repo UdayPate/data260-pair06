@@ -1,10 +1,13 @@
 import { useState } from "react";
+import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import Modal from "react-bootstrap/Modal";
 import Nav from "react-bootstrap/Nav";
 import { Link } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import ErrorAlert from "../components/ErrorAlert";
 import Loading from "../components/Loading";
+import ResumePreview from "../components/ResumePreview";
 import PageHeader from "../components/PageHeader";
 import Pagination from "../components/Pagination";
 import StatusBadge from "../components/StatusBadge";
@@ -17,6 +20,7 @@ const TABS = ["All", "Pending", "Reviewed", "Declined"];
 export default function MyApplications() {
   const [tab, setTab] = useState("All");
   const [page, setPage] = useState(1);
+  const [viewing, setViewing] = useState(null);   // the application whose resume is open
   const { data, loading, error, reload } = useAsync(
     () => getMyApplications({ page, page_size: 10, ...(tab !== "All" ? { status: tab } : {}) }),
     [tab, page]
@@ -57,13 +61,20 @@ export default function MyApplications() {
                   </div>
                   <div className="text-muted small">Applied {formatDate(a.applied_at)}</div>
                 </div>
-                <div className="align-self-center"><StatusBadge status={a.status} /></div>
+                <div className="align-self-center d-flex align-items-center gap-3">
+                  <Button variant="outline-secondary" size="sm" onClick={() => setViewing(a)}>View resume</Button>
+                  <StatusBadge status={a.status} />
+                </div>
               </Card.Body>
             </Card>
           ))}
           <Pagination page={data.page} totalPages={data.total_pages} onChange={setPage} />
         </>
       ))}
+      <Modal show={!!viewing} onHide={() => setViewing(null)} size="lg" centered>
+        <Modal.Header closeButton><Modal.Title as="h2" className="h5">Your resume for {viewing?.job.title}</Modal.Title></Modal.Header>
+        <Modal.Body>{viewing && <ResumePreview applicationId={viewing.id} height={500} />}</Modal.Body>
+      </Modal>
     </>
   );
 }

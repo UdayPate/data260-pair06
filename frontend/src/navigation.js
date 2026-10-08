@@ -10,5 +10,8 @@ export const NAV_LINKS = {
     { to: "/students", label: "Students", end: true },
     { to: "/profile", label: "My profile" },
   ],
-  company: [{ to: "/", label: "Home", end: true }],
+  company: [
+    { to: "/", label: "Home", end: true },
+    { to: "/company/jobs", label: "My postings" },
+  ],
 };
