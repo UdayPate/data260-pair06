@@ -26,3 +26,20 @@ export function checkResumeFile(file) {
   if (file.size > MAX_RESUME_BYTES) return "The resume must be 5 MB or smaller.";
   return "";
 }
+
+export function formatDateTime(value) {
+  if (!value) return "";
+  const d = new Date(value);          // event times are plain local times (no time zone)
+  return d.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric",
+                                      hour: "numeric", minute: "2-digit" });
+}
+
+// "Mar 2024 – Present" style range for an experience entry.
+export function formatRange(start, end) {
+  const fmt = (v) => {
+    const [y, m] = String(v).split("-").map(Number);
+    return new Date(y, (m || 1) - 1, 1).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  };
+  if (!start && !end) return "";
+  return `${start ? fmt(start) : "?"} – ${end ? fmt(end) : "Present"}`;
+}

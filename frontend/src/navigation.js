@@ -5,6 +5,9 @@ export const NAV_LINKS = {
     { to: "/", label: "Home", end: true },
     { to: "/jobs", label: "Jobs" },
     { to: "/applications", label: "My applications" },
+    { to: "/events", label: "Events", end: true },
+    { to: "/events/registered", label: "My events" },
+    { to: "/students", label: "Students" },
   ],
   company: [{ to: "/", label: "Home", end: true }],
 };

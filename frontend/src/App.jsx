@@ -2,13 +2,18 @@ import Container from "react-bootstrap/Container";
 import { Route, Routes } from "react-router-dom";
 import AppNavbar from "./components/Navbar";
 import { ProtectedRoute, PublicOnlyRoute } from "./components/ProtectedRoute";
+import EventDetail from "./pages/EventDetail";
+import EventSearch from "./pages/EventSearch";
 import Home from "./pages/Home";
 import JobDetail from "./pages/JobDetail";
 import JobSearch from "./pages/JobSearch";
 import Login from "./pages/Login";
 import MyApplications from "./pages/MyApplications";
+import MyEvents from "./pages/MyEvents";
 import NotFound from "./pages/NotFound";
 import Signup from "./pages/Signup";
+import StudentDirectory from "./pages/StudentDirectory";
+import StudentView from "./pages/StudentView";
 
 // Every screen of the app is listed here. Later steps add their routes to this list.
 export default function App() {
@@ -23,6 +28,11 @@ export default function App() {
           <Route path="/jobs" element={<ProtectedRoute role="student"><JobSearch /></ProtectedRoute>} />
           <Route path="/jobs/:id" element={<ProtectedRoute><JobDetail /></ProtectedRoute>} />
           <Route path="/applications" element={<ProtectedRoute role="student"><MyApplications /></ProtectedRoute>} />
+          <Route path="/events" element={<ProtectedRoute role="student"><EventSearch /></ProtectedRoute>} />
+          <Route path="/events/registered" element={<ProtectedRoute role="student"><MyEvents /></ProtectedRoute>} />
+          <Route path="/events/:id" element={<ProtectedRoute><EventDetail /></ProtectedRoute>} />
+          <Route path="/students" element={<ProtectedRoute role="student"><StudentDirectory /></ProtectedRoute>} />
+          <Route path="/students/:id" element={<ProtectedRoute><StudentView /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Container>
