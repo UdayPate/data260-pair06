@@ -1,10 +1,10 @@
 import { useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import Spinner from "react-bootstrap/Spinner";
 import { Link } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout";
 import RoleToggle from "../components/RoleToggle";
 import { useAuth } from "../context/AuthContext";
 import { getErrorMessage } from "../utils/errors";
@@ -46,9 +46,9 @@ export default function Login() {
   }
 
   return (
-    <Card className="mx-auto" style={{ maxWidth: 460 }}>
-      <Card.Body className="p-4">
-        <h1 className="h3 mb-3">Sign in</h1>
+    <AuthLayout>
+        <h1 className="h3 mb-1">Sign in</h1>
+        <p className="text-muted mb-4">Welcome back. Choose your account type to continue.</p>
         {sessionExpired && <Alert variant="warning">Your session has expired. Please sign in again.</Alert>}
         {serverError && <Alert variant="danger">{serverError}</Alert>}
 
@@ -96,7 +96,6 @@ export default function Login() {
         <p className="text-center text-muted mt-3 mb-0">
           New here? <Link to="/signup">Create an account</Link>
         </p>
-      </Card.Body>
-    </Card>
+    </AuthLayout>
   );
 }

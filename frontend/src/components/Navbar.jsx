@@ -19,9 +19,10 @@ export default function AppNavbar() {
   }
 
   return (
-    <Navbar bg="dark" data-bs-theme="dark" expand="md" className="mb-4">
+    <Navbar data-bs-theme="dark" expand="md" className="app-navbar mb-4">
       <Container>
-        <Navbar.Brand as={Link} to="/">
+        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2">
+          <span className="brand-mark" aria-hidden="true">H</span>
           Handshake Clone
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-nav" />

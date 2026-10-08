@@ -3,22 +3,11 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import ErrorAlert from "../components/ErrorAlert";
 import Loading from "../components/Loading";
+import PageHeader from "../components/PageHeader";
+import StatCard from "../components/StatCard";
 import { useAuth } from "../context/AuthContext";
 import { useAsync } from "../hooks/useAsync";
 import { loadCompanyStats, loadStudentStats } from "../services/dashboardService";
-
-function StatCard({ id, value, label }) {
-  return (
-    <Col md={4} className="mb-3">
-      <Card className="h-100 text-center" data-testid={`stat-${id}`}>
-        <Card.Body>
-          <div className="display-5 fw-semibold">{value}</div>
-          <Card.Text className="text-muted mb-0">{label}</Card.Text>
-        </Card.Body>
-      </Card>
-    </Col>
-  );
-}
 
 export default function Home() {
   const { user } = useAuth();
@@ -30,8 +19,10 @@ export default function Home() {
 
   return (
     <>
-      <h1 className="h3">Welcome back, {user.name}</h1>
-      <p className="text-muted mb-4">{isStudent ? "Student dashboard" : "Company dashboard"}</p>
+      <PageHeader
+        title={`Welcome back, ${user.name}`}
+        subtitle={isStudent ? "Student dashboard" : "Company dashboard"}
+      />
 
       {loading && <Loading label="Loading your dashboard…" />}
       <ErrorAlert message={error} onRetry={reload} />
@@ -40,13 +31,13 @@ export default function Home() {
         <Row>
           {isStudent ? (
             <>
-              <StatCard id="applications" value={data.applications} label="Job applications" />
-              <StatCard id="events" value={data.events} label="Upcoming events registered" />
+              <StatCard id="applications" value={data.applications} label="Job applications" tone="blue" />
+              <StatCard id="events" value={data.events} label="Upcoming events registered" tone="green" />
               <Col md={4} className="mb-3">
-                <Card className="h-100 border-primary" data-testid="assistant-card">
+                <Card className="assistant-card h-100" data-testid="assistant-card">
                   <Card.Body>
                     <Card.Title>AI Assistant</Card.Title>
-                    <Card.Text className="text-muted mb-0">
+                    <Card.Text className="mb-0">
                       Ask for jobs and events that fit you. The chat window arrives in a later step.
                     </Card.Text>
                   </Card.Body>
@@ -55,8 +46,8 @@ export default function Home() {
             </>
           ) : (
             <>
-              <StatCard id="jobs" value={data.jobs} label="Job postings" />
-              <StatCard id="events" value={data.events} label="Events posted" />
+              <StatCard id="jobs" value={data.jobs} label="Job postings" tone="blue" />
+              <StatCard id="events" value={data.events} label="Events posted" tone="orange" />
             </>
           )}
         </Row>

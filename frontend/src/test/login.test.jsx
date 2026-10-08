@@ -86,7 +86,7 @@ describe("Login page", () => {
     expect(busy).toBeDisabled();
     expect(screen.getByLabelText("Email")).toBeDisabled();
     release();
-    expect(await screen.findByText(/Welcome back/)).toBeInTheDocument();
+    expect(await screen.findByText(/Welcome back, Ada Lovelace/)).toBeInTheDocument();
     expect(mock.history.post).toHaveLength(1);
   });
 

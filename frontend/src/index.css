@@ -1,3 +1,120 @@
-body {
-  background-color: #f5f6f8;
+/* ---------- Design foundation ----------
+   Bootstrap 5.3 reads its colours from CSS variables, so we restyle the whole app here
+   by changing those variables, with no extra build tools. Change --brand to recolour everything. */
+:root {
+  --brand: #4263eb;
+  --brand-dark: #3451c7;
+  --brand-rgb: 66, 99, 235;
+  --navy: #0f172a;
+  --ink: #1e293b;
+  --muted-ink: #64748b;
+  --page-bg: #f4f6fb;
+
+  --bs-primary: #4263eb;
+  --bs-primary-rgb: 66, 99, 235;
+  --bs-link-color: #4263eb;
+  --bs-link-color-rgb: 66, 99, 235;
+  --bs-link-hover-color: #3451c7;
+  --bs-link-hover-color-rgb: 52, 81, 199;
+  --bs-body-bg: var(--page-bg);
+  --bs-body-color: var(--ink);
+  --bs-secondary-color: var(--muted-ink);
+  --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bs-border-radius: 0.6rem;
+  --bs-border-radius-lg: 1rem;
 }
+
+body { background-color: var(--page-bg); color: var(--ink); }
+/* Bootstrap's .h3 / .display-6 classes set their own lighter weights, so name them too */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 { font-weight: 650; letter-spacing: -0.01em; }
+.text-muted { color: var(--muted-ink) !important; }
+.lead { font-weight: 400; }
+
+/* Buttons */
+.btn { border-radius: 0.6rem; font-weight: 600; padding: 0.55rem 1rem; }
+.btn-sm { padding: 0.3rem 0.75rem; }
+.btn-primary {
+  --bs-btn-bg: var(--brand); --bs-btn-border-color: var(--brand);
+  --bs-btn-hover-bg: var(--brand-dark); --bs-btn-hover-border-color: var(--brand-dark);
+  --bs-btn-active-bg: var(--brand-dark); --bs-btn-active-border-color: var(--brand-dark);
+  --bs-btn-disabled-bg: var(--brand); --bs-btn-disabled-border-color: var(--brand);
+  --bs-btn-focus-shadow-rgb: 66, 99, 235;
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--brand); --bs-btn-border-color: var(--brand);
+  --bs-btn-hover-bg: var(--brand); --bs-btn-hover-border-color: var(--brand);
+  --bs-btn-active-bg: var(--brand); --bs-btn-active-border-color: var(--brand);
+  --bs-btn-disabled-color: var(--brand); --bs-btn-disabled-border-color: var(--brand);
+  --bs-btn-focus-shadow-rgb: 66, 99, 235;
+}
+
+/* Cards and forms */
+.card {
+  border: 0; border-radius: 1rem; background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+.form-label { font-weight: 600; font-size: 0.9rem; }
+.form-control, .form-select {
+  padding: 0.6rem 0.85rem; border-radius: 0.6rem; border-color: #d5dbe7; background-color: #fff;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--brand); box-shadow: 0 0 0 0.2rem rgba(var(--brand-rgb), 0.18);
+}
+.alert { border: 0; border-radius: 0.75rem; }
+
+/* Navigation bar */
+.app-navbar { background: var(--navy); padding-top: 0.6rem; padding-bottom: 0.6rem; }
+.app-navbar .navbar-brand { font-weight: 700; letter-spacing: -0.01em; }
+.app-navbar .nav-link { border-radius: 0.5rem; padding: 0.4rem 0.8rem; }
+.app-navbar .nav-link.active { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.brand-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; border-radius: 0.6rem; color: #fff; font-weight: 800;
+  background: linear-gradient(135deg, #5c7cfa, var(--brand-dark));
+}
+.brand-mark-lg { width: 3.5rem; height: 3.5rem; border-radius: 1rem; font-size: 1.6rem; }
+
+/* Page header */
+.page-header { margin-bottom: 1.5rem; }
+.page-header h1 { margin-bottom: 0.15rem; }
+
+/* Dashboard stat cards */
+.stat-card { position: relative; overflow: hidden; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.stat-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--accent, var(--brand)); }
+.stat-card:hover { transform: translateY(-2px); }
+.stat-value { font-size: 2.6rem; font-weight: 700; line-height: 1.1; color: var(--accent, var(--brand)); }
+.stat-blue { --accent: #4263eb; }
+.stat-green { --accent: #12b886; }
+.stat-orange { --accent: #f08c00; }
+
+.assistant-card {
+  color: #fff; border-radius: 1rem;
+  background: linear-gradient(135deg, #5c7cfa 0%, #3451c7 60%, #2b3f9e 100%);
+}
+.assistant-card .card-text { color: rgba(255, 255, 255, 0.85); }
+
+/* Sign-in / sign-up layout: brand panel on the left (large screens), form on the right */
+.auth-shell {
+  display: grid; grid-template-columns: 1fr; overflow: hidden; border-radius: 1.25rem; background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 16px 40px rgba(15, 23, 42, 0.1);
+  max-width: 1000px; margin: 1.5rem auto 0;
+}
+.auth-hero {
+  flex-direction: column; justify-content: center; padding: 3rem; color: #fff;
+  background: linear-gradient(150deg, #5c7cfa 0%, #3451c7 55%, #1e2a78 100%);
+}
+.auth-hero .lead { color: rgba(255, 255, 255, 0.85); }
+.auth-points { list-style: none; padding: 0; margin: 1.5rem 0 0; }
+.auth-points li { position: relative; padding-left: 1.6rem; margin-bottom: 0.7rem; color: rgba(255, 255, 255, 0.92); }
+.auth-points li::before { content: "✓"; position: absolute; left: 0; font-weight: 700; }
+.auth-form { padding: 2rem 1.5rem; }
+@media (min-width: 992px) {
+  .auth-shell { grid-template-columns: 1fr 1fr; }
+  .auth-form { padding: 3rem; }
+}
+
+/* Empty states */
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted-ink); }
+.empty-state h2 { color: var(--ink); font-size: 1.15rem; }

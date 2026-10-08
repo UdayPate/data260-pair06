@@ -1,10 +1,10 @@
 import { useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import Spinner from "react-bootstrap/Spinner";
 import { Link } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout";
 import RoleToggle from "../components/RoleToggle";
 import { useAuth } from "../context/AuthContext";
 import { getErrorMessage } from "../utils/errors";
@@ -78,9 +78,9 @@ export default function Signup() {
   );
 
   return (
-    <Card className="mx-auto" style={{ maxWidth: 520 }}>
-      <Card.Body className="p-4">
-        <h1 className="h3 mb-3">Create your account</h1>
+    <AuthLayout>
+        <h1 className="h3 mb-1">Create your account</h1>
+        <p className="text-muted mb-4">It takes a minute. Pick the account type that fits you.</p>
         {serverError && <Alert variant="danger">{serverError}</Alert>}
 
         <RoleToggle value={role} onChange={setRole} disabled={submitting} />
@@ -112,7 +112,6 @@ export default function Signup() {
         <p className="text-center text-muted mt-3 mb-0">
           Already have an account? <Link to="/login">Sign in</Link>
         </p>
-      </Card.Body>
-    </Card>
+    </AuthLayout>
   );
 }
