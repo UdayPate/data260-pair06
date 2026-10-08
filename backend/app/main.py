@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import SQLAlchemyError
 
 from .config import FRONTEND_PORT, PAIR_STR, UPLOAD_DIR
-from .routers import applications, auth, companies, events, jobs, meta, students
+from .routers import applications, auth, companies, directory, events, jobs, meta, students
 
 logger = logging.getLogger("handshake")
 
@@ -62,6 +62,7 @@ async def database_error_handler(request: Request, exc: SQLAlchemyError):
 
 app.include_router(auth.router)
 app.include_router(students.router)
+app.include_router(directory.router)   # after students.router: that one owns /students/me
 app.include_router(companies.router)
 app.include_router(jobs.router)
 app.include_router(applications.router)
