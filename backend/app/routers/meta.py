@@ -7,9 +7,13 @@ from fastapi import APIRouter
 
 from ..config import CITY_SET
 from ..models import ApplicationStatus, JobCategory
-from ..skills import DEGREES, MAJORS, SKILLS_BY_AREA
+from ..skills import CAMPUS_TITLES, DEGREES, JOB_FIELDS, MAJORS, SKILLS_BY_AREA
 
 router = APIRouter(prefix="/meta", tags=["Reference data"])
+
+# Suggestions for the preferences form (students may also type their own).
+EVENT_INTEREST_OPTIONS = ["Career Fair", "Workshop", "Tech Talk", "Networking", "Hackathon"]
+ROLE_SUGGESTIONS = sorted({t for f in JOB_FIELDS.values() for t in f["titles"]} | set(CAMPUS_TITLES))
 
 
 @router.get("/options", summary="Dropdown options for forms and filters")
@@ -21,4 +25,6 @@ def options():
         "skills_by_area": SKILLS_BY_AREA,
         "job_categories": [c.value for c in JobCategory],
         "application_statuses": [s.value for s in ApplicationStatus],
+        "event_interest_options": EVENT_INTEREST_OPTIONS,
+        "role_suggestions": ROLE_SUGGESTIONS,
     }
