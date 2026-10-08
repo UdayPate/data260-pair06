@@ -92,6 +92,12 @@ export default function EventDetail() {
         </Col>
         <Col lg={4}>
           {user.role === "student" && <RegisterBox event={event} onChanged={reload} />}
+          {user.role === "company" && user.id === company.id && (
+            <div className="d-flex gap-2 mb-3">
+              <Link to={`/company/events/${event.id}/registrations`} className="btn btn-primary">Registered students</Link>
+              <Link to={`/company/events/${event.id}/edit`} className="btn btn-outline-secondary">Edit</Link>
+            </div>
+          )}
           <Card data-testid="company-card">
             <Card.Body>
               <Card.Title as="h2" className="h6">About {company.name}</Card.Title>

@@ -33,6 +33,12 @@ export default function StudentView() {
                 {s.graduation_year ? ` · Class of ${s.graduation_year}` : ""}
               </div>
               {s.email && <div className="small">{s.email}{s.phone ? ` · ${s.phone}` : ""}</div>}
+              {(s.cgpa != null || s.city) && (
+                <div className="small text-muted">
+                  {s.cgpa != null ? `GPA ${s.cgpa}` : ""}{s.cgpa != null && s.city ? " · " : ""}
+                  {[s.city, s.state].filter(Boolean).join(", ")}
+                </div>
+              )}
             </div>
           </div>
           {s.career_objective && (<><h2 className="h6">Career objective</h2><p>{s.career_objective}</p></>)}

@@ -13,5 +13,8 @@ export const NAV_LINKS = {
   company: [
     { to: "/", label: "Home", end: true },
     { to: "/company/jobs", label: "My postings" },
+    { to: "/company/events", label: "Events" },
+    { to: "/students", label: "Students", end: true },
+    { to: "/company/profile", label: "Company profile" },
   ],
 };

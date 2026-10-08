@@ -10,6 +10,7 @@ import Loading from "../components/Loading";
 import PageHeader from "../components/PageHeader";
 import Pagination from "../components/Pagination";
 import StudentCard from "../components/StudentCard";
+import { useAuth } from "../context/AuthContext";
 import { useAsync } from "../hooks/useAsync";
 import { getOptions } from "../services/metaService";
 import { searchStudents } from "../services/studentService";
@@ -31,6 +32,7 @@ export function buildStudentParams(f, page) {
 
 // Used by students (peer view) now, and by companies in the next step.
 export default function StudentDirectory() {
+  const { user } = useAuth();
   const [draft, setDraft] = useState(EMPTY);
   const [applied, setApplied] = useState(EMPTY);
   const [page, setPage] = useState(1);
@@ -47,7 +49,7 @@ export default function StudentDirectory() {
 
   return (
     <>
-      <PageHeader title="Students" subtitle="Find classmates by name, college, major or skills." />
+      <PageHeader title="Students" subtitle={user.role === "company" ? "Find candidates by name, college, major or skills." : "Find classmates by name, college, major or skills."} />
       <Row>
         <Col lg={4} xl={3} className="mb-4">
           <Card>

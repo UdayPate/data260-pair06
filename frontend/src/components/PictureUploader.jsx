@@ -7,7 +7,8 @@ import { checkImageFile } from "../utils/format";
 import Avatar from "./Avatar";
 
 // Shows the current picture and uploads a new one as soon as a file is chosen.
-export default function PictureUploader({ name, url, onUploaded }) {
+// `upload` is the function that sends the file (students and companies use different addresses).
+export default function PictureUploader({ name, url, onUploaded, upload = uploadProfilePicture, label = "Profile picture" }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,7 +20,7 @@ export default function PictureUploader({ name, url, onUploaded }) {
     setBusy(true);
     setError("");
     try {
-      const result = await uploadProfilePicture(file);
+      const result = await upload(file);
       onUploaded(result.profile_pic_url);
     } catch (err) {
       setError(getErrorMessage(err));
@@ -33,7 +34,7 @@ export default function PictureUploader({ name, url, onUploaded }) {
       <Avatar name={name} url={url} size={88} />
       <div>
         <Form.Group controlId="picture">
-          <Form.Label>Profile picture</Form.Label>
+          <Form.Label>{label}</Form.Label>
           <Form.Control type="file" accept="image/png,image/jpeg,image/webp" onChange={choose} disabled={busy} />
           <Form.Text>{busy ? "Uploading…" : "PNG, JPEG or WebP, up to 2 MB."}</Form.Text>
         </Form.Group>
