@@ -1,6 +1,5 @@
-import Card from "react-bootstrap/Card";
-import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import ChatWindow from "../components/ChatWindow";
 import ErrorAlert from "../components/ErrorAlert";
 import Loading from "../components/Loading";
 import PageHeader from "../components/PageHeader";
@@ -33,16 +32,6 @@ export default function Home() {
             <>
               <StatCard id="applications" value={data.applications} label="Job applications" tone="blue" />
               <StatCard id="events" value={data.events} label="Upcoming events registered" tone="green" />
-              <Col md={4} className="mb-3">
-                <Card className="assistant-card h-100" data-testid="assistant-card">
-                  <Card.Body>
-                    <Card.Title>AI Assistant</Card.Title>
-                    <Card.Text className="mb-0">
-                      Ask for jobs and events that fit you. The chat window arrives in a later step.
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
             </>
           ) : (
             <>
@@ -52,6 +41,8 @@ export default function Home() {
           )}
         </Row>
       )}
+
+      {isStudent && <ChatWindow />}
     </>
   );
 }

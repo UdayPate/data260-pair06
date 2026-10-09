@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import SQLAlchemyError
 
 from .config import FRONTEND_PORT, PAIR_STR, UPLOAD_DIR
-from .routers import applications, auth, companies, directory, events, jobs, meta, preferences, students
+from .routers import applications, assistant, auth, companies, directory, events, jobs, meta, preferences, students
 
 logger = logging.getLogger("handshake")
 
@@ -69,6 +69,7 @@ app.include_router(jobs.router)
 app.include_router(applications.router)
 app.include_router(events.router)
 app.include_router(meta.router)
+app.include_router(assistant.router)
 
 
 @app.get("/health", tags=["Health"], summary="Is the API running?")
