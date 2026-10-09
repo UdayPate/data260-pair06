@@ -1,0 +1,1722 @@
+{
+  "info": {
+    "name": "Handshake Clone API (Pair 06)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run 'Auth > Log in as demo student' (or company) first; it stores the JWT in {{token}}."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:9060"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Log in as demo student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", body.access_token);",
+                  "pm.test(\"logged in\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.student@sjsu.edu\",\n  \"password\": \"Password123!\",\n  \"role\": \"student\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Log in as demo company",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", body.access_token);",
+                  "pm.test(\"logged in\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.company@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"company\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create a student account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/student/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "student",
+                "signup"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Create a student account",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Student\",\n  \"email\": \"demo.student@sjsu.edu\",\n  \"password\": \"Password123!\",\n  \"college\": \"San Jose State University\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create a company account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/company/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "company",
+                "signup"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Create a company account",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Student\",\n  \"email\": \"demo.student@sjsu.edu\",\n  \"password\": \"Password123!\",\n  \"location\": \"San Jose\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Sign in as a student or company",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Sign in as a student or company",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.student@sjsu.edu\",\n  \"password\": \"Password123!\",\n  \"role\": \"student\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Sign out",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Sign out"
+          }
+        },
+        {
+          "name": "Who is the current user?",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Who is the current user?"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI assistant",
+      "item": [
+        {
+          "name": "Send a message to the AI assistant (student only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/assistant/chat",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "assistant",
+                "chat"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Send a message to the AI assistant (student only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Find me an internship in San Jose\",\n  \"conversation_id\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Apply to a job with a PDF resume (student only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs/:job_id/apply",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "jobs",
+                ":job_id",
+                "apply"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "job_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Apply to a job with a PDF resume (student only)",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "resume",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "My applications (student only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/applications/mine",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "applications",
+                "mine"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Reviewed",
+                  "disabled": true,
+                  "description": "Pending, Reviewed or Declined"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "description": "My applications (student only)"
+          }
+        },
+        {
+          "name": "Applicants for one of my job postings (company only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs/:job_id/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "jobs",
+                ":job_id",
+                "applications"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Reviewed",
+                  "disabled": true,
+                  "description": "Pending, Reviewed or Declined"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": [
+                {
+                  "key": "job_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Applicants for one of my job postings (company only)"
+          }
+        },
+        {
+          "name": "One applicant's full profile (company only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/applications/:application_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "applications",
+                ":application_id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "One applicant's full profile (company only)"
+          }
+        },
+        {
+          "name": "Set an application to Pending, Reviewed or Declined (company only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/applications/:application_id/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "applications",
+                ":application_id",
+                "status"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Set an application to Pending, Reviewed or Declined (company only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Reviewed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Download or preview the resume PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/applications/:application_id/resume",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "applications",
+                ":application_id",
+                "resume"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Download or preview the resume PDF"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Company profile",
+      "item": [
+        {
+          "name": "View my company profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "View my company profile"
+          }
+        },
+        {
+          "name": "Update my company profile (partial)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Update my company profile (partial)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Student\",\n  \"email\": \"demo.student@sjsu.edu\",\n  \"location\": \"San Jose\",\n  \"state\": \"CA\",\n  \"industry\": \"text\",\n  \"description\": \"Work with the data team on dashboards and SQL pipelines.\",\n  \"contact_email\": \"jobs@example.com\",\n  \"contact_phone\": \"text\",\n  \"website\": \"text\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Upload my company logo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/me/profile-picture",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                "me",
+                "profile-picture"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Upload my company logo",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "View any company's public profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/:company_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                ":company_id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "company_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "View any company's public profile"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Post a new event (company only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Post a new event (company only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Student\",\n  \"description\": \"Work with the data team on dashboards and SQL pipelines.\",\n  \"event_datetime\": \"2027-02-10T17:30:00\",\n  \"location\": \"San Jose\",\n  \"city\": \"San Jose\",\n  \"eligible_majors\": [\n    \"Computer Science\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Search upcoming events (earliest first)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "data",
+                  "disabled": true,
+                  "description": "Words to find in the event name"
+                },
+                {
+                  "key": "city",
+                  "value": "San Jose",
+                  "disabled": true,
+                  "description": "Repeat to allow several"
+                },
+                {
+                  "key": "date_from",
+                  "value": "2027-01-15",
+                  "disabled": true,
+                  "description": "Events on or after this date"
+                },
+                {
+                  "key": "date_to",
+                  "value": "2027-01-15",
+                  "disabled": true,
+                  "description": "Events on or before this date"
+                },
+                {
+                  "key": "major",
+                  "value": "Computer Science",
+                  "disabled": true,
+                  "description": "Only events a student of this major may register for"
+                },
+                {
+                  "key": "include_past",
+                  "value": "false",
+                  "disabled": true,
+                  "description": "Also show events that already happened"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "description": "Search upcoming events (earliest first)"
+          }
+        },
+        {
+          "name": "My events with registration counts (company only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/mine",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                "mine"
+              ],
+              "query": [
+                {
+                  "key": "include_past",
+                  "value": "true",
+                  "disabled": true,
+                  "description": "Also show events that already happened"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "description": "My events with registration counts (company only)"
+          }
+        },
+        {
+          "name": "Edit one of my events (company only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/:event_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                ":event_id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "event_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Edit one of my events (company only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Student\",\n  \"description\": \"Work with the data team on dashboards and SQL pipelines.\",\n  \"event_datetime\": \"2027-02-10T17:30:00\",\n  \"location\": \"San Jose\",\n  \"city\": \"San Jose\",\n  \"eligible_majors\": [\n    \"Computer Science\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Event details with company profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/:event_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                ":event_id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "event_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Event details with company profile"
+          }
+        },
+        {
+          "name": "Students registered for one of my events (company only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/:event_id/registrations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                ":event_id",
+                "registrations"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": [
+                {
+                  "key": "event_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Students registered for one of my events (company only)"
+          }
+        },
+        {
+          "name": "Events I registered for (student only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/registered",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                "registered"
+              ],
+              "query": [
+                {
+                  "key": "include_past",
+                  "value": "false",
+                  "disabled": true,
+                  "description": "Also show events that already happened"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "description": "Events I registered for (student only)"
+          }
+        },
+        {
+          "name": "Register for an event (student only, if eligible)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/:event_id/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                ":event_id",
+                "register"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "event_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Register for an event (student only, if eligible)"
+          }
+        },
+        {
+          "name": "Cancel my registration (student only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/:event_id/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                ":event_id",
+                "register"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "event_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Cancel my registration (student only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Is the API running?",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Is the API running?"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Post a new job (company only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "jobs"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Post a new job (company only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Data Analyst Intern\",\n  \"description\": \"Work with the data team on dashboards and SQL pipelines.\",\n  \"category\": \"full_time\",\n  \"city\": \"San Jose\",\n  \"state\": \"CA\",\n  \"is_remote\": false,\n  \"salary_min\": 30,\n  \"salary_max\": 40,\n  \"pay_period\": \"hourly\",\n  \"posting_date\": \"2026-10-20\",\n  \"deadline\": \"2027-06-30\",\n  \"contact_email\": \"jobs@example.com\",\n  \"skills\": [\n    \"Python\",\n    \"SQL\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Search and filter jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "jobs"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "data",
+                  "disabled": true,
+                  "description": "Words to find in the job title or company name"
+                },
+                {
+                  "key": "category",
+                  "value": "full_time",
+                  "disabled": true,
+                  "description": "Repeat to allow several"
+                },
+                {
+                  "key": "city",
+                  "value": "San Jose",
+                  "disabled": true,
+                  "description": "Repeat to allow several"
+                },
+                {
+                  "key": "is_remote",
+                  "value": "false",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "min_salary",
+                  "value": "0",
+                  "disabled": true,
+                  "description": "Needs salary_unit"
+                },
+                {
+                  "key": "salary_unit",
+                  "value": "hourly",
+                  "disabled": true,
+                  "description": "hourly or yearly: the unit of min_salary"
+                },
+                {
+                  "key": "skills",
+                  "value": "Python",
+                  "disabled": true,
+                  "description": "Repeat to require several"
+                },
+                {
+                  "key": "skills_match",
+                  "value": "any",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "deadline_before",
+                  "value": "2027-01-15",
+                  "disabled": true,
+                  "description": "Closing on or before this date"
+                },
+                {
+                  "key": "deadline_after",
+                  "value": "2027-01-15",
+                  "disabled": true,
+                  "description": "Closing on or after this date"
+                },
+                {
+                  "key": "include_expired",
+                  "value": "false",
+                  "disabled": true,
+                  "description": "Also show jobs whose deadline has passed"
+                },
+                {
+                  "key": "sort",
+                  "value": "newest",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "description": "Search and filter jobs"
+          }
+        },
+        {
+          "name": "My job postings with applicant counts (company only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs/mine",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "jobs",
+                "mine"
+              ],
+              "query": [
+                {
+                  "key": "include_expired",
+                  "value": "true",
+                  "disabled": true,
+                  "description": "Show postings whose deadline has passed"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "description": "My job postings with applicant counts (company only)"
+          }
+        },
+        {
+          "name": "Edit one of my job postings (company only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs/:job_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "jobs",
+                ":job_id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "job_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Edit one of my job postings (company only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Data Analyst Intern\",\n  \"description\": \"Work with the data team on dashboards and SQL pipelines.\",\n  \"category\": \"full_time\",\n  \"city\": \"San Jose\",\n  \"state\": \"CA\",\n  \"is_remote\": false,\n  \"salary_min\": 30,\n  \"salary_max\": 40,\n  \"pay_period\": \"hourly\",\n  \"posting_date\": \"2026-10-20\",\n  \"deadline\": \"2027-06-30\",\n  \"contact_email\": \"jobs@example.com\",\n  \"skills\": [\n    \"Python\",\n    \"SQL\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Job details with company profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs/:job_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "jobs",
+                ":job_id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "job_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Job details with company profile"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reference data",
+      "item": [
+        {
+          "name": "Dropdown options for forms and filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/meta/options",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "meta",
+                "options"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Dropdown options for forms and filters"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student directory",
+      "item": [
+        {
+          "name": "Browse and search students (what you see depends on whether you are a company or a student)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "data",
+                  "disabled": true,
+                  "description": "Words in the student's name or college"
+                },
+                {
+                  "key": "college",
+                  "value": "San Jose State University",
+                  "disabled": true,
+                  "description": "Words in the college name"
+                },
+                {
+                  "key": "major",
+                  "value": "Computer Science",
+                  "disabled": true,
+                  "description": "Repeat to allow several"
+                },
+                {
+                  "key": "skills",
+                  "value": "Python",
+                  "disabled": true,
+                  "description": "Repeat to require several"
+                },
+                {
+                  "key": "skills_match",
+                  "value": "any",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "description": "Browse and search students (what you see depends on whether you are a company or a student)"
+          }
+        },
+        {
+          "name": "View one student's profile (company: full profile; student: limited peer profile)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/:student_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students",
+                ":student_id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "student_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "View one student's profile (company: full profile; student: limited peer profile)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student preferences",
+      "item": [
+        {
+          "name": "My saved job and event preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/me/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students",
+                "me",
+                "preferences"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "My saved job and event preferences"
+          }
+        },
+        {
+          "name": "Save my preferences (replaces any saved ones)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/me/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students",
+                "me",
+                "preferences"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Save my preferences (replaces any saved ones)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preferred_categories\": [\n    \"internship\"\n  ],\n  \"preferred_cities\": [\n    \"San Jose\"\n  ],\n  \"preferred_roles\": [\n    \"Data Analyst\"\n  ],\n  \"min_hourly_rate\": 25,\n  \"open_to_remote\": true,\n  \"event_interests\": [\n    \"Career Fair\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Forget my saved preferences",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/me/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students",
+                "me",
+                "preferences"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Forget my saved preferences"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student profile",
+      "item": [
+        {
+          "name": "View my profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "View my profile"
+          }
+        },
+        {
+          "name": "Update my profile (partial)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Update my profile (partial)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Student\",\n  \"email\": \"demo.student@sjsu.edu\",\n  \"college\": \"San Jose State University\",\n  \"date_of_birth\": \"2027-01-15\",\n  \"city\": \"San Jose\",\n  \"state\": \"CA\",\n  \"country\": \"text\",\n  \"career_objective\": \"Build reliable data products.\",\n  \"degree\": \"MS\",\n  \"major\": \"Computer Science\",\n  \"graduation_year\": 2027,\n  \"cgpa\": 3.8,\n  \"phone\": \"(408) 555-0123\",\n  \"skills\": [\n    \"Python\",\n    \"SQL\"\n  ],\n  \"experience\": [\n    {\n      \"title\": \"Data Analyst Intern\",\n      \"company\": \"text\",\n      \"start_date\": \"2027-01-15\",\n      \"end_date\": \"2027-01-15\",\n      \"description\": \"Work with the data team on dashboards and SQL pipelines.\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Upload my profile picture",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/me/profile-picture",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students",
+                "me",
+                "profile-picture"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "description": "Upload my profile picture",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "My application activity per day, for the heatmap (student only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/me/activity",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "students",
+                "me",
+                "activity"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "365",
+                  "disabled": true,
+                  "description": "How many days back, ending today (1 to 730)"
+                }
+              ],
+              "variable": []
+            },
+            "description": "My application activity per day, for the heatmap (student only)"
+          }
+        }
+      ]
+    }
+  ]
+}

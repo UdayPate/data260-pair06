@@ -1,10 +1,3 @@
-# METRICS: Lab 1
-
-Machine for these runs: Lenovo Legion Slim 5 (Ryzen 5 7640HS, 16 GB RAM, RTX 4060 8 GB), Windows, MySQL 8 local.
-Pair 06, SEED 6, PORT_BASE 9060.
-
-<!-- PART A: paste the output of `python -m scripts.collect_metrics --with-tests` here (it is also saved in docs/part_a_metrics.md) -->
-
 ### Part A: platform (collected 2026-10-08 23:17)
 
 Pair 06, SEED 6, cities San Jose, Sunnyvale, Mountain View, backend port 9060.
@@ -45,18 +38,3 @@ Pair 06, SEED 6, cities San Jose, Sunnyvale, Mountain View, backend port 9060.
 | GET /students (company view) | 200 | 16.6 | 18.3 | 19.7 |
 
 Login (bcrypt, deliberately slow): median 375 ms over 5 logins.
-
-## Frontend tests
-Frontend (Vitest): 14 test files, 148 tests passed, 16.69 s.
-Backend (pytest): 346 passed, 1 warning, 216.73 s.
-
-<!-- PART B / PART C: your partner adds the assistant numbers below (tool-call success rate, latency per turn,
-     tokens, injection results) -->
-
-## Part B: assistant
-
-_Partner fills in._
-
-## Part C: safety and reliability
-
-_Partner fills in._

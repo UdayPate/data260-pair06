@@ -1,11 +1,4 @@
-.env
-venv/
-.venv/
-__pycache__/
-*.pyc
-node_modules/
-backend/uploads/
-*.db# Python
+# Python
 venv/
 .venv/
 __pycache__/

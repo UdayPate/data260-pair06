@@ -38,6 +38,7 @@ export function mockDashboard(role, numbers = {}) {
   if (role === "student") {
     mock.onGet("/applications/mine").reply(...page(numbers.applications ?? 11));
     mock.onGet("/events/registered").reply(...page(numbers.events ?? 2));
+    mock.onGet("/students/me/activity").reply(200, numbers.activity ?? []);   // the home-page heatmap
   } else {
     mock.onGet("/jobs/mine").reply(...page(numbers.jobs ?? 3));
     mock.onGet("/events/mine").reply(...page(numbers.events ?? 5));

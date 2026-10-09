@@ -1,9 +1,127 @@
-(venv) PS C:\Users\patel\data260-pair06\backend> python -m pytest -q
-........................................................................................                                            [100%]
-============================================================ warnings summary ============================================================
-venv\Lib\site-packages\starlette\testclient.py:40
-  C:\Users\patel\data260-pair06\backend\venv\Lib\site-packages\starlette\testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
-    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+﻿RUN_LOG: Lab 1, Pair 06
+=======================
+This file is a recording of the commands run to build, seed, test and measure the system, in order,
+with their real output. It was produced with PowerShell's Start-Transcript (see docs/PART_A_CHECKLIST.md,
+section "RUN_LOG"). Paste or append the transcript below this line.
+
+PAIR=06  PORT_BASE=9060  DB=p06_handshake  SEED=6  CITY_SET=San Jose, Sunnyvale, Mountain View
+-----------------------------------------------------------------------------------------------
+**********************
+Windows PowerShell transcript start
+Start time: 20261008225430
+Username: DESKTOP-0B8PB15\patel
+RunAs User: DESKTOP-0B8PB15\patel
+Configuration Name: 
+Machine: DESKTOP-0B8PB15 (Microsoft Windows NT 10.0.26300.0)
+Host Application: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\patel\AppData\Local\Programs\Microsoft VS Code\2a59476c9b\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 95036
+PSVersion: 5.1.26100.9444
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9444
+BuildVersion: 10.0.26100.9444
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is .\docs\run_transcript.txt
+
+(venv) cd backend
+
+(venv) python -m seed.generate_seed --reset
+Seeded database with SEED=6, CITY_SET=['San Jose', 'Sunnyvale', 'Mountain View']
+  companies            50
+  students             200
+  jobs                 300
+  applications         1500
+  events               100
+  event_registrations  400
+  student_preferences  151
+  saved_items          150
+
+(venv) python -m pytest -q
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-88 passed, 1 warning in 34.79s
+346 passed, 1 warning in 216.73s (0:03:36)
+
+(venv) cd ..\frontend
+
+(venv) npm test
+
+> handshake-clone-pair06@1.0.0 test
+> vitest run
+
+
+ RUN  v2.1.9 C:/Users/patel/data260-pair06/frontend
+
+ PASS src/test/auth.test.jsx (9 tests) 855ms
+   PASS sessions and protected pages > sends a visitor who is not logged in to the sign-in page 319ms
+ PASS src/test/navbar.test.jsx (5 tests) 850ms
+   PASS Navigation bar > offers Sign in and Sign up to visitors 315ms
+ PASS src/test/home.test.jsx (6 tests) 1002ms
+ PASS src/test/chat.test.jsx (9 tests) 2828ms
+   PASS AI assistant chat window > shows suggestions first, and a suggestion sends that question 558ms
+   PASS AI assistant chat window > sends with the Send button and with Enter, but not Shift+Enter 645ms
+   PASS AI assistant chat window > keeps the same conversation id for the next message and starts fresh on 'New conversation' 490ms
+ PASS src/test/events_students.test.jsx (17 tests) 2802ms
+   PASS Event search > lists events with their badges 518ms
+   PASS Event search > sends the chosen filters 495ms
+   PASS Event search > blocks a search whose 'To' date is before 'From' 601ms
+   PASS Student directory > searches with repeated major/skills keys 339ms
+ PASS src/test/jobs.test.jsx (16 tests) 3146ms
+   PASS Job search page > lists jobs and shows how many were found 626ms
+   PASS Job search page > sends the filters as repeated keys, the way FastAPI wants 728ms
+   PASS Job search page > shows an empty state, and Clear filters brings the list back 382ms
+ PASS src/test/components.test.jsx (8 tests) 185ms
+ PASS src/test/api.test.js (6 tests) 28ms
+ PASS src/test/errors.test.js (6 tests) 9ms
+ PASS src/test/login.test.jsx (8 tests) 4142ms
+   PASS Login page > asks for the missing fields without calling the server 525ms
+   PASS Login page > rejects a badly formed email before sending 680ms
+   PASS Login page > logs a student in and shows the home page 688ms
+   PASS Login page > logs a company in when the Company switch is selected 554ms
+   PASS Login page > shows the server's message for a wrong password and stays on the page 642ms
+   PASS Login page > explains when the server cannot be reached 546ms
+   PASS Login page > shows a busy button while waiting and blocks double-clicks 483ms
+ PASS src/test/company_more.test.jsx (15 tests) 4117ms
+   PASS Company profile > loads, saves with blanks cleared, and updates the top bar 894ms
+   PASS Company profile > blocks a bad website 392ms
+   PASS Company events > posts an event for chosen majors 1899ms
+   PASS Company events > edits an event 402ms
+ PASS src/test/profile.test.jsx (15 tests) 4788ms
+   PASS Profile page > shows the saved details 612ms
+   PASS Profile page > saves changes, including a new skill and experience, and updates the name in the top bar 1439ms
+   PASS Preferences tab > says nothing is saved yet, then saves the whole set 959ms
+   PASS Preferences tab > shows saved preferences and can clear them 303ms
+   PASS Preferences tab > rejects an unrealistic pay before calling the server 306ms
+ PASS src/test/company_jobs.test.jsx (17 tests) 5140ms
+   PASS My postings > lists postings with applicant counts and links 403ms
+   PASS Post a job > posts the job and opens it 1877ms
+   PASS Post a job > shows the server's reason when it refuses 1450ms
+   PASS Edit a job > loads the job, saves only through PATCH and shows a confirmation 408ms
+ PASS src/test/signup.test.jsx (11 tests) 9034ms
+   PASS Signup page > shows student fields by default and company fields after switching 463ms
+   PASS Signup page > rejects a password that is too short 961ms
+   PASS Signup page > rejects a password that is only letters 928ms
+   PASS Signup page > rejects a password that is only digits 1035ms
+   PASS Signup page > rejects a password that is longer than 72 bytes 1666ms
+   PASS Signup page > creates a student account and logs the student in 882ms
+   PASS Signup page > creates a company account with a location 817ms
+   PASS Signup page > shows the server's message when the email is already registered 935ms
+   PASS Signup page > turns the server's validation errors into readable text 864ms
+
+ Test Files  14 passed (14)
+      Tests  148 passed (148)
+   Start at  23:20:36
+   Duration  16.69s (transform 1.56s, setup 49.66s, collect 6.39s, tests 38.93s, environment 27.57s, prepare 3.48s)
+
+
+
+(venv) cd ..
+
+(venv) Stop-Transcript
+**********************
+Windows PowerShell transcript end
+End time: 20261008231158
+**********************
+

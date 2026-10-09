@@ -56,6 +56,7 @@ describe("Home dashboard", () => {
     mockMe(STUDENT);
     mock.onGet("/applications/mine").replyOnce(500, {}).onGet("/applications/mine").reply(200, { total: 4, items: [] });
     mock.onGet("/events/registered").reply(200, { total: 1, items: [] });
+    mock.onGet("/students/me/activity").reply(200, []);   // the heatmap on the same page works, so only one 'Try again'
     renderApp("/");
 
     expect(await screen.findByText(/server had a problem/i)).toBeInTheDocument();

@@ -4,8 +4,9 @@ ever read or change THEIR OWN profile (the id comes from the login token, never 
 the URL). That is how we "restrict users to authorized actions".
 """
 from datetime import date
+from typing import List
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -14,7 +15,9 @@ from ..core.deps import require_student
 from ..core.uploads import delete_upload, public_url, save_profile_picture
 from ..database import get_db
 from ..models import Student, StudentExperience, StudentSkill
+from ..schemas.activity import ActivityDay
 from ..schemas.profile import ExperienceOut, PictureResponse, StudentProfile, StudentUpdate
+from ..services.activity import application_activity
 from ..services.skill_sync import sync_skills
 
 router = APIRouter(prefix="/students", tags=["Student profile"])
@@ -81,3 +84,10 @@ def upload_my_picture(file: UploadFile = File(..., description="PNG, JPEG or Web
         raise
     delete_upload(old_path)       # remove the previous picture only after the save worked
     return PictureResponse(profile_pic_url=public_url(new_path))
+
+
+@router.get("/me/activity", response_model=List[ActivityDay],
+            summary="My application activity per day, for the heatmap (student only)")
+def my_activity(days: int = Query(365, ge=1, le=730, description="How many days back, ending today (1 to 730)"),
+                student: Student = Depends(require_student), db: Session = Depends(get_db)):
+    return application_activity(db, student.id, days)

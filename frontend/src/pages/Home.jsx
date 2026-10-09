@@ -1,4 +1,5 @@
 import Row from "react-bootstrap/Row";
+import ActivityHeatmap from "../components/ActivityHeatmap";
 import ChatWindow from "../components/ChatWindow";
 import ErrorAlert from "../components/ErrorAlert";
 import Loading from "../components/Loading";
@@ -41,6 +42,8 @@ export default function Home() {
           )}
         </Row>
       )}
+
+      {isStudent && <ActivityHeatmap />}
 
       {isStudent && <ChatWindow />}
     </>
