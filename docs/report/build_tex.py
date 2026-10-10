@@ -12,6 +12,7 @@ Only the Markdown features that report.md actually uses are handled:
   **bold**, *italic*, `code`, [text](url), bare URLs, and <!-- comments --> (kept as LaTeX comments).
 """
 import re
+import struct
 import sys
 from pathlib import Path
 
@@ -26,6 +27,7 @@ PREAMBLE = r"""\documentclass[11pt,letterpaper]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{needspace}
 \usepackage{longtable}
 \usepackage{array}
 \usepackage{xcolor}
@@ -72,6 +74,23 @@ LATEX_ESC = {
 # the few non-ASCII characters used in report.md
 UNICODE = {"–": "--", "—": "---", "×": r"$\times$", "·": r"$\cdot$", "≥": r"$\geq$", "≤": r"$\leq$",
            "→": r"$\rightarrow$", "’": "'", "“": "``", "”": "''", "…": r"\ldots{}"}
+
+
+FIG_MAX = 0.32        # figures are at most this fraction of the page text height ...
+FIG_MAX_TALL = 0.42   # ... unless that would make them narrower than MIN_WIDTH_IN (near-square screenshots)
+MIN_WIDTH_IN = 4.0
+TEXT_HEIGHT_IN = 9.0  # letter paper, 1 inch margins
+
+
+def figure_height(path):
+    """Height limit (fraction of \\textheight) for one image, from its real pixel size (PNG only)."""
+    try:
+        with open((HERE / path).resolve(), "rb") as f:
+            head = f.read(24)
+        w, h = struct.unpack(">II", head[16:24])
+    except (OSError, struct.error):
+        return FIG_MAX
+    return FIG_MAX if (w / h) * FIG_MAX * TEXT_HEIGHT_IN >= MIN_WIDTH_IN else FIG_MAX_TALL
 
 
 def esc_text(t):
@@ -228,6 +247,16 @@ def convert(md):
         if m:
             flush_para()
             level, text = len(m.group(1)), m.group(2).strip()
+            if level > 1:
+                # never leave a heading alone at the bottom of a page: ask for room for what follows it
+                j = i + 1
+                while j < len(lines) and not lines[j].strip():
+                    j += 1
+                nxt = lines[j] if j < len(lines) else ""
+                if nxt.startswith("![") or nxt.startswith("**SCREENSHOT PENDING"):
+                    out.append(r"\needspace{0.5\textheight}")
+                else:
+                    out.append(r"\needspace{" + ("7" if level == 2 else "5") + r"\baselineskip}")
             if level == 1:
                 title = text
             elif level == 2:
@@ -255,7 +284,7 @@ def convert(md):
             cap = re.sub(r"^Figure \d+:\s*", "", m.group(1))
             out.append(r"\begin{figure}[H]")
             out.append(r"\centering")
-            out.append(r"\includegraphics[width=\linewidth,height=0.42\textheight,keepaspectratio]{" + m.group(2) + "}")
+            out.append(r"\includegraphics[width=\linewidth,height=" + f"{figure_height(m.group(2))}" + r"\textheight,keepaspectratio]{" + m.group(2) + "}")
             out.append(r"\caption{" + inline(cap) + "}")
             out.append(r"\end{figure}")
             out.append("")

@@ -5,7 +5,7 @@
 | Item | Value |
 |---|---|
 | Repository | https://github.com/UdayPate/data260-pair06 (private) |
-| Tagged commit | `<!-- FILL AT THE END: final commit hash, tag lab1 -->` |
+| Tagged commit | ____________________ (to be filled in at the end: final commit hash, tag `lab1`) |
 | Hardware | Lenovo Legion Slim 5 (16-inch, Ryzen 5 7640HS, 16 GB RAM, RTX 4060 8 GB), Windows, MySQL 8 local |
 | Local model | `qwen3:8b` via Ollama (Parts B and C) |
 
@@ -137,6 +137,14 @@ chat window exist. Parts B and C replace only the body of `run_assistant()` in
 `backend/app/services/assistant.py`. The student comes from the token, so the assistant can only act for the
 person who is logged in.
 
+### 2.7 Home-page activity heatmap, themes and avatars
+
+The student home page shows a heatmap of applications per day, fed by `GET /students/me/activity?days=365` (students only: a company gets 403, no token gets 401; `days` is 1 to 730). The server counts the student's own applications by the date they were made and returns only the days that have at least one.
+
+The front end has two role-based looks. The `data-theme` attribute on the `<html>` element is `student` (arcade look: dark green background, coral accents, pixel font for titles, navigation, buttons and badges, square corners, hard offset shadows) or `company` (serious look: the same colours, IBM Plex Sans only, 6 px corners, 1 px borders, flat shadows, coral only on the main button and the active navigation item). It follows the logged-in role, and on the sign-in and sign-up pages it follows the Student/Company switch. One stylesheet, `frontend/src/theme.css`, holds both themes as CSS variables.
+
+Profile pictures use a generated fallback: a pixel-art face for students and a tile with the initials for companies, both chosen from the name so the same name always gives the same picture. A real uploaded picture always wins; the generated one is shown only when there is none or it fails to load.
+
 ## 3. Pair parameters
 
 | Parameter | Rule from the handout | Value |
@@ -181,17 +189,25 @@ and the row-count screenshot in section 5.
 
 ## 5. Screenshots
 
-Screenshots are in `docs/screenshots/`. Figures marked **SCREENSHOT PENDING** have not been captured yet.
+Screenshots are in `docs/screenshots/`. Only Figure 31 (git history) is still pending: it needs both partners' commits.
 
 ### 5.1 App screens (React)
 
-**SCREENSHOT PENDING: ui_01_student_home_chat.png** (Figure 1: Student home page with the AI assistant chat window)
+![Figure 1: Student home page: application activity heatmap and the AI assistant card (the chat box continues below the part captured)](../screenshots/ui_01_student_home_chat.png)
 
-**SCREENSHOT PENDING: ui_02_job_search_filters.png** (Figure 2: Job search with filters)
+*Figure 1: Student home page: application activity heatmap and the AI assistant card (the chat box continues below the part captured)* (`ui_01_student_home_chat.png`)
 
-**SCREENSHOT PENDING: ui_03_my_applications_resume.png** (Figure 3: My applications with the resume window)
+![Figure 2: Job search with filters (Internship, San Jose, minimum pay 30 per hour: 26 jobs found)](../screenshots/ui_02_job_search_filters.png)
 
-**SCREENSHOT PENDING: ui_04_company_applicant_detail.png** (Figure 4: Company view of one applicant, with resume preview and status buttons)
+*Figure 2: Job search with filters (Internship, San Jose, minimum pay 30 per hour: 26 jobs found)* (`ui_02_job_search_filters.png`)
+
+![Figure 3: My applications with the status filters and a View resume button on every row (the resume window itself is not open in this capture)](../screenshots/ui_03_my_applications_resume.png)
+
+*Figure 3: My applications with the status filters and a View resume button on every row (the resume window itself is not open in this capture)* (`ui_03_my_applications_resume.png`)
+
+![Figure 4: Company view of one applicant: email, phone and GPA but no date of birth, skills, experience and the resume preview (the status buttons are below the part captured)](../screenshots/ui_04_company_applicant_detail.png)
+
+*Figure 4: Company view of one applicant: email, phone and GPA but no date of birth, skills, experience and the resume preview (the status buttons are below the part captured)* (`ui_04_company_applicant_detail.png`)
 
 ### 5.2 Swagger UI: sign-in, profile and jobs (student token)
 
@@ -295,11 +311,17 @@ Screenshots are in `docs/screenshots/`. Figures marked **SCREENSHOT PENDING** ha
 
 ### 5.6 Tests, row counts and git history
 
-**SCREENSHOT PENDING: test_01_pytest_summary.png** (Figure 28: pytest summary (346 passed))
+![Figure 28: pytest summary (363 passed)](../screenshots/test_01_pytest_summary.png)
 
-**SCREENSHOT PENDING: test_02_npm_summary.png** (Figure 29: npm test summary (148 passed))
+*Figure 28: pytest summary (363 passed)* (`test_01_pytest_summary.png`)
 
-**SCREENSHOT PENDING: db_01_row_counts.png** (Figure 30: MySQL row counts for p06_handshake)
+![Figure 29: npm test summary (210 passed in 17 test files)](../screenshots/test_02_npm_summary.png)
+
+*Figure 29: npm test summary (210 passed in 17 test files)* (`test_02_npm_summary.png`)
+
+![Figure 30: MySQL row counts for p06_handshake (the SQL is in docs/row_counts.sql)](../screenshots/db_01_row_counts.png)
+
+*Figure 30: MySQL row counts for p06_handshake (the SQL is in docs/row_counts.sql)* (`db_01_row_counts.png`)
 
 **SCREENSHOT PENDING: git_01_history.png** (Figure 31: Git commit history showing both partners (taken last))
 
@@ -336,16 +358,17 @@ Swagger UI (`http://localhost:9060/docs`) was used with the demo student and dem
 
 ### 6.2 Automated tests (pytest)
 
-Command: `python -m pytest -v` in `backend/`, on an in-memory SQLite database (never MySQL). The full verbose output is saved in `docs/part_a_tests.txt`. It was run on 2026-10-09 with Python 3.13.2 and pytest 8.3.3 and ends with:
+Command: `python -m pytest -q` in `backend/`, on an in-memory SQLite database (never MySQL). The summary line of the final run (Figure 28) is:
 
 ```
-346 passed, 1 warning in 182.34s (0:03:02)
+363 passed, 1 warning in 180.89s (0:03:00)
 ```
 
-The earlier run recorded in `RUN_LOG.txt` also passed 346 tests (216.73 s). Tests per file in `docs/part_a_tests.txt`:
+An earlier run of the same 363 tests is saved in `docs/part_a_tests_after_heatmap.txt` (192.49 s). Before the activity endpoint was added the suite had 346 tests; that older run is in `docs/part_a_tests.txt` and `RUN_LOG.txt`. Tests per file (counted with `pytest --collect-only -q`, which lists 363 tests in total):
 
 | File | Tests passed | Covers |
 |---|---:|---|
+| `test_activity.py` | 17 | The application activity heatmap endpoint (per-day counts, own data only, window limits, 401, 403, 422) |
 | `test_applications.py` | 47 | Apply, resume rules, applicants, status, private resume route |
 | `test_assistant.py` | 12 | The `POST /assistant/chat` contract (placeholder reply, validation, student-only) |
 | `test_auth.py` | 22 | Signup, login, JWT checks, password rules |
@@ -354,7 +377,7 @@ The earlier run recorded in `RUN_LOG.txt` also passed 346 tests (216.73 s). Test
 | `test_jobs.py` | 68 | Job postings, search and filters, ownership |
 | `test_preferences.py` | 33 | Saved preferences |
 | `test_profiles.py` | 66 | Profiles, pictures, email changes, public and private files |
-| **Total** | **346** | |
+| **Total** | **363** | |
 
 The role-rule tests behind section 2.5 (each one passed in this run; the test names are in the table in 2.5):
 
@@ -370,9 +393,11 @@ The role-rule tests behind section 2.5 (each one passed in this run; the test na
 | Resume must really be a PDF, at most 5 MB | 4xx | `test_non_pdf_uploads_rejected[...]` (6 cases), `test_resume_over_5mb_rejected` |
 | Company sees email and GPA but not phone or date of birth in the list; peers see neither | 200 | `test_directory.py::test_company_list_shows_contact_and_academic_fields_but_never_dob_phone_or_password`, `test_peers_never_get_email_phone_gpa_dob_or_city` |
 
+Heatmap endpoint: `GET /students/me/activity?days=365` returns the logged-in student's applications per day (students only: 401 without a token, 403 for a company, 422 for `days` outside 1 to 730), checked by the 17 tests in `test_activity.py`.
+
 ### 6.3 Front-end tests and API documentation
 
-`npm test` (Vitest, Testing Library, axios-mock-adapter) reported 14 test files and 148 tests passed in the run recorded in `METRICS.md` (16.69 s). It was not re-run for this report. API documentation exports are `docs/openapi.json` and `docs/postman_collection.json`.
+`npm test` (Vitest, Testing Library, axios-mock-adapter) reported 17 test files and 210 tests passed in 15.47 s (Figure 29). API documentation exports are `docs/openapi.json` and `docs/postman_collection.json`.
 
 ## 7. Five transcripts
 
