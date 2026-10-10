@@ -104,6 +104,28 @@ describe("Application activity heatmap", () => {
     expect(screen.queryByText(/server had a problem/i)).not.toBeInTheDocument();
   });
 
+  it("lays out one grid: a weekday-label column first, then 53 weeks of squares (371 slots), so rows line up", async () => {
+    mock.onGet("/students/me/activity").reply(200, ACTIVITY);
+    const { container } = renderHeatmap();
+    await screen.findAllByTestId("heat-cell");
+
+    const grid = container.querySelector(".heatmap-grid");
+    const labels = [...grid.querySelectorAll(":scope > .heatmap-weekday")].map((el) => el.textContent);
+    expect(labels).toEqual(["", "Mon", "", "Wed", "", "Fri", ""]);
+    expect(grid.children).toHaveLength(7 + 53 * 7); // labels + every square, future ones included
+    expect([...grid.children].slice(0, 7).every((el) => el.classList.contains("heatmap-weekday"))).toBe(true);
+    // the month row has the same columns: a spacer for the label column, then one slot per week
+    expect(container.querySelector(".heatmap-months").children).toHaveLength(1 + 53);
+  });
+
+  it("shows a four-step legend that uses the same shades as the squares", async () => {
+    mock.onGet("/students/me/activity").reply(200, ACTIVITY);
+    const { container } = renderHeatmap();
+    await screen.findAllByTestId("heat-cell");
+    const legend = [...container.querySelectorAll(".heatmap-legend .heat-cell")].map((el) => el.className);
+    expect(legend).toEqual(["heat-cell heat-0", "heat-cell heat-1", "heat-cell heat-2", "heat-cell heat-3"]);
+  });
+
   it("scrolls sideways inside its own box instead of widening the page", async () => {
     mock.onGet("/students/me/activity").reply(200, []);
     const { container } = renderHeatmap();

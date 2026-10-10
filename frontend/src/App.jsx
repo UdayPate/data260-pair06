@@ -2,6 +2,8 @@ import Container from "react-bootstrap/Container";
 import { Route, Routes } from "react-router-dom";
 import AppNavbar from "./components/Navbar";
 import { ProtectedRoute, PublicOnlyRoute } from "./components/ProtectedRoute";
+import { useAuth } from "./context/AuthContext";
+import { useTheme } from "./hooks/useTheme";
 import CompanyEvents from "./pages/CompanyEvents";
 import CompanyProfile from "./pages/CompanyProfile";
 import EditEvent from "./pages/EditEvent";
@@ -28,6 +30,8 @@ import StudentView from "./pages/StudentView";
 
 // Every screen of the app is listed here. Later steps add their routes to this list.
 export default function App() {
+  const { user } = useAuth();
+  useTheme(user?.role); // student or company colours, from who is logged in
   return (
     <>
       <AppNavbar />

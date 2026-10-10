@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import RoleToggle from "../components/RoleToggle";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../hooks/useTheme";
 import { getErrorMessage } from "../utils/errors";
 
 const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
@@ -24,6 +25,7 @@ const EMPTY = { name: "", email: "", password: "", college: "", location: "" };
 export default function Signup() {
   const { signup } = useAuth();
   const [role, setRole] = useState("student");
+  useTheme(role); // the page takes the colours of the chosen account type
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState(null);

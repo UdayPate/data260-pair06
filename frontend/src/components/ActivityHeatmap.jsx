@@ -6,11 +6,12 @@ import { useAsync } from "../hooks/useAsync";
 import { getActivity } from "../services/activityService";
 
 // A GitHub-style calendar of the student's applications: 53 weeks (columns) by 7 days (rows,
-// Sunday to Saturday), drawn with a plain CSS grid. The last column is the current week.
+// Sunday to Saturday), drawn with a plain CSS grid (the first column holds the weekday labels). The last column is the current week.
 // The colour is only a hint: every square also carries its count as text (hover tooltip,
 // screen-reader label, and the line under the grid when a square is tapped).
 
 const WEEKS = 53;
+const WEEKDAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""]; // the first grid column: one label slot per row (Sun..Sat)
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const addDays = (date, n) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + n);
@@ -78,38 +79,35 @@ export default function ActivityHeatmap({ today = new Date() }) {
           <>
             <div className="heatmap-scroll">
               <div className="heatmap">
-                <div className="heatmap-weekdays" aria-hidden="true">
-                  <span style={{ gridRow: 2 }}>Mon</span>
-                  <span style={{ gridRow: 4 }}>Wed</span>
-                  <span style={{ gridRow: 6 }}>Fri</span>
+                <div className="heatmap-months" aria-hidden="true">
+                  <span />
+                  {months.map((name, week) => (
+                    <span key={week}>{name}</span>
+                  ))}
                 </div>
-                <div>
-                  <div className="heatmap-months" aria-hidden="true">
-                    {months.map((name, week) => (
-                      <span key={week} style={{ gridColumn: week + 1 }}>
-                        {name}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="heatmap-grid">
-                    {squares.map(({ date, key, future }) => {
-                      if (future) return <div key={key} className="heat-cell heat-future" aria-hidden="true" />;
-                      const count = counts[key] || 0;
-                      const text = describeDay(count, date);
-                      return (
-                        <div
-                          key={key}
-                          role="img"
-                          aria-label={text}
-                          title={text}
-                          data-testid="heat-cell"
-                          data-date={key}
-                          className={`heat-cell heat-${levelFor(count)}`}
-                          onClick={() => setSelected(text)}
-                        />
-                      );
-                    })}
-                  </div>
+                <div className="heatmap-grid">
+                  {WEEKDAY_LABELS.map((label, row) => (
+                    <span key={`day-${row}`} className="heatmap-weekday" aria-hidden="true">
+                      {label}
+                    </span>
+                  ))}
+                  {squares.map(({ date, key, future }) => {
+                    if (future) return <div key={key} className="heat-cell heat-future" aria-hidden="true" />;
+                    const count = counts[key] || 0;
+                    const text = describeDay(count, date);
+                    return (
+                      <div
+                        key={key}
+                        role="img"
+                        aria-label={text}
+                        title={text}
+                        data-testid="heat-cell"
+                        data-date={key}
+                        className={`heat-cell heat-${levelFor(count)}`}
+                        onClick={() => setSelected(text)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>

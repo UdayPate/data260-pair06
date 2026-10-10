@@ -1,5 +1,6 @@
 import Row from "react-bootstrap/Row";
 import ActivityHeatmap from "../components/ActivityHeatmap";
+import CareerScene from "../components/CareerScene";
 import ChatWindow from "../components/ChatWindow";
 import ErrorAlert from "../components/ErrorAlert";
 import Loading from "../components/Loading";
@@ -19,6 +20,8 @@ export default function Home() {
 
   return (
     <>
+      {isStudent && <CareerScene />}
+
       <PageHeader
         title={`Welcome back, ${user.name}`}
         subtitle={isStudent ? "Student dashboard" : "Company dashboard"}

@@ -85,9 +85,6 @@ h1, h2, h3, h4, h5, h6,
 .stat-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--accent, var(--brand)); }
 .stat-card:hover { transform: translateY(-2px); }
 .stat-value { font-size: 2.6rem; font-weight: 700; line-height: 1.1; color: var(--accent, var(--brand)); }
-.stat-blue { --accent: #4263eb; }
-.stat-green { --accent: #12b886; }
-.stat-orange { --accent: #f08c00; }
 
 .assistant-card {
   color: #fff; border-radius: 1rem;
@@ -148,18 +145,26 @@ h1, h2, h3, h4, h5, h6,
 .chat-empty { margin: auto 0; text-align: center; }
 
 /* ---------- Application activity heatmap (student home page) ----------
-   53 weeks x 7 days drawn with a CSS grid. Squares fill column by column (one column per week). */
-.heatmap-scroll { overflow-x: auto; padding-bottom: 0.25rem; }   /* on a phone the calendar scrolls sideways inside the card */
-.heatmap { --cell: 12px; --gap: 3px; display: inline-flex; gap: 6px; min-width: max-content; font-size: 0.7rem; color: var(--muted-ink); }
-.heatmap-weekdays { display: grid; grid-template-rows: repeat(7, var(--cell)); gap: var(--gap); margin-top: calc(16px + var(--gap)); line-height: var(--cell); }
-.heatmap-months { display: grid; grid-template-columns: repeat(53, var(--cell)); gap: var(--gap); height: 16px; margin-bottom: var(--gap); }
-.heatmap-months span { white-space: nowrap; }
-.heatmap-grid { display: grid; grid-template-rows: repeat(7, var(--cell)); grid-auto-flow: column; grid-auto-columns: var(--cell); gap: var(--gap); }
-.heat-cell { width: var(--cell, 12px); height: var(--cell, 12px); border-radius: 3px; display: inline-block; }
-.heatmap-grid .heat-cell:not(.heat-future):hover { outline: 2px solid var(--navy); outline-offset: 1px; }
-.heat-0 { background: #e8ecf4; }
-.heat-1 { background: #bac8ff; }
-.heat-2 { background: #748ffc; }
-.heat-3 { background: #4263eb; }
+   One CSS grid per row group, both with the same columns: a label column, then 53 week columns.
+   The week columns are 1fr (they share the card width) with a minimum of 11px; the squares keep
+   a 1:1 shape with aspect-ratio. On a phone the minimum width wins and the calendar scrolls
+   sideways inside its card. Colours live in theme.css. */
+.heatmap-scroll { overflow-x: auto; padding-bottom: 0.25rem; }
+.heatmap {
+  --label-w: 2rem; --cell-min: 11px; --gap: 3px; --cols: 53;
+  min-width: calc(var(--label-w) + var(--cols) * (var(--cell-min) + var(--gap)));  /* below this the card scrolls */
+  max-width: calc(var(--label-w) + var(--cols) * 27px);                            /* squares stop growing on huge screens */
+  font-size: 0.7rem; color: var(--muted-ink);
+}
+.heatmap-months, .heatmap-grid {
+  display: grid; column-gap: var(--gap);
+  grid-template-columns: var(--label-w) repeat(var(--cols), minmax(var(--cell-min), 1fr));
+}
+.heatmap-months { line-height: 16px; margin-bottom: var(--gap); }
+.heatmap-months span { white-space: nowrap; min-width: 0; }
+.heatmap-grid { grid-template-rows: repeat(7, auto); grid-auto-flow: column; row-gap: var(--gap); }  /* first column = weekday labels, then one column per week */
+.heatmap-weekday { align-self: center; line-height: 1; }
+.heat-cell { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+.heatmap-grid .heat-cell { width: auto; height: auto; min-width: 0; aspect-ratio: 1 / 1; }
 .heat-future { visibility: hidden; }
-.heatmap-legend { gap: 4px; --cell: 12px; }
+.heatmap-legend { gap: 4px; }

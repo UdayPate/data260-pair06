@@ -1,0 +1,421 @@
+/* ---------- Role themes ----------
+   Two themes share ONE set of CSS variables ("tokens"); each theme only changes the values.
+   The theme is chosen by the data-theme attribute on <html>:
+     data-theme="student"  arcade: pixel headings, square corners, 2px coral borders, hard offset shadows
+     data-theme="company"  serious: same dark colours, IBM Plex Sans only, 6px corners, 1px borders, flat
+   hooks/useTheme.js sets the attribute from the logged-in role (and from the Student/Company
+   toggle on the sign-in and sign-up pages). <html> also carries data-bs-theme="dark", which makes
+   Bootstrap's own components (forms, tables, dropdowns...) start dark.
+   This file is loaded AFTER index.css, so equal-strength rules here win. */
+
+/* ===== 1. Tokens: values per theme ===== */
+:root,
+:root[data-theme="student"] {
+  --bg: #001008;
+  --panel: #081810;
+  --panel-raised: #0c1f17;
+  --text: #f8f8f8;
+  --muted: #c8d0d0;
+  --accent: #f86048;          /* coral */
+  --accent-hover: #f8a8a0;    /* soft salmon */
+  --accent-soft: #f8a8a0;
+  --accent-ink: #001008;      /* text on coral (white on coral would be only 3:1) */
+  --teal: #2fb58d;
+  --amber: #f8c860;
+  --danger: #f2594e;          /* "coral-red" for Declined and errors */
+  --link: #f8a8a0;
+  --focus: #f8c860;
+
+  --border: #f86048;          /* panel border colour */
+  --border-w: 2px;
+  --hairline: #1f3a2e;        /* quiet separators (table rows, dividers) */
+  --field-border: #6f7f78;    /* form fields need 3:1 against the background */
+  --field-bg: #04140d;
+  --grey-outline: #6f7f78;
+  --alert-default: var(--accent-soft);   /* alert border when no colour variant is given */
+
+  --radius: 0;
+  --shadow: 4px 4px 0 #7a2a1f;       /* hard offset shadow: no blur */
+  --shadow-btn: 3px 3px 0 #7a2a1f;
+
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Press Start 2P", ui-monospace, "Courier New", monospace;
+  --font-ui: var(--font-display);    /* nav, buttons, badges */
+  --font-title: var(--font-display); /* page titles */
+  --btn-size: 0.65rem;
+  --btn-size-sm: 0.6rem;
+  --heading-weight: 600;
+
+  --heat-0: #10261c;   /* no applications */
+  --heat-1: #0e5a33;
+  --heat-2: #14a055;
+  --heat-3: #39ff88;   /* neon: 3 or more */
+}
+
+:root[data-theme="company"] {
+  --border: #1f3a2e;
+  --border-w: 1px;
+  --link: #f8f8f8;
+  --focus: #f8f8f8;
+
+  --radius: 6px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35);   /* very faint */
+  --shadow-btn: none;
+
+  --alert-default: var(--grey-outline);
+  --font-ui: var(--font-body);
+  --font-title: var(--font-body);
+  --btn-size: 0.9rem;
+  --btn-size-sm: 0.8rem;
+}
+
+/* ===== 2. Bootstrap 5.3 variables (so Bootstrap's own components follow the theme) ===== */
+:root {
+  --bs-body-bg: var(--bg);
+  --bs-body-color: var(--text);
+  --bs-body-color-rgb: 248, 248, 248;
+  --bs-body-font-family: var(--font-body);
+  --bs-secondary-color: var(--muted);
+  --bs-emphasis-color: var(--text);
+  --bs-border-color: var(--hairline);
+  --bs-border-radius: var(--radius);
+  --bs-border-radius-lg: var(--radius);
+  --bs-border-radius-sm: var(--radius);
+  --bs-primary: var(--accent);
+  --bs-primary-rgb: 248, 96, 72;
+  --bs-link-color: var(--link);
+  --bs-link-color-rgb: 248, 168, 160;
+  --bs-link-hover-color: var(--text);
+  --bs-link-hover-color-rgb: 248, 248, 248;
+  --bs-warning: #f8c860;  --bs-warning-rgb: 248, 200, 96;   /* Pending  = amber */
+  --bs-info: #2fb58d;     --bs-info-rgb: 47, 181, 141;      /* Reviewed = teal */
+  --bs-danger: #f2594e;   --bs-danger-rgb: 242, 89, 78;     /* Declined = coral-red */
+  --bs-success: #2fb58d;  --bs-success-rgb: 47, 181, 141;
+  --bs-form-invalid-color: #f2594e;
+  --bs-form-invalid-border-color: #f2594e;
+  --bs-focus-ring-color: rgba(248, 200, 96, 0.4);
+}
+:root[data-theme="company"] {
+  --bs-link-color-rgb: 248, 248, 248;
+}
+
+/* ===== 3. Base ===== */
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
+a { color: var(--link); }
+a:hover { color: var(--text); }
+:root[data-theme="company"] a:not(.btn):not(.nav-link):not(.navbar-brand) { text-decoration: underline; text-underline-offset: 2px; }
+.text-muted, .text-body-secondary { color: var(--muted) !important; }
+h2, h3, h4, h5, h6, .h2, .h3, .h4, .h5, .h6, .display-6 { font-family: var(--font-body); font-weight: var(--heading-weight); }
+h1, .h1 { font-weight: var(--heading-weight); }
+:root[data-theme="student"] h1,
+:root[data-theme="student"] .h1 {
+  font-family: var(--font-title); font-weight: 400; letter-spacing: 0; line-height: 1.6;
+  font-size: clamp(0.95rem, 3.4vw, 1.3rem); overflow-wrap: anywhere;
+}
+:root[data-theme="student"] .page-header h1.h3 { font-size: clamp(0.95rem, 3.4vw, 1.3rem); }
+:root[data-theme="company"] h1, :root[data-theme="company"] .page-header h1.h3 { font-family: var(--font-body); font-weight: 600; }
+code { color: var(--accent-soft); }
+:root[data-theme="company"] code { color: var(--muted); }
+hr { border-color: var(--hairline); opacity: 1; }
+
+/* Keyboard focus is always visible, on every element, in both themes */
+:focus-visible,
+.btn:focus-visible,
+.btn-check:focus-visible + .btn,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.nav-link:focus-visible,
+.navbar-brand:focus-visible,
+.navbar-toggler:focus-visible,
+.form-check-input:focus-visible {
+  outline: 3px solid var(--focus); outline-offset: 2px; box-shadow: none;
+}
+
+/* Motion: nothing here relies on animation; switch off what is left if the user asks */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* ===== 4. Buttons ===== */
+.btn {
+  --bs-btn-border-radius: var(--radius); --bs-btn-border-width: var(--border-w);
+  font-family: var(--font-ui); font-size: var(--btn-size); font-weight: 600;
+  border-radius: var(--radius); border-width: var(--border-w); box-shadow: var(--shadow-btn);
+  padding: 0.7rem 1rem; line-height: 1.5; transition: none;
+}
+:root[data-theme="student"] .btn { font-weight: 400; line-height: 1.6; }
+.btn-sm { font-size: var(--btn-size-sm); padding: 0.45rem 0.7rem; }
+:root[data-theme="company"] .btn { padding: 0.55rem 1.1rem; }
+:root[data-theme="company"] .btn-sm { padding: 0.35rem 0.8rem; }
+:root[data-theme="student"] .btn:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: none; }
+
+.btn-primary {
+  --bs-btn-color: var(--accent-ink); --bs-btn-bg: var(--accent); --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-color: var(--accent-ink); --bs-btn-hover-bg: var(--accent-hover); --bs-btn-hover-border-color: var(--accent-hover);
+  --bs-btn-active-color: var(--accent-ink); --bs-btn-active-bg: var(--accent-hover); --bs-btn-active-border-color: var(--accent-hover);
+  --bs-btn-disabled-color: var(--accent-ink); --bs-btn-disabled-bg: var(--accent); --bs-btn-disabled-border-color: var(--accent);
+  --bs-btn-focus-shadow-rgb: 248, 200, 96;
+}
+/* Outline buttons. Student: coral / salmon outlines. Company: every secondary button is outlined in muted grey. */
+.btn-outline-primary, .btn-outline-secondary, .btn-outline-light, .btn-outline-dark {
+  --bs-btn-color: var(--accent); --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-color: var(--accent-ink); --bs-btn-hover-bg: var(--accent); --bs-btn-hover-border-color: var(--accent);
+  --bs-btn-active-color: var(--accent-ink); --bs-btn-active-bg: var(--accent); --bs-btn-active-border-color: var(--accent);
+  --bs-btn-disabled-color: var(--muted); --bs-btn-disabled-border-color: var(--grey-outline);
+  --bs-btn-focus-shadow-rgb: 248, 200, 96;
+  background: transparent;
+}
+:root[data-theme="student"] .btn-outline-secondary,
+:root[data-theme="student"] .btn-outline-light {
+  --bs-btn-color: var(--accent-soft); --bs-btn-border-color: var(--accent-soft);
+  --bs-btn-hover-bg: var(--accent-soft); --bs-btn-hover-border-color: var(--accent-soft);
+  --bs-btn-active-bg: var(--accent-soft); --bs-btn-active-border-color: var(--accent-soft);
+}
+:root[data-theme="company"] .btn-outline-primary,
+:root[data-theme="company"] .btn-outline-secondary,
+:root[data-theme="company"] .btn-outline-light,
+:root[data-theme="company"] .btn-outline-dark {
+  --bs-btn-color: var(--muted); --bs-btn-border-color: var(--grey-outline);
+  --bs-btn-hover-color: var(--text); --bs-btn-hover-bg: var(--panel-raised); --bs-btn-hover-border-color: var(--muted);
+  --bs-btn-active-color: var(--text); --bs-btn-active-bg: var(--panel-raised); --bs-btn-active-border-color: var(--muted);
+}
+.btn-outline-danger {
+  --bs-btn-color: var(--danger); --bs-btn-border-color: var(--danger);
+  --bs-btn-hover-color: var(--accent-ink); --bs-btn-hover-bg: var(--danger); --bs-btn-hover-border-color: var(--danger);
+  --bs-btn-active-color: var(--accent-ink); --bs-btn-active-bg: var(--danger); --bs-btn-active-border-color: var(--danger);
+  --bs-btn-focus-shadow-rgb: 248, 200, 96;
+  background: transparent;
+}
+.btn-danger, .btn-success, .btn-warning, .btn-info {
+  --bs-btn-color: var(--accent-ink); --bs-btn-hover-color: var(--accent-ink); --bs-btn-active-color: var(--accent-ink);
+}
+.btn-danger  { --bs-btn-bg: var(--danger); --bs-btn-border-color: var(--danger); --bs-btn-hover-bg: #f58077; --bs-btn-hover-border-color: #f58077; --bs-btn-active-bg: #f58077; --bs-btn-active-border-color: #f58077; }
+.btn-success, .btn-info { --bs-btn-bg: var(--teal); --bs-btn-border-color: var(--teal); --bs-btn-hover-bg: #5fd0ae; --bs-btn-hover-border-color: #5fd0ae; --bs-btn-active-bg: #5fd0ae; --bs-btn-active-border-color: #5fd0ae; }
+.btn-warning { --bs-btn-bg: var(--amber); --bs-btn-border-color: var(--amber); --bs-btn-hover-bg: #fbdc9a; --bs-btn-hover-border-color: #fbdc9a; --bs-btn-active-bg: #fbdc9a; --bs-btn-active-border-color: #fbdc9a; }
+.btn-link { box-shadow: none; }
+
+/* Student / Company switch on the sign-in and sign-up forms.
+   Company: a selected choice is shown with a raised panel and a light border, not with coral. */
+:root[data-theme="company"] .btn-group > .btn-primary {
+  --bs-btn-color: var(--text); --bs-btn-bg: var(--panel-raised); --bs-btn-border-color: var(--text);
+  --bs-btn-hover-color: var(--text); --bs-btn-hover-bg: var(--panel-raised); --bs-btn-hover-border-color: var(--text);
+  --bs-btn-active-color: var(--text); --bs-btn-active-bg: var(--panel-raised); --bs-btn-active-border-color: var(--text);
+  --bs-btn-disabled-color: var(--text); --bs-btn-disabled-bg: var(--panel-raised); --bs-btn-disabled-border-color: var(--text);
+}
+.btn-group > .btn { box-shadow: none; }
+
+/* ===== 5. Forms ===== */
+.form-label { font-family: var(--font-body); font-weight: 600; color: var(--text); }
+.form-control, .form-select {
+  background-color: var(--field-bg); color: var(--text); border: var(--border-w) solid var(--field-border);
+  border-radius: var(--radius); font-family: var(--font-body);
+}
+.form-control::placeholder { color: #9aa8a2; }
+.form-control:focus, .form-select:focus {
+  background-color: var(--field-bg); color: var(--text); border-color: var(--accent); box-shadow: none;
+}
+.form-control:disabled, .form-select:disabled { background-color: var(--panel); color: var(--muted); }
+.form-control.is-invalid, .form-select.is-invalid { border-color: var(--danger); background-image: none; padding-right: 0.85rem; }
+.invalid-feedback { color: var(--danger); font-size: 0.875rem; }
+.form-text { color: var(--muted); }
+.form-check-input { background-color: var(--field-bg); border: var(--border-w) solid var(--field-border); }
+.form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
+
+/* ===== 6. Cards, alerts, badges, tables ===== */
+.card {
+  --bs-card-bg: var(--panel); --bs-card-color: var(--text); --bs-card-cap-bg: var(--panel-raised);
+  background: var(--panel); color: var(--text); border: var(--border-w) solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+:root[data-theme="company"] .card-body { padding: 1.5rem; }
+.card-title, .card-header { font-family: var(--font-body); }
+
+.alert {
+  --alert-color: var(--alert-default);
+  background: var(--panel-raised); color: var(--text); border: var(--border-w) solid var(--alert-color); border-radius: var(--radius);
+}
+.alert-danger  { --alert-color: var(--danger); }
+.alert-warning { --alert-color: var(--amber); }
+.alert-success, .alert-info { --alert-color: var(--teal); }
+
+.badge { font-family: var(--font-ui); border-radius: var(--radius); font-weight: 600; }
+:root[data-theme="student"] .badge { font-weight: 400; font-size: 0.6rem; line-height: 1.5; padding: 0.4em 0.6em; }
+.badge.bg-warning, .badge.bg-info, .badge.bg-danger, .badge.bg-success { color: var(--accent-ink) !important; }  /* dark text on the status colours */
+.badge.bg-secondary { background-color: var(--panel-raised) !important; color: var(--muted) !important; border: 1px solid var(--grey-outline); }
+
+.table {
+  --bs-table-bg: transparent; --bs-table-color: var(--text); --bs-table-border-color: var(--hairline);
+  --bs-table-striped-bg: transparent; --bs-table-hover-bg: var(--panel-raised); --bs-table-hover-color: var(--text);
+  color: var(--text);
+}
+.table > thead > tr > th { background: var(--panel-raised); color: var(--text); font-weight: 600; border-bottom: var(--border-w) solid var(--border); }
+.table > :not(caption) > * > * { padding: 0.8rem 0.9rem; }
+.spinner-border { color: var(--accent); }
+.empty-state { color: var(--muted); }
+.empty-state h2 { color: var(--text); }
+.avatar-initials { background: var(--panel-raised); color: var(--accent); border: var(--border-w) solid var(--border); }
+.avatar { border-radius: var(--radius); }
+:root[data-theme="student"] .avatar { border-radius: 0; }
+.chip { background: var(--panel-raised); color: var(--text); border: 1px solid var(--grey-outline); border-radius: var(--radius); }
+.page-header h1 { color: var(--text); }
+
+/* ===== 7. Navigation bar ===== */
+.app-navbar {
+  --bs-navbar-color: var(--muted); --bs-navbar-hover-color: var(--text); --bs-navbar-active-color: var(--accent-ink);
+  --bs-navbar-brand-color: var(--text); --bs-navbar-brand-hover-color: var(--text);
+  background: var(--panel); border-bottom: var(--border-w) solid var(--border);
+  font-family: var(--font-ui);
+}
+.app-navbar .navbar-brand { font-family: var(--font-ui); font-size: 0.75rem; line-height: 1.6; letter-spacing: 0; color: var(--text); }
+:root[data-theme="company"] .app-navbar .navbar-brand { font-size: 1.05rem; font-weight: 600; }
+.app-navbar .nav-link, .app-navbar .navbar-text { font-family: var(--font-ui); font-size: var(--btn-size); color: var(--muted); border-radius: var(--radius); }
+.app-navbar .navbar-text { font-size: 0.8rem; font-family: var(--font-body); }
+:root[data-theme="company"] .app-navbar .nav-link { font-size: 0.9rem; font-weight: 600; }
+.app-navbar .nav-link:hover { color: var(--text); background: transparent; }
+/* Active item: coral block (student) / coral text with a coral underline (company) */
+:root[data-theme="student"] .app-navbar .nav-link.active { background: var(--accent); color: var(--accent-ink); }
+:root[data-theme="company"] .app-navbar .nav-link.active { background: transparent; color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); border-radius: 0; }
+.app-navbar .navbar-toggler { border: var(--border-w) solid var(--grey-outline); border-radius: var(--radius); }
+.brand-mark {
+  background: var(--accent); color: var(--accent-ink); border-radius: var(--radius);
+  font-family: var(--font-ui); font-weight: 400; font-size: 0.85rem;
+}
+:root[data-theme="company"] .brand-mark { font-weight: 700; }
+.brand-mark-lg { width: 3.5rem; height: 3.5rem; font-size: 1.4rem; }
+
+/* ===== 8. Sign-in and sign-up ===== */
+.auth-shell { background: var(--panel); border: var(--border-w) solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.auth-hero { background: var(--panel-raised); color: var(--text); border-right: var(--border-w) solid var(--border); }
+.auth-hero .lead, .auth-points li { color: var(--muted); }
+.auth-points li::before { color: var(--accent); }
+
+/* ===== 9. Dashboard: stat cards, assistant chat ===== */
+.stat-card { transition: none; }
+.stat-card:hover { transform: none; }
+.stat-card::before { width: 6px; background: var(--accent-color, var(--accent)); }
+.stat-value { color: var(--accent-color, var(--accent)); font-family: var(--font-body); }
+.stat-blue { --accent-color: var(--accent); }
+.stat-green { --accent-color: var(--teal); }
+.stat-orange { --accent-color: var(--amber); }
+:root[data-theme="company"] .stat-card::before { display: none; }
+:root[data-theme="company"] .stat-value { color: var(--text); }
+
+.chat-log { background: var(--bg); border: 1px solid var(--hairline); border-radius: var(--radius); }
+.chat-bubble { background: var(--panel-raised); color: var(--text); border: 1px solid var(--hairline); border-radius: var(--radius); box-shadow: none; }
+.chat-user .chat-bubble { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chat-tools { color: var(--muted); }
+
+/* ===== 10. Application activity heatmap ===== */
+.heat-0 { background: var(--heat-0); outline: 1px solid var(--hairline); outline-offset: -1px; }
+.heat-1 { background: var(--heat-1); }
+.heat-2 { background: var(--heat-2); }
+.heat-3 { background: var(--heat-3); }
+.heat-cell { border-radius: var(--radius); }
+:root[data-theme="student"] .heat-cell { border-radius: 0; }
+.heatmap { color: var(--muted); }
+.heatmap-grid .heat-cell:not(.heat-future):hover { outline-color: var(--text); }
+
+/* ===== 11. Student Home banner: a pixel-art career scene (components/CareerScene.jsx).
+   Inline SVG on a coarse pixel grid, decorative only. Company never shows it. ===== */
+.career-scene { display: none; }
+:root[data-theme="student"] .career-scene {
+  position: relative; display: block; margin-bottom: 1.5rem; overflow: hidden;
+  /* The box keeps the drawing's proportions (300 x 39), so the whole scene, flag included, scales
+     with the page width. The minimum height keeps the sky above the flag at least 16px on phones. */
+  aspect-ratio: 300 / 39; min-height: 80px;
+  background: var(--bg); border: var(--border-w) solid var(--border); box-shadow: var(--shadow);
+}
+/* overflow: visible lets the skyline run past the drawing's edges on wide screens (the banner clips it) */
+.career-scene svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+.px-tower  { fill: var(--panel); }          /* the skyline: only a little lighter than the page */
+.px-coral  { fill: var(--accent); }
+.px-salmon { fill: var(--accent-soft); }
+.px-teal   { fill: var(--teal); }
+.px-amber  { fill: var(--amber); }
+.px-white  { fill: var(--text); }
+.px-muted  { fill: var(--muted); }
+/* the one bit of motion: a coin glints for a moment every few seconds */
+.pixel-glint { opacity: 0; animation: pixel-glint 4s steps(1, end) infinite; }
+@keyframes pixel-glint { 0%, 90% { opacity: 0; } 92%, 97% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pixel-glint { animation: none; opacity: 0; } }
+
+/* ===== 12. Stage 2: the remaining pages =====
+   Everything below styles Bootstrap components the other pages use. Same tokens as above:
+   student and company differ only in the values (and a few company-only exceptions). */
+
+/* Badges used as tags (skills, majors, "Past"...) and the job category */
+.badge { white-space: normal; text-align: left; }
+.badge.bg-light {
+  background-color: var(--panel-raised) !important; color: var(--text) !important;
+  border: 1px solid var(--grey-outline) !important;
+  font-family: var(--font-body); font-weight: 500; font-size: 0.78rem; padding: 0.35em 0.6em;   /* tags are content: easy-to-read body font */
+}
+.badge.bg-primary { background-color: var(--accent) !important; color: var(--accent-ink) !important; }
+/* company: coral is only for the primary button and the active nav item, so the category badge is neutral */
+:root[data-theme="company"] .badge.bg-primary {
+  background-color: var(--panel-raised) !important; color: var(--text) !important; border: 1px solid var(--grey-outline);
+}
+
+/* Alerts: a coloured border says which kind (danger, warning, success); plain ones use the theme's default */
+.alert-secondary { --alert-color: var(--grey-outline); }
+.alert .alert-link, .alert a { color: var(--text); text-decoration: underline; }
+
+/* Buttons that show a spinner (Sign in...): the spinner takes the button's text colour, not coral on coral */
+.btn .spinner-border { color: currentColor; }
+.btn { white-space: normal; }   /* long pixel-font labels wrap on a phone instead of overflowing */
+
+/* Tabs and pill tabs (application status filters, Profile / Preferences).
+   Student: pixel font, the active tab is a coral block. Company: the active tab is coral text with an underline. */
+.nav-pills, .nav-tabs {
+  --bs-nav-link-color: var(--muted); --bs-nav-link-hover-color: var(--text);
+  --bs-nav-pills-link-active-color: var(--accent-ink); --bs-nav-pills-link-active-bg: var(--accent);
+  --bs-nav-tabs-border-color: var(--border); --bs-nav-tabs-link-hover-border-color: var(--hairline) var(--hairline) var(--border);
+  --bs-nav-tabs-link-active-color: var(--accent); --bs-nav-tabs-link-active-bg: var(--panel);
+  --bs-nav-tabs-link-active-border-color: var(--border) var(--border) var(--panel);
+  --bs-nav-tabs-border-radius: var(--radius); --bs-nav-pills-border-radius: var(--radius);
+  gap: 0.4rem;
+}
+.nav-pills .nav-link, .nav-tabs .nav-link {
+  font-family: var(--font-ui); font-size: var(--btn-size); line-height: 1.5; border-radius: var(--radius);
+  border: var(--border-w) solid transparent; padding: 0.65rem 0.9rem;
+}
+:root[data-theme="student"] .nav-pills .nav-link { border-color: var(--grey-outline); }
+:root[data-theme="student"] .nav-pills .nav-link.active { border-color: var(--accent); }
+:root[data-theme="company"] .nav-pills .nav-link, :root[data-theme="company"] .nav-tabs .nav-link { font-weight: 600; font-size: 0.9rem; }
+:root[data-theme="company"] .nav-pills .nav-link.active {
+  background: transparent; color: var(--accent); border-radius: 0; box-shadow: inset 0 -2px 0 var(--accent);
+}
+:root[data-theme="company"] .nav-tabs { --bs-nav-tabs-border-color: var(--hairline); --bs-nav-tabs-link-active-bg: transparent;
+  --bs-nav-tabs-link-active-border-color: transparent transparent var(--accent); }
+:root[data-theme="company"] .nav-tabs .nav-link.active { box-shadow: inset 0 -2px 0 var(--accent); }
+
+/* Modal (the resume viewer) */
+.modal {
+  --bs-modal-bg: var(--panel); --bs-modal-color: var(--text); --bs-modal-border-color: var(--border);
+  --bs-modal-border-width: var(--border-w); --bs-modal-border-radius: var(--radius); --bs-modal-inner-border-radius: 0;
+  --bs-modal-header-border-color: var(--hairline); --bs-modal-footer-border-color: var(--hairline);
+}
+.modal-content { box-shadow: var(--shadow); }
+.modal-title { font-family: var(--font-body); font-weight: 600; }
+.modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: 0.7; }
+
+/* Check boxes, radio buttons, selects and file pickers */
+.form-check-label { color: var(--text); }
+.form-check-input { width: 1.15em; height: 1.15em; margin-top: 0.15em; }
+.form-check-input[type="checkbox"] { border-radius: calc(var(--radius) / 2); }
+:root[data-theme="company"] .form-check-input:checked { background-color: var(--grey-outline); border-color: var(--muted); }  /* not coral */
+.form-select option { background: var(--field-bg); color: var(--text); }
+.form-control::file-selector-button { background: var(--panel-raised); color: var(--text); border-color: var(--field-border); }
+
+/* Details pages and lists */
+iframe[title="Resume"] { border: 1px solid var(--grey-outline) !important; border-radius: var(--radius) !important; }
+fieldset.border { border-color: var(--hairline) !important; }
+.card-title a { text-decoration: none; color: var(--text); }
+.card-title a:hover { text-decoration: underline; }
+:root[data-theme="company"] .card-title a:not(.btn):not(.nav-link):not(.navbar-brand) { text-decoration: none; }
+:root[data-theme="company"] .card-title a:not(.btn):not(.nav-link):not(.navbar-brand):hover { text-decoration: underline; }
+:root[data-theme="company"] .list-unstyled > li { padding: 0.35rem 0; border-bottom: 1px solid var(--hairline); }
+:root[data-theme="company"] .list-unstyled > li:last-child { border-bottom: 0; }
+
+/* Chat bubbles: index.css gives one corner its own radius, so set all four from the theme */
+.chat-user .chat-bubble, .chat-assistant .chat-bubble { border-radius: var(--radius); }
