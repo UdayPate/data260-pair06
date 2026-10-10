@@ -13,6 +13,7 @@ import { useAsync } from "../hooks/useAsync";
 import { cancelRegistration, getEvent, registerForEvent } from "../services/eventService";
 import { getErrorMessage } from "../utils/errors";
 import { formatDateTime } from "../utils/format";
+import Avatar from "../components/Avatar";
 
 // The register / cancel box (students only).
 function RegisterBox({ event, onChanged }) {
@@ -100,7 +101,10 @@ export default function EventDetail() {
           )}
           <Card data-testid="company-card">
             <Card.Body>
-              <Card.Title as="h2" className="h6">About {company.name}</Card.Title>
+              <div className="d-flex align-items-center gap-2 mb-2">
+                <Avatar name={company.name} src={company.profile_pic_url} size={40} kind="company" decorative />
+                <Card.Title as="h2" className="h6 mb-0">About {company.name}</Card.Title>
+              </div>
               {company.industry && <div className="text-muted small mb-2">{company.industry}</div>}
               {company.description && <p className="small">{company.description}</p>}
               {company.website && <div className="small"><a href={company.website} target="_blank" rel="noreferrer">{company.website}</a></div>}

@@ -9,7 +9,7 @@ export default function StudentCard({ student }) {
   return (
     <Card className="mb-3" data-testid="student-card">
       <Card.Body className="d-flex gap-3">
-        <Avatar name={student.name} url={student.profile_pic_url} size={56} />
+        <Avatar name={student.name} src={student.profile_pic_url} size={56} decorative />
         <div>
         <Card.Title as="h2" className="h5 mb-1">
           <Link to={`/students/${student.id}`}>{student.name}</Link>

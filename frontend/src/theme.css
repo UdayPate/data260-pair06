@@ -253,7 +253,6 @@ hr { border-color: var(--hairline); opacity: 1; }
 .spinner-border { color: var(--accent); }
 .empty-state { color: var(--muted); }
 .empty-state h2 { color: var(--text); }
-.avatar-initials { background: var(--panel-raised); color: var(--accent); border: var(--border-w) solid var(--border); }
 .avatar { border-radius: var(--radius); }
 :root[data-theme="student"] .avatar { border-radius: 0; }
 .chip { background: var(--panel-raised); color: var(--text); border: 1px solid var(--grey-outline); border-radius: var(--radius); }
@@ -419,3 +418,15 @@ fieldset.border { border-color: var(--hairline) !important; }
 
 /* Chat bubbles: index.css gives one corner its own radius, so set all four from the theme */
 .chat-user .chat-bubble, .chat-assistant .chat-bubble { border-radius: var(--radius); }
+
+/* ===== 13. Generated avatars (components/Avatar.jsx) ===== */
+.avatar-face { display: inline-block; overflow: hidden; line-height: 0; }
+.avatar-face svg { display: block; }
+/* company tile: rounded square, dark text on a palette colour (all four pass 4.5:1), no shadow, no pixel font */
+:root .avatar.avatar-tile {
+  display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
+  border-radius: 22%; box-shadow: none; color: var(--accent-ink);
+  font-family: var(--font-body); font-weight: 600; letter-spacing: 0; user-select: none;
+}
+/* no name yet: a quiet tile */
+:root .avatar.avatar-neutral { background: var(--panel-raised); border: 1px solid var(--grey-outline); }

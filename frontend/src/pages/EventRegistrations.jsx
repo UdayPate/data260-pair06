@@ -33,7 +33,7 @@ export default function EventRegistrations() {
           {data.items.map(({ student: s, registered_at }) => (
             <Card className="mb-3" key={s.id} data-testid="registration-card">
               <Card.Body className="d-flex gap-3">
-                <Avatar name={s.name} url={s.profile_pic_url} size={52} />
+                <Avatar name={s.name} src={s.profile_pic_url} size={52} decorative />
                 <div>
                   <Card.Title as="h2" className="h5 mb-1"><Link to={`/students/${s.id}`}>{s.name}</Link></Card.Title>
                   <div className="text-muted">{s.college}{s.major ? ` · ${s.major}` : ""} · <a href={`mailto:${s.email}`}>{s.email}</a></div>

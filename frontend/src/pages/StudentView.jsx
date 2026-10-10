@@ -23,7 +23,7 @@ export default function StudentView() {
       <Card>
         <Card.Body>
           <div className="d-flex gap-3 align-items-center mb-3">
-            <Avatar name={s.name} url={s.profile_pic_url} size={72} />
+            <Avatar name={s.name} src={s.profile_pic_url} size={72} decorative />
             <div>
               <h1 className="h3 mb-1">{s.name}</h1>
               <div className="text-muted">

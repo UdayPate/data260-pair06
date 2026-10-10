@@ -60,7 +60,7 @@ export default function CompanyProfileForm({ company }) {
 
   return (
     <Form onSubmit={submit} noValidate aria-label="Company profile form">
-      <PictureUploader name={form.name} url={logo} onUploaded={setLogo} upload={uploadCompanyLogo} label="Company logo" />
+      <PictureUploader name={form.name} url={logo} kind="company" onUploaded={setLogo} upload={uploadCompanyLogo} label="Company logo" />
       <Row>
         <Col md={6}><Form.Group className="mb-3" controlId="c-name"><Form.Label>Company name</Form.Label>
           <Form.Control value={form.name} onChange={set("name")} maxLength={100} /></Form.Group></Col>

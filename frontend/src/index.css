@@ -118,10 +118,6 @@ h1, h2, h3, h4, h5, h6,
 
 /* Avatars and chips */
 .avatar { border-radius: 50%; flex: none; }
-.avatar-initials {
-  display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, #5c7cfa, var(--brand-dark));
-}
 .chip {
   display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.3rem 0.2rem 0.7rem;
   border-radius: 999px; background: #eef2ff; color: var(--brand-dark); font-size: 0.875rem;

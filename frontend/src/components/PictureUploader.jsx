@@ -8,7 +8,7 @@ import Avatar from "./Avatar";
 
 // Shows the current picture and uploads a new one as soon as a file is chosen.
 // `upload` is the function that sends the file (students and companies use different addresses).
-export default function PictureUploader({ name, url, onUploaded, upload = uploadProfilePicture, label = "Profile picture" }) {
+export default function PictureUploader({ name, url, kind = "student", onUploaded, upload = uploadProfilePicture, label = "Profile picture" }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,7 +31,7 @@ export default function PictureUploader({ name, url, onUploaded, upload = upload
 
   return (
     <div className="d-flex align-items-center gap-3 mb-4">
-      <Avatar name={name} url={url} size={88} />
+      <Avatar name={name} src={url} size={88} kind={kind} />
       <div>
         <Form.Group controlId="picture">
           <Form.Label>{label}</Form.Label>

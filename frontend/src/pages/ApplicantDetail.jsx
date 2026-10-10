@@ -50,7 +50,7 @@ export default function ApplicantDetail() {
         <Col lg={5} className="mb-4">
           <Card className="mb-3"><Card.Body>
             <div className="d-flex gap-3 align-items-center mb-3">
-              <Avatar name={s.name} url={s.profile_pic_url} size={72} />
+              <Avatar name={s.name} src={s.profile_pic_url} size={72} decorative />
               <div>
                 <h1 className="h4 mb-1">{s.name}</h1>
                 <div className="text-muted">{s.college}{s.major ? ` · ${s.major}` : ""}{s.degree ? ` (${s.degree})` : ""}</div>

@@ -45,7 +45,7 @@ export default function Applicants() {
             <Card className="mb-3" key={a.id} data-testid="applicant-card">
               <Card.Body className="d-flex gap-3 justify-content-between flex-wrap">
                 <div className="d-flex gap-3">
-                  <Avatar name={a.student.name} url={a.student.profile_pic_url} size={52} />
+                  <Avatar name={a.student.name} src={a.student.profile_pic_url} size={52} decorative />
                   <div>
                     <Card.Title as="h2" className="h5 mb-1"><Link to={`/company/applications/${a.id}`}>{a.student.name}</Link></Card.Title>
                     <div className="text-muted">

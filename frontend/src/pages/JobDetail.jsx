@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { useAsync } from "../hooks/useAsync";
 import { getJob } from "../services/jobService";
 import { categoryLabel, formatDate } from "../utils/format";
+import Avatar from "../components/Avatar";
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -72,7 +73,10 @@ export default function JobDetail() {
           )}
           <Card data-testid="company-card">
             <Card.Body>
-              <Card.Title as="h2" className="h6">About {company.name}</Card.Title>
+              <div className="d-flex align-items-center gap-2 mb-2">
+                <Avatar name={company.name} src={company.profile_pic_url} size={40} kind="company" decorative />
+                <Card.Title as="h2" className="h6 mb-0">About {company.name}</Card.Title>
+              </div>
               {company.industry && <div className="text-muted small mb-2">{company.industry}</div>}
               {company.description && <p className="small">{company.description}</p>}
               <div className="small">
