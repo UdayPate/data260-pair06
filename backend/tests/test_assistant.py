@@ -1,10 +1,24 @@
 """
-The chat endpoint (placeholder assistant): who may call it, what it accepts, and its answer shape.
+The chat endpoint (with a fake model): who may call it, what it accepts, and its answer shape.
 Run from backend/:   python -m pytest -q
 """
 import pytest
 
+from app.assistant.model_client import ModelReply
+from app.services import assistant as assistant_service
+
 URL = "/assistant/chat"
+
+
+class EchoModel:
+    """A fake model that always answers in text, so these tests never need Ollama."""
+    def complete(self, messages, tools):
+        return ModelReply("fake reply")
+
+
+@pytest.fixture(autouse=True)
+def fake_model(monkeypatch):
+    monkeypatch.setattr(assistant_service, "model_client", EchoModel())
 
 
 def test_chat_needs_a_student_login(client, company_headers):
@@ -46,7 +60,11 @@ def test_malformed_requests_are_rejected(client, student_headers, body):
 
 
 def test_the_service_function_can_be_called_directly(db):
-    """What the partner's agent loop replaces; the router and website only call this function."""
+    """The router and website only call this function."""
+    from app.models import Student
     from app.services.assistant import run_assistant
-    out = run_assistant(db, student=None, message="hello", conversation_id="abc")
-    assert out.conversation_id == "abc" and out.reply
+    student = Student(name="T", email="t@t.test", password_hash="x", college="SJSU")
+    db.add(student)
+    db.commit()
+    out = run_assistant(db, student=student, message="hello", conversation_id="abc")
+    assert out.conversation_id == "abc" and out.reply == "fake reply"

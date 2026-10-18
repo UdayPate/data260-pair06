@@ -55,7 +55,27 @@ Backend (pytest): 346 passed, 1 warning, 216.73 s.
 
 ## Part B: assistant
 
-_Partner fills in._
+Source: `docs/part_b_transcripts.txt`, produced by `python -m scripts.run_transcripts` against the seeded MySQL
+database `p06_handshake`, model `qwen3:8b` (Ollama, temperature 0), demo student, run date 2026-10-16.
+An earlier run before the system-prompt fix is kept in `docs/part_b_transcripts_run1_before_prompt_fix.txt`.
+
+| Test | Student message | Tool calls | Model calls | Seconds | Tool errors |
+|---|---|---|---|---|---|
+| 1 | Find an internship in my city. | 2 (`get_student_preferences`, `search_jobs`) | 3 | 326 | 0 |
+| 2 | Find a remote data science internship. | 1 (`search_jobs`) | 2 | 117 | 0 |
+| 3 | Find an event for computer science students next month. | 1 (`search_events`) | 2 | 1544 | 0 |
+| 4 | Make it closer or higher paying. (follow-up to test 2) | 1 (`search_jobs`) | 2 | 125 | 0 |
+| 5 | Find me a job at Hooli Quantum Falconry. | 1 (`search_jobs`) | 2 | 31 | 0 |
+| Total | | 6 | 11 | 2143 | 0 |
+
+- All 6 tool calls returned a normal result (no `Error:` string), and no run hit the iteration ceiling (limit 6 model
+  calls per message).
+- Test 3 took 1544 s, far longer than the others. The cause was not investigated, so no explanation is given here.
+- Not covered by these five queries: `get_job_details` and `save_job_or_event` (saving is gated and belongs to Part C).
+- Unit tests for the loop, tools and model client use a fake model: `backend/tests/test_agent.py` and
+  `test_assistant.py`, 43 tests passed (5.31 s).
+- Full backend suite after adding Part B: 394 passed, 1 warning, 447.46 s (346 from Part A plus the new assistant tests).
+- Token counts were not recorded.
 
 ## Part C: safety and reliability
 

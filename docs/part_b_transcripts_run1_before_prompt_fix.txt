@@ -1,0 +1,146 @@
+Part B transcripts | model qwen3:8b | run date 2026-10-15 | student demo.student@sjsu.edu (major Data Science, city San Jose)
+
+==============================================================================
+TEST 1: must call get_student_preferences FIRST and use the result
+STUDENT: Find an internship in my city.
+------------------------------------------------------------------------------
+[tool] get_student_preferences({})
+    RESULT: Saved preferences:
+            - preferred job categories: internship
+            - preferred cities: San Jose
+            - preferred roles: Data Analyst, Data Science
+            - minimum pay: $25/hr
+            - open to remote: yes
+            - event interests: Career Fair, Tech Talk
+            Profile: city San Jose, major Data Science, college San Jose State University, skills: Machine Learning, Pandas, Python, SQL.
+[tool] search_jobs({"category": "internship", "city": "San Jose", "min_hourly_pay": 25, "remote": true, "sort": "salary"})
+    RESULT: Found 5 matching open job(s); showing 5 (sorted by salary):
+            - id 2 | Data Science Intern | Zimmerman and Sons | Remote (company in San Jose, CA) | internship | $54–$62/hr | deadline 2027-01-29 | skills: Machine Learning, Python, SQL, Statistics
+            - id 181 | Web Development and Design Intern | Demo Analytics Co | Remote (company in San Jose, CA) | internship | $51–$56/hr | deadline 2026-12-01 | skills: CSS, JavaScript, React, REST APIs, TypeScript
+            - id 3 | Data Science Intern | Nelson, Norman and Anderson | Remote (company in San Jose, CA) | internship | $44–$54/hr | deadline 2027-02-27 | skills: Machine Learning, Python, Statistics
+            - id 116 | WordPress Developer Intern | Fleming-Brown | Remote (company in San Jose, CA) | internship | $34–$44/hr | deadline 2026-11-13 | skills: CSS, FastAPI, JavaScript, React, TypeScript
+            - id 49 | QA Engineer Intern | Davis, Larson and Johnson | Remote (company in San Jose, CA) | internship | $30–$36/hr | deadline 2026-10-17 | skills: C++, Java
+Tool calls this run: 2
+ASSISTANT: Here are some internships in your city (San Jose) that match your preferences:
+
+1. **Data Science Intern** at Zimmerman and Sons  
+   - **Pay**: $54–$62/hr  
+   - **Deadline**: 2027-01-29  
+   - **Skills Required**: Machine Learning, Python, SQL, Statistics  
+
+2. **Web Development and Design Intern** at Demo Analytics Co  
+   - **Pay**: $51–$56/hr  
+   - **Deadline**: 2026-12-01  
+   - **Skills Required**: CSS, JavaScript, React, REST APIs, TypeScript  
+
+3. **Data Science Intern** at Nelson, Norman and Anderson  
+   - **Pay**: $44–$54/hr  
+   - **Deadline**: 2027-02-27  
+   - **Skills Required**: Machine Learning, Python, Statistics  
+
+Would you like to save any of these?
+(model calls: 3, seconds: 303, stopped at ceiling: False)
+
+==============================================================================
+TEST 2: must filter by category, location/remote and skills
+STUDENT: Find a remote data science internship.
+------------------------------------------------------------------------------
+[tool] get_student_preferences({})
+    RESULT: Saved preferences:
+            - preferred job categories: internship
+            - preferred cities: San Jose
+            - preferred roles: Data Analyst, Data Science
+            - minimum pay: $25/hr
+            - open to remote: yes
+            - event interests: Career Fair, Tech Talk
+            Profile: city San Jose, major Data Science, college San Jose State University, skills: Machine Learning, Pandas, Python, SQL.
+[tool] search_jobs({"category": "internship", "city": "San Jose", "min_hourly_pay": 25, "remote": true, "title": "data science"})
+    RESULT: Found 2 matching open job(s); showing 2 (sorted by newest):
+            - id 2 | Data Science Intern | Zimmerman and Sons | Remote (company in San Jose, CA) | internship | $54–$62/hr | deadline 2027-01-29 | skills: Machine Learning, Python, SQL, Statistics
+            - id 3 | Data Science Intern | Nelson, Norman and Anderson | Remote (company in San Jose, CA) | internship | $44–$54/hr | deadline 2027-02-27 | skills: Machine Learning, Python, Statistics
+Tool calls this run: 2
+ASSISTANT: Here are some remote data science internships in San Jose:
+
+1. **Data Science Intern** at Zimmerman and Sons  
+   - **Pay**: $54–$62/hr  
+   - **Deadline**: January 29, 2027  
+   - **Skills Required**: Machine Learning, Python, SQL, Statistics  
+
+2. **Data Science Intern** at Nelson, Norman and Anderson  
+   - **Pay**: $44–$54/hr  
+   - **Deadline**: February 27, 2027  
+   - **Skills Required**: Machine Learning, Python, Statistics  
+
+Would you like to save one of these?
+(model calls: 3, seconds: 115, stopped at ceiling: False)
+
+==============================================================================
+TEST 3: must filter by date (next month) and eligibility
+STUDENT: Find an event for computer science students next month.
+------------------------------------------------------------------------------
+[tool] search_events({"city": "Mountain View", "date_from": "2026-11-01", "date_to": "2026-11-30", "major": "Computer Science"})
+    RESULT: Found 8 upcoming event(s); showing 5, earliest first:
+            - id 85 | Info Session: Cortez-Mcknight | 2026-11-01 18:30 | 1660 Richard Mountains Suite 910, Mountain View, CA, Mountain View | host: Cortez-Mcknight | open to: All | you are eligible
+            - id 69 | Info Session: Harris and Sons | 2026-11-03 12:00 | 977 Chelsea Square Apt. 295, Mountain View, CA, Mountain View | host: Harris and Sons | open to: All | you are eligible
+            - id 57 | Info Session: Cole, Rogers and Jackson | 2026-11-03 17:30 | 36365 Johnson Stravenue, Mountain View, CA, Mountain View | host: Cole, Rogers and Jackson | open to: All | you are eligible
+            - id 13 | Info Session: Pena, Hanson and Lopez | 2026-11-04 11:00 | 649 Hayden Overpass, Mountain View, CA, Mountain View | host: Pena, Hanson and Lopez | open to: Computer Science, Electrical Engineering, Mathematics | you are NOT eligible
+            - id 60 | Resume Workshop | 2026-11-08 10:00 | 3037 Whitney Walk, Mountain View, CA, Mountain View | host: Cook-Salazar | open to: All | you are eligible
+Tool calls this run: 1
+ASSISTANT: Here are some upcoming events for computer science students next month:
+
+1. **Info Session: Cortez-Mcknight**  
+   - Date: 2026-11-01 | Time: 18:30  
+   - Location: 1660 Richard Mountains Suite 910, Mountain View, CA  
+   - Host: Cortez-Mcknight  
+
+2. **Info Session: Harris and Sons**  
+   - Date: 2026-11-03 | Time: 12:00  
+   - Location: 977 Chelsea Square Apt. 295, Mountain View, CA  
+   - Host: Harris and Sons  
+
+3. **Info Session: Cole, Rogers and Jackson**  
+   - Date: 2026-11-03 | Time: 17:30  
+   - Location: 36365 Johnson Stravenue, Mountain View, CA  
+   - Host: Cole, Rogers and Jackson  
+
+4. **Resume Workshop**  
+   - Date: 2026-11-08 | Time: 10:00  
+   - Location: 3037 Whitney Walk, Mountain View, CA  
+   - Host: Cook-Salazar  
+
+Would you like to save any of these events?
+(model calls: 2, seconds: 205, stopped at ceiling: False)
+
+==============================================================================
+TEST 4: follow-up: must refine the previous result using history
+STUDENT: Make it closer or higher paying.
+------------------------------------------------------------------------------
+[tool] search_jobs({"category": "internship", "city": "San Jose", "min_hourly_pay": 25, "remote": true, "sort": "salary", "title": "data science"})
+    RESULT: Found 2 matching open job(s); showing 2 (sorted by salary):
+            - id 2 | Data Science Intern | Zimmerman and Sons | Remote (company in San Jose, CA) | internship | $54–$62/hr | deadline 2027-01-29 | skills: Machine Learning, Python, SQL, Statistics
+            - id 3 | Data Science Intern | Nelson, Norman and Anderson | Remote (company in San Jose, CA) | internship | $44–$54/hr | deadline 2027-02-27 | skills: Machine Learning, Python, Statistics
+Tool calls this run: 1
+ASSISTANT: The highest paying remote data science internships in San Jose are:
+
+1. **Data Science Intern** at Zimmerman and Sons  
+   - **Pay**: $54–$62/hr  
+   - **Deadline**: January 29, 2027  
+   - **Skills Required**: Machine Learning, Python, SQL, Statistics  
+
+2. **Data Science Intern** at Nelson, Norman and Anderson  
+   - **Pay**: $44–$54/hr  
+   - **Deadline**: February 27, 2027  
+   - **Skills Required**: Machine Learning, Python, Statistics  
+
+Would you like to save one of these?
+(model calls: 2, seconds: 142, stopped at ceiling: False)
+
+==============================================================================
+TEST 5: must say no match exists and invent nothing
+STUDENT: Find me a job at Hooli Quantum Falconry.
+------------------------------------------------------------------------------
+[tool] search_jobs({"city": "San Jose", "company": "Hooli Quantum Falconry", "limit": 5})
+    RESULT: No jobs match these filters. No such job exists in the database.
+Tool calls this run: 1
+ASSISTANT: It looks like there's no job at Hooli Quantum Falconry in the database. Would you like to try a different company or search for something else?
+(model calls: 2, seconds: 43, stopped at ceiling: False)

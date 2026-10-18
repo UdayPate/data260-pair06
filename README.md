@@ -25,7 +25,7 @@ backend/            FastAPI application
   app/              routers (HTTP) -> services (logic shared with the assistant) -> models (MySQL tables)
     core/           password hashing, JWT, login checks, safe file uploads
     schemas/        every request and response shape, with the validation rules
-    assistant/      reserved for Part B (Ollama client + agent loop)
+    assistant/      Part B/C: model_client.py (one Ollama client), agent.py (hand-built loop), tools.py (5 tools), confirm.py (save gate)
   seed/             generate_seed.py: 50 companies, 200 students, 300 jobs, 1500 applications, 100 events, ...
   scripts/          export_api_docs.py (OpenAPI + Postman), collect_metrics.py (numbers for METRICS.md)
   tests/            pytest suite (runs on in-memory SQLite, never touches MySQL)
@@ -140,9 +140,17 @@ Dashboards use the `total` of `GET /applications/mine`, `/events/registered`, `/
 ## How the assistant plugs in
 
 `POST /assistant/chat` takes `{ "message", "conversation_id" }` and returns `{ "reply", "conversation_id", "tool_calls" }`.
-The body of `run_assistant()` in `backend/app/services/assistant.py` is the only thing Part B replaces. Tools should
-reuse `search_jobs` (`services/jobs.py`), `search_events` (`services/events.py`) and `get_student_preferences`
-(`services/preferences.py`), so the assistant and the website always agree on what "matching" means.
+`run_assistant()` in `backend/app/services/assistant.py` keeps one in-memory conversation per `conversation_id` and hands
+the work to the hand-built loop in `backend/app/assistant/agent.py` (no agent framework, at most 6 model calls per
+message). The only code that talks to Ollama is `OllamaClient.complete(messages, tools)` in `model_client.py`
+(default model `qwen3:8b`). The five tools live in `tools.py`: `get_student_preferences`, `search_jobs`,
+`get_job_details`, `search_events` and `save_job_or_event`. They call the same service functions as the website
+(`services/jobs.py`, `services/events.py`, `services/preferences.py`), so the assistant and the website always agree on
+what "matching" means. Every tool returns a string and never raises. `save_job_or_event` is the only tool that changes
+data: it asks the student in chat first and saves only after an explicit yes (`confirm.py`).
+
+Real transcripts of the five required queries: `docs/part_b_transcripts.txt`. Regenerate them with
+`python -m scripts.run_transcripts` (needs Ollama running and the database seeded).
 
 ## Testing
 
