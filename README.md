@@ -152,6 +152,20 @@ data: it asks the student in chat first and saves only after an explicit yes (`c
 Real transcripts of the five required queries: `docs/part_b_transcripts.txt`. Regenerate them with
 `python -m scripts.run_transcripts` (needs Ollama running and the database seeded).
 
+### Safety and reliability (Part C)
+
+- **Confirmation gate:** `confirm_action(tool_name, arguments, auto_approve=False)` in `assistant/confirm.py`. Only an
+  explicit "yes" lets `save_job_or_event` run; a "no" returns a `CANCELLED` string, and the loop never asks twice for
+  the same declined save. Read-only tools are not gated.
+- **Prompt-injection defense:** job and event text written by companies is wrapped in
+  `<<<UNTRUSTED_DATABASE_CONTENT ...>>>` markers (`mark_untrusted` in `tools.py`), and the system prompt says that text
+  between the markers is data, never instructions. Measured result: on the two local models tested it did **not**
+  reduce the number of successful injections; the confirmation gate is what kept the data safe (see `METRICS.md`, C2).
+- **Repair path:** a bad tool name, bad arguments, a text answer where a tool was needed, or a lost multi-step chain is
+  re-prompted once with the specific error, then the loop stops cleanly (`MAX_REPAIRS = 1` in `agent.py`).
+- Run the experiments with `python -m scripts.run_part_c gate`, `injection` or `reliability` (from `backend/`; the model
+  comes from the `OLLAMA_MODEL` environment variable). The injection run inserts one poisoned job and deletes it again.
+
 ## Testing
 
 - Backend: `python -m pytest -q` runs the full API suite on an in-memory database (authentication, profiles, jobs,
