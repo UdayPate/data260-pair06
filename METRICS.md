@@ -47,8 +47,8 @@ Pair 06, SEED 6, cities San Jose, Sunnyvale, Mountain View, backend port 9060.
 Login (bcrypt, deliberately slow): median 375 ms over 5 logins.
 
 ## Frontend tests
-Frontend (Vitest): 14 test files, 148 tests passed, 16.69 s.
-Backend (pytest): 346 passed, 1 warning, 216.73 s.
+Frontend (Vitest): 17 test files, 210 tests passed, 34.89 s (run on 2026-10-19 at the same time as the backend suite; 15.47 s when run alone).
+Backend (pytest): 405 passed, 1 warning, 241.97 s (Part A 363 tests, Part B and C 42 more in `test_agent.py`; run on 2026-10-19).
 
 <!-- PART B / PART C: your partner adds the assistant numbers below (tool-call success rate, latency per turn,
      tokens, injection results) -->
@@ -77,8 +77,8 @@ calls with the same arguments for the five tests.
   inflates timings (see Part C), which is a likely cause of the earlier number, but that is not verified.
 - Not covered by these five queries: `get_job_details` and `save_job_or_event` (saving is gated and belongs to Part C).
 - Unit tests for the loop, tools and model client use a fake model: `backend/tests/test_agent.py` and
-  `test_assistant.py`, 43 tests passed (5.31 s).
-- Full backend suite after adding Part B: 394 passed, 1 warning, 447.46 s (346 from Part A plus the new assistant tests).
+  `test_assistant.py`, 54 tests passed (4.17 s, rerun on 2026-10-19).
+- Full backend suite with Parts A, B and C together: 405 passed, 1 warning, 241.97 s (2026-10-19).
 - Token counts were not recorded.
 
 ## Part C: safety and reliability

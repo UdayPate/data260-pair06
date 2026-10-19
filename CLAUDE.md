@@ -103,7 +103,7 @@ Frontend (React 18, Vite, react-router 6, Axios, react-bootstrap):
 cd backend
 python -m seed.generate_seed --reset        # drop + rebuild + seed p06_handshake
 uvicorn app.main:app --port 9060            # API; docs at http://localhost:9060/docs
-python -m pytest -q                         # 346 tests expected (takes about 3.5 minutes)
+python -m pytest -q                         # 405 tests expected (takes about 4 minutes)
 python -m scripts.collect_metrics           # writes docs\part_a_metrics.md
 python -m scripts.export_api_docs           # refreshes docs\openapi.json and postman_collection.json
 
@@ -111,7 +111,7 @@ python -m scripts.export_api_docs           # refreshes docs\openapi.json and po
 cd ..\frontend
 npm install
 npm run dev                                 # http://localhost:9061 (strict port)
-npm test                                    # 148 tests expected
+npm test                                    # 210 tests expected
 ```
 
 Use the Python virtual environment (`venv`) in the repo root. Never commit `venv`,
@@ -220,7 +220,7 @@ Due: Monday Oct 19, 2026, 3:00 PM.
 
 ## Status (update this section when something changes)
 
-- Part A: complete. Backend 346 tests pass, frontend 148 tests pass.
+- Part A: complete. Backend 405 tests pass (Parts A, B and C), frontend 210 tests pass.
 - Seed (SEED=6): 50 companies, 200 students, 300 jobs, 1500 applications, 100 events,
   400 registrations. Measured on real MySQL; all endpoints returned 200, medians under
   18 ms except login (about 375 ms, bcrypt on purpose).
