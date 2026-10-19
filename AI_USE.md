@@ -41,4 +41,49 @@ I wrote and implemented the Part A code myself. I used Claude (Anthropic) as a t
 
 ## Partner (Parts B and C)
 
-_Partner fills in: assistant used, one incorrect output, how it was detected, the fix._
+### Which assistant, and for what
+I used Claude Code (Anthropic's coding assistant, running in VS Code; the commits made with it carry the trailer
+"Co-Authored-By: Claude Sonnet 5.5") for Parts B and C. I wrote part of the work myself and used Claude Code for the
+rest. I did not keep a line-by-line record of which parts I wrote myself; the commits made with Claude Code
+carry that trailer, and the changes made with it are listed below.
+
+What Claude Code did, as the commits and files show: the Part C code (the untrusted-content wrapper in `tools.py`, the
+repair path and the no-retry guard in `agent.py`), the unit tests for them, `scripts/run_part_c.py`, running the
+experiments and the Part B transcript rerun, the Part B and Part C sections of `METRICS.md` and `README.md`, report
+sections 7 to 10 and the Word build script. Every number in `METRICS.md` and in the report comes from those runs and
+from the result files in `docs/`. I chose the model for the long experiments (`qwen2.5:1.5b-instruct`, because my
+laptop has no GPU and `qwen3:8b` takes minutes per answer), and I asked for the commits and the pushes.
+
+### Incorrect output 1: a failed tool call was counted as "the tool was called"
+
+- **What went wrong:** In the repair path that Claude Code wrote (`_missing_tools_failure` in `agent.py`), the check
+  "did the model skip a tool this request needs?" built its list of called tools from every tool record, including
+  calls that had been rejected as invalid. In the first gate run with `qwen2.5:1.5b-instruct`, the model sent
+  `save_job_or_event({"item_id": 1})` without `item_type`. The tool answered `Error: invalid arguments ... missing
+  required argument(s) ['item_type']`. The loop then counted `save_job_or_event` as called, so when the model went on
+  to answer in plain text, the loop did not flag a "text answer where a tool was required" and treated the repair as
+  having worked, although nothing had been saved.
+
+- **How it was detected:** In the real output of `python -m scripts.run_part_c gate`, the failed save produced one
+  `[failure] malformed_arguments` line and a `[repair]` line, and then the model's text reply ended the turn with no
+  second failure, even though the check said `save_job_or_event calls = 1, saved items ... change +0`. The same kind of
+  situation without a failed call (the next gate run) printed two `[failure] text_without_tool` lines, so the two runs
+  disagreed about what counts as a tool call.
+
+- **How it was fixed:** I added `FAILED_CALL_PREFIXES` in `agent.py` and changed the check to count only calls whose
+  result does not start with one of those error prefixes (the reliability script uses the same constant). I added the
+  unit test `test_a_failed_call_does_not_count_as_calling_the_tool`. The fix is in commit `f818127` and the test in
+  commit `04855c1`; the full backend suite passes (405 tests).
+
+### Other corrections made during review
+
+- The first version of the re-prompt only named the error. The first reliability run
+  (`docs/part_c_reliability_run1_first_repair_wording.txt`, 16 correct turns before repair, 17 after) showed that the
+  small model mostly ignored it. I kept that run in the repository, made the re-prompt end with the exact next step, and
+  ran the experiment again (16 before, 20 after).
+- A keyword rule in the repair check asked for `search_jobs` on "What are my job preferences?", so a correct answer was
+  re-prompted. It showed up in turn 11 of the first reliability run and was fixed with a narrower rule.
+- A scripted edit wrote `\b` as a backspace character into a regular expression. `pytest` failed
+  (`test_follow_up_words_only_mean_search_after_an_earlier_tool_call`) and I rewrote the line.
+- The prompt-injection defense did not reduce the number of successful attacks on either model. It is reported as
+  measured (`METRICS.md`, section C2, and report section 9), not adjusted until it looked better.
