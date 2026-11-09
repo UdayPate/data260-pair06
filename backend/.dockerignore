@@ -1,0 +1,15 @@
+# Keep images small and never bake secrets into them.
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+uploads/
+.env
+.env.*
+!.env.example
+seed/
+scripts/
+docker/
+requirements.txt

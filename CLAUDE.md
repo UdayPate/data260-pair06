@@ -1,17 +1,18 @@
-# DATA-260 Lab 1 (Handshake clone + hand-built AI assistant) — Pair 06
+# DATA-260 Handshake clone + hand-built AI assistant — Pair 06 (Lab 1 done, Lab 2 in progress)
 
 Standing instructions for Claude Code. Two people use this repo, each with their own
-Claude Code session: **Uday** (Part A, platform) and **his partner** (Parts B and C,
-assistant). Read this whole file at the start of every session.
+Claude Code session: **Uday** and **his partner** (Sreeramachandra Sai Achutuni). Read this
+whole file at the start of every session.
 
 ## First thing to do in every new session
 
-1. Read the assignment: `docs/lab1/Lab_1.pdf`. If it is not in the repo, ask the user to add it
-   and wait. (Lab 1 only. Lab 2 comes later and is not in scope.)
+1. Read the assignment for the lab in progress: **Lab 2 is `docs/lab2/Handshake_Lab2.pdf`**
+   (due 11/16/2026). Lab 1 is `docs/lab1/Lab_1.pdf` (finished, tagged `lab1`). If a PDF is not
+   in the repo, ask the user to add it and wait.
 2. Read the existing code before proposing anything: `README.md`, `METRICS.md`,
-   `RUN_LOG.txt`, `AI_USE.md`, `docs/lab1/PART_A_CHECKLIST.md`, then `backend/app/` (main.py,
-   models.py, routers/, services/, schemas/), `backend/tests/`, `frontend/src/`
-   (App.jsx, pages/, components/, services/), `backend/seed/generate_seed.py`.
+   `RUN_LOG.txt`, `AI_USE.md`, everything in `docs/lab2/`, then `backend/app/` (main.py,
+   models.py, routers/, services/, schemas/, assistant/), `backend/services/` (the six Lab 2
+   services), `backend/docker/`, `gateway/`, `frontend/src/`, `backend/tests/`, and `k8s/` once it exists.
 3. Run `git status` and `git log --oneline -15` so you know what is committed.
 4. Tell the user, in a few sentences, what you understood: what is built, what is left,
    and which of the work below belongs to the person you are talking to.
@@ -23,12 +24,14 @@ assistant). Read this whole file at the start of every session.
 | Value | Result |
 |---|---|
 | PAIR | 06 |
-| PORT_BASE | 9060 (backend 9060, React dev server 9061) |
-| Database name | `p06_handshake` (prefix `p06`; Kafka prefix `p06` in Lab 2) |
+| PORT_BASE | 9060 |
+| Ports | 9060 = backend (single app, local dev) or the nginx gateway (Docker); 9061 = website; 9062 Student, 9063 Company, 9064 Job, 9065 Application, 9066 Event, 9067 AI Assistant |
+| Database name | `p06_handshake` (MySQL in Lab 1; MongoDB, same name, in Lab 2) |
+| Prefix for everything Lab 2 | `p06`: images `p06-<service>:<version>`, containers, Kafka topics `p06.<name>` (dead letter `p06.dlq`), Kubernetes namespace `p06-handshake`, every resource named `p06-...` |
 | SEED | 6 (every generator and every `random_state`) |
 | CITY_SET | San Jose, Sunnyvale, Mountain View |
-| Report filename | `LabPair-06_Lab1_Report.pdf` |
-| Git tag at the end | `lab1` |
+| Report filenames | `LabPair-06_Lab1_Report.pdf` (submitted, in `docs/lab1/`), `LabPair-06_Lab2_Report.pdf` |
+| Git tags | `lab1` (on `61f114c`, pushed); `lab2` at the end |
 
 Local model: Ollama, `qwen3:8b` by default (alternative `llama3-groq-tool-use:8b`;
 fallback `qwen3:4b` or `llama3.2:3b` with a note about reduced reliability).
@@ -38,43 +41,63 @@ Demo logins (seeded): `demo.student@sjsu.edu` and `demo.company@example.com`, pa
 
 ## Who owns what
 
-| Area | Owner | Notes |
-|---|---|---|
-| Part A: React + FastAPI + MySQL platform, seed generator, API docs (22 pts) | Uday | Done and tested. Edits now are fixes and polish. |
-| Part B: model client, agent loop, 5 tools, transcripts (12 pts) | Partner | |
-| Part C: confirmation gate, injection defense, reliability table (6 pts) | Partner | |
-| `README.md`, `METRICS.md`, `RUN_LOG.txt` | Both | Each person adds only their own part. |
-| `AI_USE.md` | Both | Each person writes only their own section, see rules below. |
-| Report Part A sections | Uday's Claude Code | |
-| Report Part B and C sections | Partner's Claude Code | |
+Lab 1 (finished): Uday = Part A (platform); partner = Parts B and C (assistant, safety, reliability).
+
+Lab 2 split:
+
+| Area | Owner |
+|---|---|
+| Part 1.1 Dockerfiles (6 services, HEALTHCHECK, `/health`), 1.2 Docker Compose, 1.3 Kubernetes manifests | Uday |
+| Part 2 Kafka (KRaft in Compose and Kubernetes, the topic flows, 3 failure demos, architecture diagram) | Uday |
+| Part 3 MongoDB migration (not the assistant memory layers) | Uday |
+| Part 1.4-1.6 AWS (ECR, EKS, LoadBalancer, evidence), Part 3 assistant memory, Part 4 Redux, Part 5 JMeter, Part 6 | Partner |
+| `docs/lab2/MONGO_SCHEMA.md`, `docs/lab2/KAFKA_CONTRACT.md` | Uday writes them for the partner |
+| `README.md`, `METRICS.md`, `RUN_LOG.txt`, `AI_USE.md`, the Lab 2 report | Both; each person writes only their own part |
 
 Rules for working in someone else's area:
 - Do not edit files owned by the other person without asking the human first.
-- Do not change an API contract (endpoint path, request body, response shape) that the
-  other person depends on without telling the human so they can tell their partner.
+- Do not change an API contract (endpoint path, request body, response shape, Kafka message
+  format) that the other person depends on without telling the human so they can tell their partner.
 - Do not change the pair configuration, the seed counts, or the ports.
 
-## The contract between Part A and Part B
+## Lab 2 design decisions (agreed 2026-11-08, do not reopen without asking)
+
+1. **One codebase, six services.** `backend/app/` is shared; `backend/services/<name>/main.py`
+   mounts only that service's routers. All six use the same database and the same JWT secret.
+2. **nginx gateway on 9060** routes by path (`gateway/nginx.conf`); the website keeps calling one address.
+   `/jobs/{id}/apply` and `/jobs/{id}/applications` belong to the Application service; the rest of `/jobs` to Job.
+3. **MongoDB stores resumes and profile pictures (GridFS)** so every pod is stateless; no shared volumes.
+4. **Apply is asynchronous:** the API validates and stores the PDF, publishes `p06.application.created`
+   and returns **202**; a worker inserts the application, idempotent on `event_id`. The Redux applications
+   slice (partner) must know about the 202.
+5. **Assistant tools stay in-process** (they use the shared data layer); the assistant service also checks
+   the other services' `/health`. Partner's Part 6 harness depends on this.
+6. **Local Kubernetes is `kind`** (downloaded when Kubernetes work starts).
+7. **MongoDB keeps integer ids** (a `counters` collection), so URLs, the frontend and the assistant tools do not change.
+
+Every Kafka message carries `event_id` (UUID, for idempotency), `event_type`, `timestamp`, `payload`
+and `trace_id` (in the Kafka headers AND in the payload).
+
+## The contract between the platform and the assistant
 
 - The assistant endpoint is `POST /assistant/chat` with body `{message, conversation_id}`
-  and response `{reply, conversation_id, tool_calls: [{name, arguments, result}]}`.
-  The router, schemas and tests exist already. The partner replaces **only the body of
-  `run_assistant()`** in `backend/app/services/assistant.py`. The frontend chat window
-  (`ChatWindow.jsx`, `assistantService.js`) already works against this contract.
+  and response `{reply, conversation_id, tool_calls: [{name, arguments, result}]}`. The frontend chat
+  window (`ChatWindow.jsx`, `assistantService.js`) works against this contract.
 - Tools must reuse the existing **service functions** in `backend/app/services/` (jobs,
-  events, students, preferences), not copy SQL. Services already enforce who may see
+  events, students, preferences), not copy queries. Services already enforce who may see
   what, so tools get the same permission rules as the API.
-- All model calls go through **one client class** with `complete(messages, tools)`.
-  Nothing else in the app may call Ollama directly. No agent frameworks (no LangChain,
-  LlamaIndex, CrewAI): write the loop by hand, with a hard iteration ceiling.
+- All model calls go through **one client class** with `complete(messages, tools)`
+  (`backend/app/assistant/model_client.py`). Nothing else in the app may call Ollama directly.
+  No agent frameworks (no LangChain, LlamaIndex, CrewAI): the loop is written by hand, with a hard iteration ceiling.
 - Every tool returns a string in every case and never raises.
 - `save_job_or_event` is the only state-changing tool. It is gated by
-  `confirm_action(tool_name, arguments, auto_approve=False)` in its own module (Part C).
+  `confirm_action(tool_name, arguments, auto_approve=False)` in its own module.
   Read-only tools are not gated.
 
 ## Architecture and conventions (follow these, do not reinvent)
 
-Backend (FastAPI, SQLAlchemy 2.0, Pydantic v2, MySQL via pymysql):
+Backend (FastAPI, Pydantic v2). The data layer is SQLAlchemy 2.0 on MySQL until the MongoDB
+migration lands, then pymongo on MongoDB; the migration keeps the API and the response shapes unchanged.
 - Layering: `routers/` (HTTP only) -> `schemas/` (Pydantic validation) -> `services/`
   (business rules and queries). Routers stay thin.
 - Passwords: bcrypt. Auth: JWT (HS256, 8 hours). Role checks in `core/deps.py`.
@@ -84,7 +107,12 @@ Backend (FastAPI, SQLAlchemy 2.0, Pydantic v2, MySQL via pymysql):
   Profile pictures are public under `/media/...`.
 - Role views: a company sees student email, phone and GPA (never date of birth); a
   student sees a limited view of peers (no email, phone or GPA).
-- Tests use pytest with an in-memory SQLite database. Do not point tests at MySQL.
+- Tests use pytest. They never touch the real database (in-memory SQLite today).
+- The six services (`backend/services/`) must together serve exactly the endpoints of the single
+  app, with no overlap: `backend/tests/test_services.py` checks it. A new endpoint needs an owner.
+- Docker: one Dockerfile per service in `backend/docker/`, each installing only
+  `backend/requirements/<service>.txt`, running as a non-root user, with a `HEALTHCHECK` on `/health`.
+  Never copy `.env`, tests or secrets into an image. Kubernetes manifests and Compose files hold no real secrets.
 
 Frontend (React 18, Vite, react-router 6, Axios, react-bootstrap):
 - Pages never call Axios directly. Pages -> `services/*.js` -> `services/api.js`.
@@ -94,28 +122,30 @@ Frontend (React 18, Vite, react-router 6, Axios, react-bootstrap):
   which is what FastAPI expects.
 - Media URLs go through `mediaUrl()`; resumes are fetched as blobs with the token and
   shown in an iframe via `URL.createObjectURL`.
+- `VITE_API_URL` is baked in at build time (the gateway address the browser uses).
 - Tests use Vitest, Testing Library and axios-mock-adapter.
 
 ## Commands (Windows PowerShell, from the repo root `data260-pair06`)
 
 ```powershell
-# Backend (needs backend\.env copied from backend\.env.example, with a real MySQL password)
+# Backend, single app for local development (needs backend\.env copied from backend\.env.example)
 cd backend
-python -m seed.generate_seed --reset        # drop + rebuild + seed p06_handshake
+python -m seed.generate_seed --reset        # drop + rebuild + seed p06_handshake (MySQL, until the migration)
 uvicorn app.main:app --port 9060            # API; docs at http://localhost:9060/docs
-python -m pytest -q                         # 405 tests expected (takes about 4 minutes)
-python -m scripts.collect_metrics           # writes docs\part_a_metrics.md
-python -m scripts.export_api_docs           # refreshes docs\openapi.json and postman_collection.json
+python -m pytest -q                         # all backend tests (about 4 minutes)
 
 # Frontend
 cd ..\frontend
 npm install
 npm run dev                                 # http://localhost:9061 (strict port)
 npm test                                    # 210 tests expected
+
+# Docker images (see README, "Lab 2: the six services and Docker images")
+cd ..\backend; docker build -f docker/Dockerfile.student -t p06-student:1.0.0 .   # likewise job, company, application, event, assistant
 ```
 
-Use the Python virtual environment (`venv`) in the repo root. Never commit `venv`,
-`node_modules`, `__pycache__`, `.env`, or `backend/uploads/`.
+Use the Python virtual environment (`venv`) in `backend/`. Never commit `venv`,
+`node_modules`, `__pycache__`, `.pytest_cache`, `.env`, `backend/uploads/`, secrets or API keys.
 
 ## Workflow: part by part, and STOP after each part
 
@@ -123,12 +153,25 @@ Use the Python virtual environment (`venv`) in the repo root. Never commit `venv
    one reasonable option. Do not ask about small details.
 2. **Build it.**
 3. **Test it for real** (see below).
-4. **Say exactly which files changed** so the human can review them.
+4. **Say exactly which files changed** and give the exact commands for the human to verify it.
 5. **Stop.** The human reads the change, runs it, and does the commit.
 
-**Never run `git commit`, `git push`, `git tag`, or change the remote unless the human
-explicitly asks in that message.** You may run read-only git commands (`status`, `diff`,
-`log`). When you finish a part, suggest a one-line commit message and let the human run it.
+**Never run `git commit`, `git push`, `git tag`, `git add` for a commit, or change the remote.**
+(Uday's standing rule since 2026-11-08: even if a message seems to ask for it, give him the commands.)
+You may run read-only git commands (`status`, `diff`, `log`). At the end of every phase or part, give the
+human the exact commands to run themselves, for example:
+
+```powershell
+git add <the files of this phase>
+git commit -m "<one-line message>"
+git push
+```
+
+Never use `git add -A` or `git add .` unless the status list has been checked: line-ending noise can make
+dozens of unchanged files look modified. List the files explicitly.
+
+At the end of every Lab 2 phase, append that phase's commands and real results (failures included) to
+`RUN_LOG.txt` under the "LAB 2" heading. Append only: never edit the Lab 1 entries.
 
 ## Testing philosophy
 
@@ -136,7 +179,7 @@ explicitly asks in that message.** You may run read-only git commands (`status`,
 - Run the relevant tests and the real app. Report the real output, including failures.
 - Do not edit a test to make it pass unless the test itself is wrong; if so, say so.
 - Never invent results. Numbers, transcripts, latencies, reliability counts, and
-  before/after injection results must come from runs that actually happened. If something
+  before/after results must come from runs that actually happened. If something
   could not be run (for example Ollama is not installed on this machine), say so plainly
   and leave a clearly marked placeholder. Do not fill it in.
 - When you run a command that belongs in `RUN_LOG.txt`, tell the human so they can
@@ -157,75 +200,42 @@ assistant use, show one **real** incorrect output, how it was detected, and the 
 - Never write or "improve" the other partner's section.
 - Never invent an incorrect output. If the human asks for help drafting, ask them what
   actually went wrong and write down only what they tell you, in their words.
-- Real incorrect outputs already recorded for Part A are in the Uday section; do not
-  duplicate them.
+- Real incorrect outputs already recorded are in each partner's section; do not duplicate them.
 
-## The report: `LabPair-06_Lab1_Report.pdf`
+## The Lab 2 report: `LabPair-06_Lab2_Report.pdf`
 
-Source of truth is `docs/report/report.md` (Markdown, with images from
-`docs/lab1/screenshots/`). Build the PDF from it with a script in `docs/report/` so it can be
-rebuilt after every edit. If a PDF toolchain is missing, say so and ask before installing
-anything large. Keep the final PDF at the repo root, and put the final commit hash on the
-title page (the same convention as the homework reports).
+The Lab 1 report is finished (`docs/lab1/LabPair-06_Lab1_Report.pdf`). The Lab 2 report is not started.
+Ask the human how it should be written and built before creating any report files. The assignment
+requires it to cover: architecture, cloud deployment, Kafka flows and failures, MongoDB schema,
+memory and consolidation, Redux state, performance graphs, assistant load analysis, token
+compaction evidence, one end-to-end trace, the agent guardrail results, the harness test matrix and
+output, and the blocked-injection, declined-confirmation, repaired-call and bounded-stop evidence.
+Each partner writes only their own sections; every claim needs a real log, screenshot or file.
+Screenshots for Lab 2 go in `docs/lab2/screenshots/` and must show the `p06-` names; hide secrets in all of them.
 
-Style: follow the homework reports. Short plain paragraphs, numbered sections, tables
-for numbers, every claim backed by a real log, screenshot or file reference, no filler.
-If `docs/report/style_sample.pdf` exists, read it and match its layout, headings and tone.
-If it does not exist, ask the human for a sample before designing the layout.
+## Submission checklist (Lab 2)
 
-Required sections, in this order (all of them are in the assignment):
-
-| # | Section | Source of evidence | Owner |
-|---|---|---|---|
-| 1 | Goals | Lab_1.pdf, README | Uday |
-| 2 | System design (architecture diagram, layers, data model, auth, role rules) | code, README | Uday |
-| 3 | Pair parameters (PAIR, PORT_BASE, database, SEED, CITY_SET) | README | Uday |
-| 4 | Seed counts | `docs/lab1/part_a_metrics.md`, METRICS.md | Uday |
-| 5 | Screenshots (app screens, tests, row counts, git history) | `docs/lab1/screenshots/` | Uday; git history shot needs both partners |
-| 6 | API tests (Swagger evidence, status codes, role rules, test suite results) | `docs/lab1/screenshots/api_*.png`, pytest output | Uday |
-| 7 | Five transcripts (every tool call shown) | Part B runs | Partner |
-| 8 | Reliability table (valid and failed calls over 20+ turns, before and after repair) | Part C runs | Partner |
-| 9 | Injection before and after (five verification queries, exactly what changed) | Part C runs | Partner |
-| 10 | Assistant tool-call evidence | Part B and C runs | Partner |
-
-Rules:
-- Sections 7 to 10 are the partner's. Until they exist, leave a visible placeholder like
-  `<!-- PARTNER (Parts B/C): paste the five transcripts here, from real runs -->` and do
-  not write them yourself.
-- Each Claude Code session writes only its owner's sections and leaves the other's alone.
-  If both edit `report.md`, keep changes to separate sections so merges stay clean.
-- Part A numbers come only from `METRICS.md` / `docs/lab1/part_a_metrics.md` and real
-  command output. Re-run `collect_metrics` if the data changed.
-- Screenshots already saved: `docs/lab1/screenshots/api_01` to `api_20` (Swagger). Still
-  to capture: React app screens (student home with chat, job search with filters,
-  my applications with resume window, company applicant detail), `pytest` and `npm test`
-  summaries, metrics terminal output, and the Git commit history screenshot at the end.
-
-## Submission checklist (Lab 1)
-
-- [ ] Private repo with README, `requirements.txt`, frontend and backend source,
-      seed generator, API documentation (`docs/openapi.json`, Postman collection)
-- [ ] Instructors or graders named on Canvas invited as collaborators
-- [ ] `.gitignore` covers `venv/`, `node_modules/`, `__pycache__/`, `.env`, uploads
-- [ ] `git ls-files | Select-String "\.env$|venv|node_modules|__pycache__|uploads"`
-      shows nothing except our own source file `backend/app/core/uploads.py`
-- [ ] `METRICS.md`, `RUN_LOG.txt`, `AI_USE.md` filled in (both partners)
+- [ ] Repository has Dockerfiles, Compose file, Kubernetes manifests, ECR/EKS configuration, Kafka
+      producers and consumers, the MongoDB migration, Redux, JMeter plans and results, guardrails,
+      the evaluation harness (source and output), `requirements.txt`, and README instructions for
+      running locally, running the harness, and reaching the AWS deployment
+- [ ] No venv, `node_modules`, `__pycache__`, `.pytest_cache`, credentials or API keys committed
+- [ ] `METRICS.md`, `RUN_LOG.txt` (with the three Kafka failure demos and traces), `AI_USE.md` updated by both
 - [ ] Both partners have commits
-- [ ] `LabPair-06_Lab1_Report.pdf` with all ten sections
-- [ ] Five-minute screen recording; both partners run the system and explain code the
-      grader picks
-- [ ] Tag created and pushed (human does this): `git tag lab1` then `git push origin lab1`
+- [ ] `LabPair-06_Lab2_Report.pdf`
+- [ ] Five-minute screen recording; both partners run the system and explain code the grader picks
+- [ ] AWS: images in ECR, cluster running, demo can be restored at the scheduled time (live viva)
+- [ ] Tag `lab2` created and pushed (human does this): `git tag lab2` then `git push origin lab2`
 
-Due: Monday Oct 19, 2026, 3:00 PM.
+Due: Monday 11/16/2026.
 
 ## Status (update this section when something changes)
 
-- Part A: complete. Backend 405 tests pass (Parts A, B and C), frontend 210 tests pass.
-- Seed (SEED=6): 50 companies, 200 students, 300 jobs, 1500 applications, 100 events,
-  400 registrations. Measured on real MySQL; all endpoints returned 200, medians under
-  18 ms except login (about 375 ms, bcrypt on purpose).
-- Evidence files exist: README.md, METRICS.md (Part A), RUN_LOG.txt (Part A),
-  AI_USE.md (Uday section), docs/.
-- Part B and C: not started in this repo yet (placeholder `run_assistant()` returns a
-  stub reply).
-- Report: not started.
+- Lab 1: complete and tagged `lab1` (`61f114c`). Evidence in `docs/lab1/`.
+- Lab 2, Uday's scope:
+  - Cleanup done (Lab 1 evidence moved to `docs/lab1/`, `.gitignore` merged, `docs/lab2/` created).
+  - Phase 1 (Dockerfiles + `/health`): the six services, gateway and frontend images build, report
+    healthy and route correctly. Not committed yet.
+  - Next: MongoDB migration (+ `MONGO_SCHEMA.md`), Compose, Kafka (+ `KAFKA_CONTRACT.md`), failure demos,
+    Kubernetes manifests tested on kind.
+- The data layer is still MySQL until the MongoDB migration is done.

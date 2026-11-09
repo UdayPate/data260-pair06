@@ -21,6 +21,17 @@ PAIR_STR = f"{PAIR:02d}"          # "06"
 PORT_BASE = 9000 + PAIR * 10      # 9060
 BACKEND_PORT = PORT_BASE          # 9060 -> FastAPI
 FRONTEND_PORT = PORT_BASE + 1     # 9061 -> React dev server
+
+# Lab 2: the backend is split into six services. Each gets its own port, counted up from
+# the frontend port (9060 is the gateway that routes to them, 9061 is the website).
+SERVICE_PORTS = {
+    "student": PORT_BASE + 2,      # 9062
+    "company": PORT_BASE + 3,      # 9063
+    "job": PORT_BASE + 4,          # 9064
+    "application": PORT_BASE + 5,  # 9065
+    "event": PORT_BASE + 6,        # 9066
+    "assistant": PORT_BASE + 7,    # 9067
+}
 DB_PREFIX = f"p{PAIR_STR}"        # "p06"
 SEED = PAIR                       # 6
 CITY_SET = ["San Jose", "Sunnyvale", "Mountain View"]

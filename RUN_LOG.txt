@@ -1032,3 +1032,210 @@ AFTER repair (repair ON): turns 25, tool calls 27 (failed: 3, valid: 24), failur
 ### end of Part C: tool-call reliability, 25 turns, repair OFF then ON (qwen2.5:1.5b-instruct), header and summary only
 
 (end of the Part B and Part C section)
+
+
+==============================================================================================
+LAB 2: Uday (Part 1.1 Dockerfiles, 1.2 Compose, 1.3 Kubernetes, Part 2 Kafka, Part 3 MongoDB migration)
+==============================================================================================
+Everything above this heading is Lab 1 and is unchanged. Everything below is Lab 2.
+
+How this part is recorded: the commands were run by Claude Code (an AI assistant) in Uday's Claude Code session on Uday's
+laptop (DESKTOP-0B8PB15, Windows with WSL2 Ubuntu and Docker Desktop). Docker and git commands ran in the WSL bash shell;
+pytest ran with the Windows venv (backend\venv\Scripts\python.exe). The outputs below are copied from the real runs.
+Where an output is long, "[...]" marks what was left out. Failures are kept. Each Lab 2 phase appends a new
+"PHASE" section here when it is finished.
+
+Environment: Docker Desktop, client 28.0.4 / server 28.0.4 (linux); image base python:3.12.16 (python:3.12-slim);
+the venv used for pytest is Python 3.13.2 (as in Lab 1).
+
+----------------------------------------------------------------------------------------------
+STEP 0: lab1 tag check and repository cleanup (2026-11-08)
+----------------------------------------------------------------------------------------------
+$ git tag
+(empty: no tag existed locally)
+$ git ls-remote --tags origin
+(empty, exit 0: no tag on GitHub either)
+-> Uday chose commit 61f114c (the last commit before the Lab 1 deadline) and ran, in PowerShell:
+PS C:\Users\patel\data260-pair06> git tag lab1 61f114c
+PS C:\Users\patel\data260-pair06> git push origin lab1
+Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/UdayPate/data260-pair06.git
+ * [new tag]         lab1 -> lab1
+
+Cleanup (done with git mv, so history is kept): docs/gitignore.suggested merged into .gitignore and deleted; the Lab 1
+evidence (part_a_*, part_b_*, part_c_*, PART_A_CHECKLIST.md, Lab_1.pdf, row_counts.sql, screenshots/, the Lab 1 report PDF)
+moved into docs/lab1/; docs/lab2/ created. No file was tracked that should not be (nothing needed git rm --cached).
+$ git diff --cached --stat -M     (summary line and file kinds)
+ 52 files changed, 24 insertions(+), 54 deletions(-)
+   45 renames (100% similar), 5 edited text files (README.md, METRICS.md, AI_USE.md, CLAUDE.md, .gitignore: path fixes only),
+   1 deleted (docs/gitignore.suggested), 1 added (docs/lab2/.gitkeep)
+$ git commit ...  (Uday asked for this commit explicitly)
+c1484b5 Cleanup before Lab 2: move Lab 1 evidence to docs/lab1, merge .gitignore, add docs/lab2
+$ git push origin main        (from WSL: no output for 60 s, then "Terminated": git in WSL has no stored GitHub login)
+$ git push origin main        (from Windows git, which has the login)
+   61f114c..c1484b5  main -> main
+$ git ls-remote origin refs/heads/main refs/tags/lab1
+c1484b536e455f02dd9ef94d3dad0862f6eca660	refs/heads/main
+61f114cd562a33db2755a13d9b9446e7e23a6f55	refs/tags/lab1
+Then the Lab 2 assignment PDF was moved to docs/lab2/ and committed locally: a67f14b Add the Lab 2 assignment PDF to docs/lab2
+
+----------------------------------------------------------------------------------------------
+PHASE 1: Dockerfiles and /health endpoints (2026-11-08)
+----------------------------------------------------------------------------------------------
+What was built: backend/services/ (common.py + one main.py per service), backend/docker/Dockerfile.{student,company,job,
+application,event,assistant}, backend/requirements/*.txt, backend/.dockerignore, gateway/ (nginx), frontend/Dockerfile and
+nginx.conf, .gitattributes, SERVICE_PORTS in backend/app/config.py, backend/tests/test_services.py.
+Ports: student 9062, company 9063, job 9064, application 9065, event 9066, assistant 9067, gateway 9060, website 9061.
+
+--- 1.1  The six services split the 40 Lab 1 endpoints exactly (a check run from backend\)
+Built-in FastAPI routes (/docs, /redoc, /openapi.json, /docs/oauth2-redirect, /health) are left out of the count.
+(venv) python -c "<builds the single app and the six service apps, compares their (METHOD, path) sets>"
+student 14
+company 6
+job 7
+application 7
+event 10
+assistant 2
+monolith 41 union 41 sum 46
+missing [] extra []
+overlaps [('student', 'company', [('GET', '/docs/oauth2-redirect')]), [...] (the same built-in route, nothing else)
+Reading it: every service also serves the built-in GET /docs/oauth2-redirect, so each service count is one too high and
+"sum 46" counts it 6 times (46 - 5 = 41). Without it the split is 13 + 5 + 6 + 6 + 9 + 1 = 40 endpoints, none lost, none shared.
+
+--- 1.2  New tests for the split
+(venv) python -m pytest tests/test_services.py -q
+27 passed, 1 warning in 1.92s
+
+Mutation check (to prove the test can fail): "/auth/me" was removed from the Student service on purpose.
+(venv) python -m pytest tests/test_services.py -q -x
+E       AssertionError: assert {('DELETE', '...ies/me'), ...} == {('DELETE', '...uth/me'), ...}
+FAILED tests/test_services.py::test_every_lab1_endpoint_belongs_to_exactly_one_service
+1 failed, 1 passed, 1 warning in 0.23s
+The file was restored and the test run again:
+27 passed, 1 warning in 1.33s
+
+--- 1.3  Build the eight images (docker build -q, from WSL; log of the build script)
+docker build -f backend/docker/Dockerfile.<service> -t p06-<service>:1.0.0 backend      (one per service)
+docker build -t p06-gateway:1.0.0 gateway
+docker build -t p06-frontend:1.0.0 --build-arg VITE_API_URL=http://localhost:9060 frontend
+=== build p06-student       exit=0 (32s)
+=== build p06-company       exit=0 (27s)
+=== build p06-job           exit=0 (29s)
+=== build p06-application   exit=0 (22s)
+=== build p06-event         exit=0 (26s)
+=== build p06-assistant     exit=0 (28s)
+=== build p06-gateway
+=== build p06-frontend
+ERROR: failed to solve: node:20-alpine: failed to resolve source metadata for docker.io/library/node:20-alpine: failed to authorize: failed to fetch anonymous token: Get "https://auth.docker.io/token?scope=repository%3Alibrary%2Fnode%3Apull&service=registry.docker.io": net/http: TLS handshake timeout
+(FAILED: a network timeout while contacting Docker Hub, not a problem in the Dockerfile. The base images were pulled again and the frontend build was repeated.)
+$ docker pull -q node:20-alpine                        -> docker.io/library/node:20-alpine
+$ docker pull -q nginxinc/nginx-unprivileged:1.27-alpine -> docker.io/nginxinc/nginx-unprivileged:1.27-alpine
+$ docker build -q -t p06-frontend:1.0.0 --build-arg VITE_API_URL=http://localhost:9060 frontend
+sha256:f558354846adfae60a15d49437ad2ecb0d40b28b9dc67f10f4c355e38fa0e5a3      (EXIT=0)
+$ docker images "p06-*" --format "{{.Repository}}:{{.Tag}}  {{.Size}}"
+p06-gateway:1.0.0  73.7MB
+p06-assistant:1.0.0  294MB
+p06-event:1.0.0  292MB
+p06-application:1.0.0  292MB
+p06-job:1.0.0  292MB
+p06-company:1.0.0  292MB
+p06-student:1.0.0  292MB
+p06-frontend:1.0.0  74.9MB
+
+--- 1.4  Run all eight containers on one network and check they become healthy
+$ docker network create p06-net
+$ docker run -d --name p06-<service> --network p06-net -p <port>:<port> p06-<service>:1.0.0     (six services)
+$ docker run -d --name p06-gateway  --network p06-net -p 9060:9060 p06-gateway:1.0.0
+$ docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"          (about 25 s after starting)
+NAMES             IMAGE                   STATUS                    PORTS
+p06-gateway       p06-gateway:1.0.0       Up 22 seconds (healthy)   8080/tcp, 0.0.0.0:9060->9060/tcp
+p06-assistant     p06-assistant:1.0.0     Up 23 seconds (healthy)   0.0.0.0:9067->9067/tcp
+p06-event         p06-event:1.0.0         Up 23 seconds (healthy)   0.0.0.0:9066->9066/tcp
+p06-application   p06-application:1.0.0   Up 24 seconds (healthy)   0.0.0.0:9065->9065/tcp
+p06-job           p06-job:1.0.0           Up 24 seconds (healthy)   0.0.0.0:9064->9064/tcp
+p06-company       p06-company:1.0.0       Up 24 seconds (healthy)   0.0.0.0:9063->9063/tcp
+p06-student       p06-student:1.0.0       Up 25 seconds (healthy)   0.0.0.0:9062->9062/tcp
+(8080/tcp comes from the nginx base image; the gateway itself listens on 9060.)
+$ docker run -d --name p06-frontend --network p06-net -p 9061:9061 p06-frontend:1.0.0
+$ docker ps --filter name=p06-frontend --format "{{.Names}}  {{.Status}}"
+p06-frontend  Up 15 seconds (healthy)
+
+--- 1.5  GET /health on each service (curl, direct to the service port)
+{"status":"ok","service":"p06-student","pair":"06","port":9062}
+{"status":"ok","service":"p06-company","pair":"06","port":9063}
+{"status":"ok","service":"p06-job","pair":"06","port":9064}
+{"status":"ok","service":"p06-application","pair":"06","port":9065}
+{"status":"ok","service":"p06-event","pair":"06","port":9066}
+{"status":"ok","service":"p06-assistant","pair":"06","port":9067}
+
+--- 1.6  Requests through the gateway (port 9060): status code and which service answered (X-P06-Service header)
+There is no database in these containers yet, so protected endpoints answer 401 without touching it. That is enough to
+show which service received the request.
+GET    /health                          -> 200  (gateway)
+GET    /students/me                     -> 401  p06-student
+GET    /students                        -> 401  p06-student
+POST   /auth/login                      -> 422  p06-student
+POST   /auth/student/signup             -> 422  p06-student
+POST   /auth/company/signup             -> 422  p06-company
+GET    /auth/me                         -> 401  p06-student
+GET    /companies/me                    -> 401  p06-company
+GET    /jobs                            -> 401  p06-job
+GET    /jobs/mine                       -> 401  p06-job
+GET    /jobs/12                         -> 401  p06-job
+POST   /jobs/12/apply                   -> 401  p06-application
+GET    /jobs/12/applications            -> 401  p06-application
+GET    /applications/mine               -> 401  p06-application
+GET    /applications/5/resume           -> 401  p06-application
+GET    /events/registered               -> 401  p06-event
+GET    /events                          -> 401  p06-event
+POST   /assistant/chat                  -> 401  p06-assistant
+GET    /meta/options                    -> 200  p06-job
+GET    /media/profile_pics/none.png     -> 404  p06-student
+GET    /nothing-here                    -> 404  (gateway)
+CORS preflight from the website's address (browser at http://localhost:9061 asking to call GET /jobs with an Authorization header):
+$ curl -D - -o /dev/null -X OPTIONS -H "Origin: http://localhost:9061" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: authorization" http://localhost:9060/jobs
+HTTP/1.1 200 OK
+access-control-allow-origin: http://localhost:9061
+x-p06-service: p06-job
+
+--- 1.7  The website image and what is inside the images
+$ curl localhost:9061/             -> <!doctype html> <html lang="en" data-theme="student" data-bs-theme="dark"> [...]
+$ curl -o /dev/null -w "%{http_code}" localhost:9061/jobs/12     -> 200   (a browser route: the page is returned, not 404)
+$ docker exec p06-frontend sh -c 'grep -o "http://localhost:9060" /usr/share/nginx/html/assets/*.js | sort | uniq -c'
+      1 http://localhost:9060
+$ docker exec p06-frontend id -un      -> nginx          (not root)
+$ docker exec p06-student id -un       -> p06            (not root)
+$ docker exec p06-student sh -c '[...]'
+app, requirements, services, uploads present;  no .env in image;  no tests dir in image
+$ docker exec p06-job sh -c 'pip list | grep -iE "multipart|httpx|pytest|faker" || echo ...'
+job: no multipart/httpx/pytest/faker (correct)
+$ docker exec p06-assistant sh -c 'pip list | grep -iE "^httpx"'
+httpx             0.27.2
+
+--- 1.8  The HEALTHCHECK command can fail (the exact command from the Dockerfile, run inside p06-event)
+Wrong port, nothing listens there:   exit code: 1
+Real port 9066:                      exit code: 0
+
+--- 1.9  Full backend test suite
+First run (with the new tests):
+(venv) python -m pytest -q
+FAILED tests/test_services.py::test_every_lab1_endpoint_belongs_to_exactly_one_service
+1 failed, 431 passed, 1 warning in 269.37s (0:04:29)
+Cause: tests/test_auth.py adds two throw-away routes (/_test/student-only, /_test/company-only) to the single app when the
+whole suite is collected, and the new test counted them. The test (not the application) was wrong, so the test was fixed to
+ignore routes under /_test/. The two files were run together to reproduce the situation:
+(venv) python -m pytest tests/test_auth.py tests/test_services.py -q
+49 passed, 1 warning in 6.39s
+Full suite again:
+(venv) python -m pytest -q
+432 passed, 1 warning in 260.10s (0:04:20)
+(405 earlier Lab 1 tests + 27 new = 432.) The frontend tests were not re-run: no frontend source file changed in this phase.
+
+--- 1.10  Clean-up after the checks
+$ docker rm -f p06-frontend p06-gateway p06-student p06-company p06-job p06-application p06-event p06-assistant
+$ docker network rm p06-net
+$ docker ps --format "{{.Names}}" | grep -c "^p06-"      -> 0      (the images are kept)
+
+Not tested in this phase: the full stack with a database (Docker Compose, a later phase); the containers report healthy
+without MySQL or MongoDB because /health does not touch the database.
+### end of Lab 2, PHASE 1

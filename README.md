@@ -1,10 +1,13 @@
-# DATA-260 Lab 1: Handshake Prototype (Pair 06)
+# DATA-260 Handshake Platform (Pair 06): Lab 1 and Lab 2
 
-A Handshake-style career platform for **students** and **companies**, built with **React + FastAPI + MySQL**,
-with a hand-built AI assistant (Parts B and C, built by the other partner) that uses the same data.
+A Handshake-style career platform for **students** and **companies**, built with **React + FastAPI**, with a
+hand-built AI assistant that uses the same data.
 
-This README covers the platform (Part A). The assistant's design, transcripts and safety work are documented in the
-report and in `docs/` once Parts B and C are merged.
+- **Lab 1** (done, git tag `lab1`): the platform on MySQL, the assistant agent loop, the confirmation gate, injection
+  defense and reliability measurements. Evidence is in `docs/lab1/`.
+- **Lab 2** (in progress): the backend is split into six services, containerized, then moved to Kubernetes, Kafka
+  and MongoDB. The Lab 2 assignment is `docs/lab2/Handshake_Lab2.pdf`; work and evidence go in `docs/lab2/`.
+  This README describes what exists now; each Lab 2 step adds its section below.
 
 ## Pair parameters (all derived from PAIR = 06)
 
@@ -12,8 +15,10 @@ report and in `docs/` once Parts B and C are merged.
 |---|---|---|
 | PAIR | assigned on Canvas | **06** |
 | PORT_BASE | 9000 + (PAIR x 10) | **9060** |
-| Backend (FastAPI) | PORT_BASE | **9060** |
-| Frontend (React dev server) | PORT_BASE + 1 | **9061** |
+| Backend (FastAPI, one app: local development and the tests) | PORT_BASE | **9060** |
+| Gateway (nginx, Docker: routes to the services; replaces the single app on 9060) | PORT_BASE | **9060** |
+| Frontend (React dev server, or the nginx image in Docker) | PORT_BASE + 1 | **9061** |
+| Student / Company / Job / Application / Event / AI Assistant services (Lab 2) | PORT_BASE + 2 ... + 7 | **9062 / 9063 / 9064 / 9065 / 9066 / 9067** |
 | Database / Kafka prefix | `p{PAIR}` | **p06** (database `p06_handshake`) |
 | SEED | PAIR, for every generator | **6** (`random.Random(6)`, `Faker.seed(6)`) |
 | CITY_SET | assigned on Canvas | **San Jose, Sunnyvale, Mountain View** |
@@ -26,10 +31,15 @@ backend/            FastAPI application
     core/           password hashing, JWT, login checks, safe file uploads
     schemas/        every request and response shape, with the validation rules
     assistant/      Part B/C: model_client.py (one Ollama client), agent.py (hand-built loop), tools.py (5 tools), confirm.py (save gate)
+  services/         Lab 2: the six services. services/common.py (health, CORS, service header) and one small
+                    main.py per service that mounts only the routers it owns (the code in app/ is shared)
+  requirements/     Lab 2: base.txt + one file per service, so each image installs only what it needs
+  docker/           Lab 2: one Dockerfile per service (Dockerfile.student ... Dockerfile.assistant)
   seed/             generate_seed.py: 50 companies, 200 students, 300 jobs, 1500 applications, 100 events, ...
   scripts/          export_api_docs.py (OpenAPI + Postman), collect_metrics.py (numbers for METRICS.md)
   tests/            pytest suite (runs on in-memory SQLite, never touches MySQL)
-frontend/           React app (pages / components / services / context / hooks / utils / test)
+frontend/           React app (pages / components / services / context / hooks / utils / test) + Dockerfile, nginx.conf
+gateway/            Lab 2: nginx gateway (Dockerfile, nginx.conf) that routes each path to its service
 docs/               openapi.json, postman_collection.json (API docs)
   lab1/             Lab 1 evidence: metrics, test output, transcripts, screenshots, checklist, report PDF
   lab2/             Lab 2 work (schema, Kafka contract, evidence)
@@ -80,6 +90,54 @@ Open http://localhost:9061. The port is fixed (`strictPort`) because the API onl
 cd backend ; python -m pytest -q       # backend
 cd frontend ; npm test                 # frontend
 ```
+
+## Lab 2: the six services and Docker images
+
+The Lab 1 backend is one FastAPI app. For Lab 2 it is split into six services that share the same code in
+`backend/app/` but each start only their own routes (`backend/services/<name>/main.py`):
+
+| Service | Port | Image | Endpoints it owns |
+|---|---|---|---|
+| Student | 9062 | `p06-student` | `/auth/student/signup`, `/auth/login`, `/auth/logout`, `/auth/me` (login serves both roles), `/students/*` (profile, activity, directory), `/students/me/preferences`, `/media/profile_pics` |
+| Company | 9063 | `p06-company` | `/auth/company/signup`, `/companies/*` |
+| Job | 9064 | `p06-job` | `/jobs`, `/jobs/mine`, `/jobs/{id}`, `/meta/options` |
+| Application | 9065 | `p06-application` | `/jobs/{id}/apply`, `/jobs/{id}/applications`, `/applications/*` |
+| Event | 9066 | `p06-event` | `/events/*` |
+| AI Assistant | 9067 | `p06-assistant` | `/assistant/chat` |
+
+The 40 Lab 1 endpoints are split with no overlap and none missing (checked by `backend/tests/test_services.py`).
+Every service has `GET /health` and adds an `X-P06-Service` header to its replies, so you can see who answered.
+A token issued by one service is accepted by all of them (same JWT secret, same database).
+
+The website still calls one address, `http://localhost:9060`. In Docker that address is the **gateway**
+(`gateway/nginx.conf`), which forwards each path to the service that owns it. For example `/jobs` goes to the Job service,
+but `/jobs/12/apply` goes to the Application service.
+
+**Build the images** (PowerShell, from the repo root; Docker Desktop must be running):
+```powershell
+cd backend
+foreach ($s in "student","company","job","application","event","assistant") {
+  docker build -f docker/Dockerfile.$s -t p06-${s}:1.0.0 .
+}
+cd ..\gateway;  docker build -t p06-gateway:1.0.0 .
+cd ..\frontend; docker build -t p06-frontend:1.0.0 --build-arg VITE_API_URL=http://localhost:9060 .
+cd ..
+docker images "p06-*"
+```
+Each image installs only its own `backend/requirements/<service>.txt`, runs as a normal user (not root), exposes its
+port and has a Docker `HEALTHCHECK` that calls `/health`. `VITE_API_URL` is baked into the website at build time, so for
+AWS it must be the LoadBalancer address.
+
+**Try one service on its own** (it reports healthy without a database, because `/health` does not touch the database):
+```powershell
+docker run -d --name p06-student -p 9062:9062 p06-student:1.0.0
+docker ps --filter name=p06-student        # STATUS becomes "healthy" after a few seconds
+curl.exe -i http://localhost:9062/health   # {"status":"ok","service":"p06-student",...} and X-P06-Service: p06-student
+docker logs p06-student
+docker stop p06-student; docker rm p06-student
+```
+The full stack (services, database, Kafka, gateway, website) is started with Docker Compose; those commands are added in
+the Compose step of Lab 2.
 
 ## Features
 
@@ -171,7 +229,7 @@ Real transcripts of the five required queries: `docs/lab1/part_b_transcripts.txt
 ## Testing
 
 - Backend: `python -m pytest -q` runs the full API suite on an in-memory database (authentication, profiles, jobs,
-  applications, resumes, events, directory, preferences, assistant endpoint).
+  applications, resumes, events, directory, preferences, assistant endpoint, and the Lab 2 service split).
 - Frontend: `npm test` (Vitest + Testing Library + a fake server) covers every page, form checks, loading and error
   states, and the role-based routing.
 - Numbers for the latest run are in `METRICS.md`.
@@ -186,5 +244,7 @@ Real transcripts of the five required queries: `docs/lab1/part_b_transcripts.txt
 
 ## Partners
 
-- Uday: Part A (platform, API, database, seed data, website)
-- Sreeramachandra Sai Achutuni : Parts B and C (assistant, safety, reliability)
+- Uday: Lab 1 Part A (platform, API, database, seed data, website). Lab 2: Docker images, Docker Compose, Kubernetes
+  manifests, Kafka, MongoDB migration.
+- Sreeramachandra Sai Achutuni: Lab 1 Parts B and C (assistant, safety, reliability). Lab 2: AWS (ECR and EKS),
+  assistant memory, Redux, JMeter, context management and guardrails.

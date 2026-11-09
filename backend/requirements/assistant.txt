@@ -1,0 +1,3 @@
+-r base.txt
+# the one model client talks to Ollama over HTTP
+httpx==0.27.2
