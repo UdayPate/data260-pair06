@@ -218,9 +218,16 @@ assistant use, show one **real** incorrect output, how it was detected, and the 
 
 ## The Lab 2 report: `LabPair-06_Lab2_Report.pdf`
 
-The Lab 1 report is finished (`docs/lab1/LabPair-06_Lab1_Report.pdf`). The Lab 2 report is not started.
-Ask the human how it should be written and built before creating any report files. The assignment
-requires it to cover: architecture, cloud deployment, Kafka flows and failures, MongoDB schema,
+The Lab 1 report is finished (`docs/lab1/LabPair-06_Lab1_Report.pdf`).
+
+**There is exactly one Lab 2 report. Its source is `docs/report/lab2_report.md` and it builds to `LabPair-06_Lab2_Report.pdf`
+with `python docs\report\build_pdf.py`. Always edit that file and rebuild; never create a new report file or a second PDF.
+Each partner fills only their own sections and replaces only their own placeholders.**
+
+Sections 1 to 6 are written (Uday); sections 7 to 14 are red dashed PLACEHOLDER boxes for the partner (cloud deployment,
+memory and consolidation, Redux, JMeter, assistant load analysis, token compaction, the end-to-end trace, guardrails and the
+harness). The three architecture diagrams are drawn from `docs/lab2/ARCHITECTURE.md` (`python docs\report\build_pdf.py --redraw`
+draws them again; that needs the internet once). The assignment requires the report to cover: architecture, cloud deployment, Kafka flows and failures, MongoDB schema,
 memory and consolidation, Redux state, performance graphs, assistant load analysis, token
 compaction evidence, one end-to-end trace, the agent guardrail results, the harness test matrix and
 output, and the blocked-injection, declined-confirmation, repaired-call and bounded-stop evidence.
@@ -261,5 +268,27 @@ Due: Monday 11/16/2026.
   - Phase 6 (Kubernetes manifests in `k8s/`, namespace `p06-handshake`, tested on kind with Kubernetes 1.34 pinned because Docker Desktop
     uses cgroup v1; Secret made by `k8s/create_secret.py`, images loaded by `k8s/load_images.py`; RUN_LOG PHASE 6): built and verified
     on kind (18 pods Running); done, committed (`6d83e1f`). The clean output of the Kafka demos is `docs/lab2/kafka_demos_output.txt` (`1b6de88`). Not done: the three Kafka failure demos inside Kubernetes (they ran on Compose).
-  - Next: ask the human what is left (failure demos on Kubernetes, report pieces, handover notes for the partner's EKS work).
+  - Phase 7 (Uday's report sections 1 to 6 in `docs/report/lab2_report.md`, built by `docs/report/build_pdf.py` to
+    `LabPair-06_Lab2_Report.pdf`; the Mermaid diagrams in `ARCHITECTURE.md` fixed and rendered to `docs/report/img/`; Uday's section of
+    `AI_USE.md`; the three screenshots in `docs/lab2/screenshots/`): done, committed.
+  - **Uday's Lab 2 scope is complete and committed** (Parts 1.1 to 1.3, Part 2, and the Part 3 MongoDB migration). Do not reopen it
+    without asking.
+- Lab 2, the partner (Sreeramachandra Sai Achutuni) still owns, with the pointers to start from:
+  - Part 1.4 to 1.6 AWS: images to ECR, the EKS cluster, the LoadBalancer, the end-to-end request and the screenshots; report section 7; the README
+    instructions for reaching the AWS deployment. Start with the notes at the end of `k8s/README.md` and `k8s/overlays/local/`.
+  - Part 3 assistant memory: `assistant_rules`, `student_memory`, session conversations, memory in the prompt, `/memory`, and the consolidation
+    as a Kafka consumer (see `docs/lab2/KAFKA_CONTRACT.md` section 5 and `docs/lab2/MONGO_SCHEMA.md`); report section 8.
+  - Part 4 Redux (the applications slice must handle the 202 of `POST /jobs/{id}/apply`; DevTools evidence); report section 9.
+  - Part 5 JMeter (plan, CRUD load tests, assistant load tests and analysis); report sections 10 and 11.
+  - Part 6 token tracking, compaction, trace propagation, guardrails, the evaluation harness and stage timing; report sections 12 to 14.
+  - Things to watch when starting (known, not fixed):
+    - JMeter: `POST /auth/login` needs a `role` field in the body (`student` or `company`); an application is unique per student and job, so
+      repeating the same pair returns 409 (use fresh pairs: the seed already holds 1,500 applications); `POST /jobs/{id}/apply` answers 202, not 201,
+      and the application appears a moment later (the worker writes it); assistant answers can take minutes on a CPU (the model timeout is 600 s).
+    - The Lab 1 scripts `backend/scripts/run_transcripts.py`, `run_part_c.py` and `collect_metrics.py` still use the SQL layer and need porting to
+      MongoDB before the real Ollama transcripts and the reliability experiments can be run again.
+    - `docs/openapi.json` and `docs/postman_collection.json` were not regenerated for Lab 2 (apply is listed as 201; the new endpoints are missing).
+  - Their parts of `METRICS.md` (the marked slot "Partner: Lab 2 metrics") and `RUN_LOG.txt`, their section of `AI_USE.md` (an empty marked slot), their screenshots (AWS, Redux
+    DevTools, the agentic safety tests), and the harness and AWS instructions in `README.md`.
+  - Both partners: the five-minute recording, the live AWS viva, and the `lab2` tag (the human creates it).
 - The data layer is MongoDB (the Lab 1 MySQL database is untouched and still on the laptop).

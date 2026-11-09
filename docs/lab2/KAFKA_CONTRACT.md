@@ -107,6 +107,14 @@ published again. Read it with:
 4. Make a worker entry point like `backend/services/application/worker.py` (`run_worker("<name>", [event types])`; group id
    `p06-<name>-worker`) and add a container to `docker-compose.yml` with `command: ["python", "-m", "services.<service>.worker"]`
    and the worker health check. A memory-consolidation consumer must be a consumer like this, never run inside a user request.
+   The image must contain the Kafka client: today only the Application, Event and Job images have `confluent-kafka`. A worker built
+   on another image (for example the assistant's) needs `confluent-kafka==2.6.1` added to that service's `backend/requirements/<service>.txt`.
+   **Kubernetes:** copy one of the three Deployments in `k8s/base/workers.yaml` (name `p06-<name>-worker`, the image of its service,
+   `command: ["python", "-m", "services.<service>.worker"]`, replicas, and keep the whole `env:` block, which carries the MongoDB
+   settings, the JWT secret and `KAFKA_BOOTSTRAP`, and the heartbeat liveness probe). Put it in `workers.yaml`, which is already listed
+   in `k8s/base/kustomization.yaml`; if you use a new file instead, add that file under `resources:` in `k8s/base/kustomization.yaml`.
+   After a code change, rebuild the image (`docker compose build`), load it into kind (`python k8s/load_images.py`) or push it to ECR,
+   and apply again (`kubectl apply -k k8s/overlays/local`).
 5. Put the `trace_id` in your log lines (`trace_id=%s`) and copy it into anything the handler writes or publishes.
 
 Without `KAFKA_BOOTSTRAP` (one app on a laptop, and all the unit tests) the publisher is **inline**: it calls the same handler

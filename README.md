@@ -181,6 +181,9 @@ docker compose down -v                    # ... and ALSO delete the data (MongoD
 ```
 
 **3. Put the seed data into the stack's MongoDB** (the database starts empty; this runs from your Python environment)
+
+On a fresh clone there is no virtual environment yet: create it first with **Setup step 1** above (`python -m venv venv`, activate it,
+`pip install -r requirements.txt`). You do not need `backend\.env` or a local MongoDB container for this; the stack's MongoDB is the target.
 ```powershell
 cd backend
 .\venv\Scripts\Activate.ps1

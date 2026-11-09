@@ -72,7 +72,8 @@ Handy commands: `kubectl -n p06-handshake get pods,svc,pvc`, `kubectl -n p06-han
 * Push the eight images to ECR and change the `image:` lines (a kustomize `images:` entry in a new `overlays/eks/` does it without editing `base/`).
   `imagePullPolicy` is `IfNotPresent`; with a real registry the tag `1.0.0` is pulled normally.
 * Make an `overlays/eks/` that turns `p06-gateway` and `p06-frontend` into `type: LoadBalancer` (see `overlays/local/nodeports.yaml` for the shape).
-* **The website image has the API address baked in** (`VITE_API_URL`, a build argument of `frontend/Dockerfile`). Build it with the
+* **The website image has the API address baked in** (`VITE_API_URL`, a build argument of `frontend/Dockerfile`; `PUBLIC_API_URL` in
+  `docker-compose.yml` and `.env.example` is the same build argument under another name: Compose passes it on as `VITE_API_URL`). Build it with the
   gateway's public address (`docker build --build-arg VITE_API_URL=http://<gateway-load-balancer>`), and put the website's public address
   into `CORS_ORIGINS` in `p06-config`. The load balancer address is only known after the Services exist, so create the gateway Service
   first, then build the website image.
@@ -80,3 +81,11 @@ Handy commands: `kubectl -n p06-handshake get pods,svc,pvc`, `kubectl -n p06-han
 * `OLLAMA_URL` points at `host.docker.internal`, which only exists on a developer machine. In AWS the assistant needs a reachable
   Ollama address (or it answers with its "model unavailable" message); the other services do not depend on it.
 * Create the Secret on the cluster with `python k8s/create_secret.py` (kubectl pointing at EKS) or with your own secret mechanism.
+* **Seeding the database: there is no seed Job.** On EKS it works the same way as on kind (step 5 above): open a tunnel to the MongoDB pod
+  with `kubectl -n p06-handshake port-forward svc/p06-mongo 9069:27017` (kubectl pointing at EKS), then run `python -m seed.generate_seed --reset`
+  from `backend/` on your machine with `MONGO_URL=mongodb://<user>:<password>@localhost:9069/?authSource=admin`. The seed code is not
+  inside the service images, so a Kubernetes Job would need its own image; the tunnel does not.
+* **Node sizing.** The requests in the manifests add up to about 1 CPU and 2 GiB of memory for the 18 pods (computed from the manifests: 12 Python pods
+  at 50m / 96Mi, 4 nginx pods at 25m / 32Mi, MongoDB 100m / 256Mi, Kafka 200m / 512Mi). The limits add up to about 9 CPUs and 6.75 GiB, but the pods
+  do not use that much; the whole set ran on kind inside a Docker Desktop VM with 12 CPUs and 7.9 GB. Choose nodes that leave at least 1 CPU and 2 GiB
+  free for these pods on top of what the cluster's own components use.

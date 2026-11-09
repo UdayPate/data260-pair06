@@ -187,3 +187,114 @@ then stops cleanly (`repair=True`, `MAX_REPAIRS = 1`).
   instead, so a missed or false detection cannot change the table.
 - The `[malformed_arguments]` example line in the file's own SUMMARY block quotes the wrong failure text (a bug in that
   summary line, since fixed in `scripts/run_part_c.py`); the turn 12 transcript above it is correct.
+
+
+---
+
+# METRICS: Lab 2
+
+Pair 06, SEED 6, PORT_BASE 9060. Every number below is copied from `RUN_LOG.txt` (Lab 2, phases 1 to 6, section numbers in brackets) or
+from `docs/lab2/kafka_demos_output.txt`; nothing is estimated unless it says "computed". Machine: Windows with WSL 2 and Docker Desktop 28.0.4
+(the Docker VM has 12 CPUs and 7.9 GB of memory, from `docker info`); Kubernetes is `kind` 0.33.0 with Kubernetes 1.34.0.
+
+## Uday: Docker, Docker Compose, Kubernetes, Kafka, MongoDB
+
+### Seed data in MongoDB (same counts in the first MongoDB [2.2], the Compose stack [3.5] and the Kubernetes cluster [6.4])
+
+| Collection | Documents |
+|---|---:|
+| companies | 50 |
+| students | 200 |
+| jobs | 300 |
+| applications | 1,500 |
+| events | 100 |
+| event_registrations | 400 |
+| student_preferences | 151 |
+| saved_items | 150 |
+| student skills / job skills (inside the documents) | 877 / 1,073 |
+
+### MongoDB migration checks
+
+| Check | Result |
+|---|---|
+| Old API on MySQL (tag `lab1`) against new API on MongoDB, same requests [2.4] | 382 compared, 374 identical, 8 different; all 8 explained (the demo student's data in the old database, the seed run time, a date of birth Faker computes from today's date) |
+| Live checks through the API (counts, indexes, bcrypt, sessions, GridFS, role privacy, workflows, session expiry) [2.5, 3.8] | 67 passed, 0 failed (on the laptop, through the gateway, and on the Compose stack with a MongoDB password) |
+| Cross-container statelessness (file stored by one container served by another, one session accepted by another) [2.6] | 6 passed, 0 failed |
+| MongoDB stopped while the services run [3.9] | `/health` 200, `/health/ready` 503, login 500; after MongoDB was started again `/health/ready` 200 and login 200 with no service restart; 201 students, 301 jobs, 1,501 applications before and after a `down` and `up` |
+
+### Tests
+
+| After | Backend tests passing |
+|---|---:|
+| Lab 1 | 405 |
+| Phase 1 (service split) [1.9] | 432 |
+| Phase 2 (MongoDB) [2.3] | 461 |
+| Phase 3 (Compose, health endpoints) [3.10] | 474 |
+| Phase 4 (Kafka) [4.3] | 533 |
+| Phase 5 and 6, run by Uday on 2026-11-09 | 543 (345.60 s) |
+
+The frontend suite has 211 tests (210 before the apply box handled the 202) [4.3].
+
+### Docker images and Compose
+
+| Item | Value |
+|---|---|
+| Image build times, six services, one run [1.3] | student 32 s, company 27 s, job 29 s, application 22 s, event 26 s, assistant 28 s |
+| Image build times after the MongoDB rewrite, six services [2.6] | 142 s in all |
+| Image sizes (`docker images "p06-*"`, 2026-11-09) | student and company 252 MB; assistant 254 MB; job, application and event 267 MB; gateway 73.7 MB; website 74.9 MB |
+| `docker compose up -d` until the containers are healthy [3.4, 4.4] | about 25 s with 10 containers; about 35 s with the 13 containers |
+| Containers in the stack | 13 (MongoDB, Kafka, six services, three workers, gateway, website), all `(healthy)` |
+
+### Kafka: end-to-end flows against the real broker [4.5]
+
+| Measurement | Value |
+|---|---|
+| End-to-end script | 18 passed, 0 failed |
+| `POST /jobs/{id}/apply` answer | 202 Accepted in 31 ms |
+| Worker saved the application | visible 0.0 s after the 202 |
+| Job worker notifications for a new job | 27 created, 27 expected (computed independently from MongoDB), after 0.2 s |
+| Notification after a status change | 0.2 s after the company's request (the request itself answered in 997 ms) |
+| Unit tests for the message format, handlers and worker loop (`test_kafka.py`) | 59 when written; mutation checks: duplicate check removed 4 failed, offset committed before the handler 6 failed, files restored 59 passed |
+
+### Kafka: the three failure demos (`docs/lab2/kafka_demos_output.txt`, run of 2026-11-09)
+
+| Demo | Measurement | Value |
+|---|---|---|
+| 1. Same event twice | applications for the student and job, before / after | 0 / 1 |
+| | activity-log rows for the event | 1 |
+| | different event for the same student and job | `duplicate`, still 1 application, the extra PDF removed |
+| 2. Worker killed before the commit | applications right after the kill | 1 (the write had happened) |
+| | consumer group right after the kill, partition 2 | CURRENT-OFFSET 3, LOG-END-OFFSET 4, LAG 1 |
+| | container restart count | 0 to 1 |
+| | restart to the second delivery | `started` 06:39:50, `duplicate` 06:40:03 (13 s) |
+| | after the restart | 1 application, CURRENT-OFFSET 4, LAG 0 |
+| 3a. Poison messages | records on `p06.dlq` | 3 (invalid JSON, unknown student 999999, header and body `trace_id` differ) |
+| | good message behind them | processed; applications for student 999999: 0; LAG 0 on every partition |
+| 3b. Bounded retries (MongoDB paused) | retries | attempt 1/3 at 06:40:44, attempt 2/3 at 06:40:50, gave up at 06:40:57 (about 13 s) |
+| | record on `p06.dlq` | 1, `ServerSelectionTimeoutError`, attempts 3; the next message was processed after `unpause` |
+
+An earlier version of demo 2 printed PASS before the second delivery; it was fixed and run again [5.10].
+
+### Kubernetes on kind [6.3 to 6.6]
+
+| Measurement | Value |
+|---|---|
+| Cluster created (second attempt; the first failed on cgroup v1, see 6.2) | 31 s |
+| Ten images loaded into the cluster (8 `p06-*`, `mongo:7`, `apache/kafka:3.9.0`) | 1 min 9 s |
+| Pods `1/1 Running` after `kubectl apply -k k8s/overlays/local` | 18 of 18 after 60 s (11 not ready at 10 s, 1 at 40 s), 0 restarts |
+| Volume claims (MongoDB, Kafka) | 2 GiB each, Bound |
+| Seed on the cluster's MongoDB | the counts in the first table |
+| End-to-end: login, `GET /jobs`, apply | token issued; total 121 jobs; apply answered 202 and the Application worker pod logged `processed` |
+| Self-healing: delete a `p06-job` pod during 20 authenticated requests (one every 0.5 s) | 20 of 20 answered 200; replacement pod running 25 s later |
+| Scaling `p06-job` 2 to 4 | 4/4 ready after about 25 s, 4 endpoints behind the Service |
+| MongoDB pod restarted | login works afterwards; the demo student still has 12 applications |
+| Requests in the manifests (computed from the manifests) | about 1 CPU and 2 GiB for the 18 pods; limits about 9 CPUs and 6.75 GiB |
+
+## Partner: Lab 2 metrics
+
+<!-- PARTNER SLOT (Sreeramachandra Sai Achutuni): add your Lab 2 metrics below this line and keep this heading. To cover: AWS deployment (pod
+startup, endpoint check), memory consolidation (entries before and after, duplicates merged, contradictions resolved), Redux, JMeter
+(plans, CRUD load results, graphs), assistant load analysis, token tracking and compaction, trace propagation, the guardrail and harness
+results (pass and fail counts, reliability before and after repair). -->
+
+*To be added by the partner. This slot is intentionally empty.*
