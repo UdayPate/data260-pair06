@@ -61,10 +61,8 @@ def test_malformed_requests_are_rejected(client, student_headers, body):
 
 def test_the_service_function_can_be_called_directly(db):
     """The router and website only call this function."""
-    from app.models import Student
     from app.services.assistant import run_assistant
-    student = Student(name="T", email="t@t.test", password_hash="x", college="SJSU")
-    db.add(student)
-    db.commit()
+    from tests.factories import make_student
+    student = make_student(db, name="T", email="t@t.test")
     out = run_assistant(db, student=student, message="hello", conversation_id="abc")
     assert out.conversation_id == "abc" and out.reply == "fake reply"

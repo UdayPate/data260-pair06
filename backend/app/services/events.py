@@ -10,11 +10,11 @@ Example for the assistant ("an event for computer science students next month"):
 from datetime import date, datetime, time, timedelta
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-from sqlalchemy import func, or_, select
-from sqlalchemy.orm import Session, contains_eager, selectinload
+from pymongo.database import Database
 
+from .. import mongo
 from ..core.uploads import public_url
-from ..models import Event, EventEligibleMajor, EventRegistration, Student
+from ..mongo import Doc, contains
 from ..schemas.events import ALL_MAJORS, EventDetail, EventSummary
 from ..schemas.jobs import CompanyMini
 from ..schemas.profile import CompanyPublic
@@ -40,7 +40,7 @@ def is_eligible(event_majors: Iterable[str], student_major: Optional[str]) -> bo
     return bool(student_major) and student_major.lower() in lowered
 
 
-def registration_block(event: Event, student: Student, already_registered: bool,
+def registration_block(event: Doc, student: Doc, already_registered: bool,
                        now: Optional[datetime] = None) -> Optional[Tuple[int, str]]:
     """Why this student cannot register, as (HTTP status, message), or None if they can."""
     now = now or datetime.now()
@@ -48,7 +48,7 @@ def registration_block(event: Event, student: Student, already_registered: bool,
         return 409, "This event has already taken place"
     if already_registered:
         return 409, "You are already registered for this event"
-    majors = [m.major for m in event.eligible_majors]
+    majors = list(event.eligible_majors)
     if not is_eligible(majors, student.major):
         open_to = ", ".join(sorted(majors, key=str.lower))
         if not student.major:
@@ -58,31 +58,36 @@ def registration_block(event: Event, student: Student, already_registered: bool,
 
 
 # ---------------- lookups ----------------
-def registration_counts(db: Session, event_ids: Sequence[int]) -> Dict[int, int]:
+def with_companies(db: Database, events: Sequence[Doc]) -> Sequence[Doc]:
+    """Store each event's company document as event.company (one query for the whole list)."""
+    return mongo.attach(db, events, "company_id", "companies", "company")
+
+
+def registration_counts(db: Database, event_ids: Sequence[int]) -> Dict[int, int]:
     """{event_id: number of registered students} (events with none are absent)."""
     if not event_ids:
         return {}
-    rows = db.execute(select(EventRegistration.event_id, func.count(EventRegistration.id))
-                      .where(EventRegistration.event_id.in_(event_ids))
-                      .group_by(EventRegistration.event_id)).all()
-    return {event_id: count for event_id, count in rows}
+    rows = db.event_registrations.aggregate([
+        {"$match": {"event_id": {"$in": list(event_ids)}}},
+        {"$group": {"_id": "$event_id", "n": {"$sum": 1}}},
+    ])
+    return {row["_id"]: row["n"] for row in rows}
 
 
-def registered_event_ids(db: Session, student_id: int, event_ids: Sequence[int]) -> Set[int]:
+def registered_event_ids(db: Database, student_id: int, event_ids: Sequence[int]) -> Set[int]:
     """Which of these events has this student registered for?"""
     if not event_ids:
         return set()
-    return set(db.scalars(select(EventRegistration.event_id)
-                          .where(EventRegistration.student_id == student_id,
-                                 EventRegistration.event_id.in_(event_ids))).all())
+    rows = db.event_registrations.find({"student_id": student_id, "event_id": {"$in": list(event_ids)}},
+                                       {"event_id": 1})
+    return {row["event_id"] for row in rows}
 
 
-def _eager():
-    return (contains_eager(Event.company), selectinload(Event.eligible_majors))
+ORDER = [("event_datetime", 1), ("_id", 1)]      # earliest first
 
 
 def search_events(
-    db: Session, *,
+    db: Database, *,
     q: Optional[str] = None,
     city: Optional[Sequence[str]] = None,
     date_from: Optional[date] = None,
@@ -92,8 +97,8 @@ def search_events(
     page: int = 1,
     page_size: int = 20,
     now: Optional[datetime] = None,
-) -> Tuple[List[Event], int]:
-    """Filter events. Returns (events for this page, total matches), earliest first.
+) -> Tuple[List[Doc], int]:
+    """Filter events. Returns (events for this page, total matches), earliest first. Each event has event.company.
 
     Every filter is optional and filters combine with AND.
     q            words that must each appear in the event name
@@ -103,57 +108,45 @@ def search_events(
     include_past False (default) shows only events that have not started yet
     """
     now = now or datetime.now()
-    conditions = []
+    conditions: List[dict] = []
     for word in (q or "").split()[:8]:
-        conditions.append(Event.name.icontains(word, autoescape=True))   # a typed "%" is literal
-    cities = [c.strip().lower() for c in (city or []) if c and c.strip()]
+        conditions.append({"name": contains(word)})
+    cities = [c.strip() for c in (city or []) if c and c.strip()]
     if cities:
-        conditions.append(func.lower(Event.city).in_(cities))
+        conditions.append({"$or": [{"city": mongo.equals_ignoring_case(c)} for c in cities]})
     if date_from is not None:
-        conditions.append(Event.event_datetime >= datetime.combine(date_from, time.min))
+        conditions.append({"event_datetime": {"$gte": datetime.combine(date_from, time.min)}})
     if date_to is not None:
-        conditions.append(Event.event_datetime < datetime.combine(date_to + timedelta(days=1), time.min))
+        conditions.append({"event_datetime": {"$lt": datetime.combine(date_to + timedelta(days=1), time.min)}})
     if major and major.strip():
-        open_to = select(EventEligibleMajor.event_id).where(or_(
-            func.lower(EventEligibleMajor.major) == ALL_MAJORS.lower(),
-            func.lower(EventEligibleMajor.major) == major.strip().lower()))
-        conditions.append(Event.id.in_(open_to))
+        conditions.append({"eligible_majors_lower": {"$in": [ALL_MAJORS.lower(), major.strip().lower()]}})
     if not include_past:
-        conditions.append(Event.event_datetime >= now)
+        conditions.append({"event_datetime": {"$gte": now}})
 
-    total = db.scalar(select(func.count()).select_from(
-        select(Event.id).join(Event.company).where(*conditions).subquery())) or 0
-    stmt = (select(Event).join(Event.company).where(*conditions).options(*_eager())
-            .order_by(Event.event_datetime.asc(), Event.id.asc())
-            .limit(page_size).offset((page - 1) * page_size))
-    return list(db.scalars(stmt).all()), total
+    events, total = mongo.page(db, "events", {"$and": conditions} if conditions else {}, ORDER, page, page_size)
+    return list(with_companies(db, events)), total
 
 
-def student_registered_events(db: Session, student_id: int, *, include_past: bool = False,
+def student_registered_events(db: Database, student_id: int, *, include_past: bool = False,
                               page: int = 1, page_size: int = 20,
-                              now: Optional[datetime] = None) -> Tuple[List[Event], int]:
+                              now: Optional[datetime] = None) -> Tuple[List[Doc], int]:
     """Events this student registered for, earliest first."""
     now = now or datetime.now()
-    conditions = [EventRegistration.student_id == student_id]
+    event_ids = [r["event_id"] for r in db.event_registrations.find({"student_id": student_id}, {"event_id": 1})]
+    conditions: List[dict] = [{"_id": {"$in": event_ids}}]
     if not include_past:
-        conditions.append(Event.event_datetime >= now)
-    total = db.scalar(select(func.count()).select_from(
-        select(Event.id).join(EventRegistration, EventRegistration.event_id == Event.id)
-        .where(*conditions).subquery())) or 0
-    stmt = (select(Event).join(EventRegistration, EventRegistration.event_id == Event.id)
-            .join(Event.company).where(*conditions).options(*_eager())
-            .order_by(Event.event_datetime.asc(), Event.id.asc())
-            .limit(page_size).offset((page - 1) * page_size))
-    return list(db.scalars(stmt).all()), total
+        conditions.append({"event_datetime": {"$gte": now}})
+    events, total = mongo.page(db, "events", {"$and": conditions}, ORDER, page, page_size)
+    return list(with_companies(db, events)), total
 
 
 # ---------------- response builders ----------------
-def to_event_summary(event: Event, counts: Dict[int, int], now: Optional[datetime] = None,
-                     student: Optional[Student] = None,
+def to_event_summary(event: Doc, counts: Dict[int, int], now: Optional[datetime] = None,
+                     student: Optional[Doc] = None,
                      registered_ids: Optional[Set[int]] = None) -> EventSummary:
     """`student` is given only when a student is looking, which adds the eligible/registered flags."""
     now = now or datetime.now()
-    majors = sorted((m.major for m in event.eligible_majors), key=str.lower)
+    majors = sorted(event.eligible_majors, key=str.lower)
     return EventSummary(
         id=event.id, name=event.name, event_datetime=event.event_datetime, location=event.location,
         city=event.city, eligible_majors=majors, registration_count=counts.get(event.id, 0),
@@ -165,8 +158,8 @@ def to_event_summary(event: Event, counts: Dict[int, int], now: Optional[datetim
     )
 
 
-def to_event_detail(event: Event, db: Session, now: Optional[datetime] = None,
-                    student: Optional[Student] = None) -> EventDetail:
+def to_event_detail(event: Doc, db: Database, now: Optional[datetime] = None,
+                    student: Optional[Doc] = None) -> EventDetail:
     now = now or datetime.now()
     counts = registration_counts(db, [event.id])
     registered = registered_event_ids(db, student.id, [event.id]) if student is not None else None

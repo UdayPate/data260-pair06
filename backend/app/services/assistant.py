@@ -12,12 +12,12 @@ lab: the history only has to last for a chat session.
 import uuid
 from typing import Dict, Optional
 
-from sqlalchemy.orm import Session
+from pymongo.database import Database
 
 from ..assistant.agent import Conversation, run_assistant as run_agent
 from ..assistant.model_client import ModelClient
 from ..assistant.tools import ToolContext
-from ..models import Student
+from ..mongo import Doc
 from ..schemas.assistant import ChatResponse, ToolCall
 
 _CONVERSATIONS: Dict[str, Conversation] = {}
@@ -45,7 +45,7 @@ def _get_conversation(student_id: int, conversation_id: Optional[str]) -> Conver
     return conversation
 
 
-def run_assistant(db: Session, student: Student, message: str,
+def run_assistant(db: Database, student: Doc, message: str,
                   conversation_id: Optional[str] = None) -> ChatResponse:
     conversation = _get_conversation(student.id, conversation_id)
     result = run_agent(message, conversation, ToolContext(db=db, student=student), client=model_client)

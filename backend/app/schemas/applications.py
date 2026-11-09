@@ -9,7 +9,7 @@ from typing import List
 
 from pydantic import BaseModel, ConfigDict
 
-from ..models import ApplicationStatus, JobCategory
+from ..enums import ApplicationStatus, JobCategory
 from .student_views import StudentCard, StudentForEmployer
 
 

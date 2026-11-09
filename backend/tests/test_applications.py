@@ -2,13 +2,15 @@
 Applications, resume privacy, applicant review and status changes.
 Run from backend/:   python -m pytest -q
 """
-import os
 from datetime import date, datetime, timedelta
 from urllib.parse import unquote
 
 import pytest
 
-from app import config, models
+from bson import ObjectId
+
+from app import mongo
+from tests.factories import make_application, make_job, resume_names, store_resume
 
 TODAY = date.today()
 PDF = b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n"
@@ -43,9 +45,9 @@ def apply(client, job_id, headers, content=PDF, name="cv.pdf", field="resume"):
     return client.post(f"/jobs/{job_id}/apply", headers=headers, files={field: (name, content, "application/pdf")})
 
 
-def resumes_on_disk():
-    folder = os.path.join(config.UPLOAD_DIR, "resumes")
-    return set(os.listdir(folder)) if os.path.isdir(folder) else set()
+def stored_resumes():
+    """The names of the resume files currently stored in the (test) database."""
+    return resume_names(mongo.get_database())
 
 
 @pytest.fixture()
@@ -57,20 +59,15 @@ def world(client, db, student_headers):
     bob, bob_id = new_student(client, "Bob Builder", "bob@example.com")
     ids = {"job1": post_job(client, acme, "Data Analyst"), "job2": post_job(client, acme, "Software Engineer"),
            "globex_job": post_job(client, globex, "Marketing Associate")}
-    expired = models.Job(company_id=acme_id, title="Old Role", description="A posting that already closed.",
-                         category=models.JobCategory.internship, city="San Jose", is_remote=False,
-                         salary_min=20, salary_max=25, pay_period=models.PayPeriod.hourly,
-                         posting_date=TODAY - timedelta(days=60), deadline=TODAY - timedelta(days=1))
-    db.add(expired)
-    db.commit()
-    ids["expired"] = expired.id
+    ids["expired"] = make_job(db, acme_id, title="Old Role", posting_date=TODAY - timedelta(days=60),
+                              deadline=TODAY - timedelta(days=1)).id
     return {"ada": student_headers, "bob": bob, "acme": acme, "globex": globex, "ids": ids,
             "acme_id": acme_id, "bob_id": bob_id}
 
 
 # ===================================================================== apply
 def test_student_applies_with_pdf(client, world):
-    before = resumes_on_disk()
+    before = stored_resumes()
     r = apply(client, world["ids"]["job1"], world["ada"])
     assert r.status_code == 201
     app = r.json()
@@ -78,7 +75,7 @@ def test_student_applies_with_pdf(client, world):
     assert app["job"]["company_name"] == "Acme Corp" and app["job"]["is_expired"] is False
     assert app["resume_url"] == f"/applications/{app['id']}/resume"
     assert "resume_path" not in app and "uploads" not in str(app)          # no file paths leak
-    new_files = resumes_on_disk() - before
+    new_files = stored_resumes() - before
     assert len(new_files) == 1 and next(iter(new_files)).endswith(".pdf")  # server-chosen filename
 
 
@@ -89,19 +86,19 @@ def test_apply_requires_student_login(client, world):
 
 
 def test_apply_to_missing_or_expired_job(client, world):
-    before = resumes_on_disk()
+    before = stored_resumes()
     assert apply(client, 99999, world["ada"]).status_code == 404
     expired = apply(client, world["ids"]["expired"], world["ada"])
     assert expired.status_code == 409 and "deadline" in expired.json()["detail"]
-    assert resumes_on_disk() == before            # nothing was stored for refused applications
+    assert stored_resumes() == before            # nothing was stored for refused applications
 
 
 def test_cannot_apply_twice_but_can_apply_to_other_jobs(client, world):
     assert apply(client, world["ids"]["job1"], world["ada"]).status_code == 201
-    before = resumes_on_disk()
+    before = stored_resumes()
     again = apply(client, world["ids"]["job1"], world["ada"])
     assert again.status_code == 409 and "already applied" in again.json()["detail"]
-    assert resumes_on_disk() == before            # the refused upload left no file behind
+    assert stored_resumes() == before            # the refused upload left no file behind
     assert apply(client, world["ids"]["job2"], world["ada"]).status_code == 201
     assert apply(client, world["ids"]["job1"], world["bob"]).status_code == 201   # another student: fine
 
@@ -115,9 +112,9 @@ def test_cannot_apply_twice_but_can_apply_to_other_jobs(client, world):
     (b"", "resume.pdf", 400),
 ], ids=["text", "png-named-pdf", "html", "leading-spaces", "signature-later", "empty"])
 def test_non_pdf_uploads_rejected(client, world, content, name, expected):
-    before = resumes_on_disk()
+    before = stored_resumes()
     assert apply(client, world["ids"]["job1"], world["ada"], content=content, name=name).status_code == expected
-    assert resumes_on_disk() == before
+    assert stored_resumes() == before
     assert client.get("/applications/mine", headers=world["ada"]).json()["total"] == 0
 
 
@@ -136,7 +133,7 @@ def test_resume_must_be_sent_in_the_resume_field(client, world):
 def test_filename_from_user_is_ignored(client, world):
     r = apply(client, world["ids"]["job1"], world["ada"], name="../../evil.pdf")
     assert r.status_code == 201
-    assert not any("evil" in f for f in resumes_on_disk())
+    assert not any("evil" in f for f in stored_resumes())
 
 
 def test_job_details_show_my_application_only_to_the_applicant(client, world):
@@ -306,52 +303,40 @@ def test_everyone_else_gets_404_for_a_resume(client, world):
     assert client.get(url, headers=world["bob"]).json() == client.get("/applications/99999/resume", headers=world["bob"]).json()
 
 
-def test_resume_files_are_not_served_as_static_files(client, world):
+def test_resume_files_are_not_served_as_public_media(client, world):
     apply(client, world["ids"]["job1"], world["ada"])
-    name = next(iter(resumes_on_disk()))
-    for path in (f"/media/resumes/{name}", f"/uploads/resumes/{name}", f"/media/profile_pics/../resumes/{name}"):
+    name = next(iter(stored_resumes()))
+    # the public picture route must not hand out a resume, even if you ask for its exact name
+    for path in (f"/media/resumes/{name}", f"/uploads/resumes/{name}", f"/media/profile_pics/../resumes/{name}",
+                 f"/media/profile_pics/{name}"):
         assert client.get(path).status_code in (400, 404), path
 
 
 def test_missing_file_is_404(client, world):
     app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
-    # delete every stored resume file from disk, as if someone removed it by hand
-    for name in list(resumes_on_disk()):
-        os.remove(os.path.join(config.UPLOAD_DIR, "resumes", name))
+    # delete every stored resume file from the database, as if someone removed it by hand
+    mongo.get_database()["resumes.files"].delete_many({})
+    mongo.get_database()["resumes.chunks"].delete_many({})
     r = client.get(f"/applications/{app_id}/resume", headers=world["ada"])
     assert r.status_code == 404 and "file not found" in r.json()["detail"].lower()
 
 
-@pytest.mark.parametrize("bad_path", ["../../etc/passwd", "resumes/../../secret.txt", "/etc/passwd",
-                                      "profile_pics/x.png", "..", ""],
-                         ids=["dotdot", "dotdot-inside", "absolute", "wrong-folder", "parent", "blank"])
-def test_tampered_database_path_cannot_expose_other_files(client, db, world, bad_path):
-    # Even if a bad value somehow got into the database, the endpoint must not serve it.
-    secret = os.path.join(config.UPLOAD_DIR, "secret.txt")
-    with open(secret, "w") as f:
-        f.write("top secret")
-    os.makedirs(os.path.join(config.UPLOAD_DIR, "profile_pics"), exist_ok=True)
-    with open(os.path.join(config.UPLOAD_DIR, "profile_pics", "x.png"), "wb") as f:
-        f.write(b"\x89PNG\r\n\x1a\n")
+def test_bad_resume_reference_cannot_expose_other_files(client, db, world):
+    """Even if a wrong value somehow got into the application document, the endpoint must not serve
+    anything but a resume: no error page, no profile picture, no other file."""
+    picture_id = mongo.bucket(db, "profile_pics").put(b"\x89PNG\r\n\x1a\nsecret picture", filename="x.png")
     app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
-    row = db.get(models.Application, app_id)
-    row.resume_path = bad_path
-    db.commit()
-    r = client.get(f"/applications/{app_id}/resume", headers=world["ada"])
-    assert r.status_code == 404 and b"top secret" not in r.content
+    for bad in (None, "not-an-object-id", 12345, ObjectId(), picture_id):     # picture_id: a real file, but not a resume
+        db.applications.update_one({"_id": app_id}, {"$set": {"resume_file_id": bad}})
+        r = client.get(f"/applications/{app_id}/resume", headers=world["ada"])
+        assert r.status_code == 404 and b"secret picture" not in r.content, bad
 
 
 def test_shared_seed_style_resume_is_served(client, db, world):
     # The seed script points many applications at one placeholder file, "resumes/seed_resume.pdf".
-    folder = os.path.join(config.UPLOAD_DIR, "resumes")
-    os.makedirs(folder, exist_ok=True)
-    with open(os.path.join(folder, "seed_resume.pdf"), "wb") as f:
-        f.write(PDF)
+    shared = store_resume(db, PDF, "seed_resume.pdf")
     ada_id = client.get("/students/me", headers=world["ada"]).json()["id"]
-    seeded = models.Application(student_id=ada_id, job_id=world["ids"]["job1"], resume_path="resumes/seed_resume.pdf",
-                                status=models.ApplicationStatus.pending, applied_at=datetime.now())
-    db.add(seeded)
-    db.commit()
+    seeded = make_application(db, ada_id, world["ids"]["job1"], resume_file_id=shared)
     for who in ("ada", "acme"):
         r = client.get(f"/applications/{seeded.id}/resume", headers=world[who])
         assert r.status_code == 200 and r.content == PDF

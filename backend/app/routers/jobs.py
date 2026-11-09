@@ -11,17 +11,17 @@ from datetime import date
 from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session, selectinload
+from pymongo.database import Database
 
+from .. import documents, mongo
 from ..core.deps import Identity, get_identity, get_owned_job, require_company
 from ..core.uploads import public_url
-from ..database import get_db
-from ..models import Application, Company, Job, JobCategory, JobSkill, PayPeriod
+from ..enums import JobCategory, PayPeriod
+from ..mongo import Doc, get_db
 from ..schemas.jobs import ApplicationRef, CompanyMini, JobCreate, JobDetail, JobPage, JobUpdate, MyJob, MyJobsPage
+from ..services.activity_log import log_activity
 from ..services.jobs import (applicant_counts, check_job_rules, search_jobs, summary_fields,
-                             to_detail, to_summary, total_pages)
-from ..services.skill_sync import sync_skills
+                             to_detail, to_summary, total_pages, with_companies)
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
@@ -36,20 +36,19 @@ def _rules_or_422(**kwargs) -> None:
 # ---------------- company: create / list own / edit ----------------
 @router.post("", response_model=JobDetail, status_code=status.HTTP_201_CREATED,
              summary="Post a new job (company only)")
-def create_job(body: JobCreate, company: Company = Depends(require_company), db: Session = Depends(get_db)):
+def create_job(body: JobCreate, company: Doc = Depends(require_company), db: Database = Depends(get_db)):
     posting_date = body.posting_date or date.today()
     _rules_or_422(posting_date=posting_date, deadline=body.deadline, salary_min=body.salary_min,
                   salary_max=body.salary_max, pay_period=body.pay_period, creating=True)
-    job = Job(
+    job = mongo.insert(db, "jobs", documents.job(
         company_id=company.id, title=body.title, description=body.description, category=body.category,
         city=body.city, state=body.state, is_remote=body.is_remote, salary_min=body.salary_min,
         salary_max=body.salary_max, pay_period=body.pay_period, posting_date=posting_date,
         deadline=body.deadline, contact_email=body.contact_email or company.contact_email or company.email,
-    )
-    job.skills = [JobSkill(skill=skill) for skill in body.skills]
-    db.add(job)
-    db.commit()
-    db.refresh(job)
+        skills=list(body.skills),
+    ))
+    job["company"] = company
+    log_activity(db, "company", company.id, "job_created", "job", job.id)
     return to_detail(job)
 
 
@@ -57,15 +56,12 @@ def create_job(body: JobCreate, company: Company = Depends(require_company), db:
 def my_jobs(
     include_expired: bool = Query(True, description="Show postings whose deadline has passed"),
     page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=100),
-    company: Company = Depends(require_company), db: Session = Depends(get_db),
+    company: Doc = Depends(require_company), db: Database = Depends(get_db),
 ):
-    conditions = [Job.company_id == company.id]
+    conditions = {"company_id": company.id}
     if not include_expired:
-        conditions.append(Job.deadline >= date.today())
-    total = db.scalar(select(func.count(Job.id)).where(*conditions)) or 0
-    jobs = db.scalars(select(Job).where(*conditions).options(selectinload(Job.skills))
-                      .order_by(Job.posting_date.desc(), Job.id.desc())
-                      .limit(page_size).offset((page - 1) * page_size)).all()
+        conditions["deadline"] = {"$gte": date.today()}
+    jobs, total = mongo.page(db, "jobs", conditions, [("posting_date", -1), ("_id", -1)], page, page_size)
     counts = applicant_counts(db, [j.id for j in jobs])
     today = date.today()
     owner = CompanyMini(id=company.id, name=company.name, profile_pic_url=public_url(company.profile_pic_path))
@@ -76,22 +72,23 @@ def my_jobs(
 
 
 @router.patch("/{job_id}", response_model=JobDetail, summary="Edit one of my job postings (company only)")
-def update_job(body: JobUpdate, job: Job = Depends(get_owned_job), db: Session = Depends(get_db)):
+def update_job(body: JobUpdate, job: Doc = Depends(get_owned_job), db: Database = Depends(get_db)):
     data = body.model_dump(exclude_unset=True)
-    skills = data.pop("skills", None)
 
     # Check the rules against the job AS IT WILL BE after this edit (old values + changes).
-    merged = {key: data.get(key, getattr(job, key))
+    merged = {key: data.get(key, job[key])
               for key in ("posting_date", "deadline", "salary_min", "salary_max", "pay_period")}
     _rules_or_422(**merged, creating=False)
 
-    for field, value in data.items():
-        setattr(job, field, value)
-    if skills is not None:
-        sync_skills(job.skills, skills, lambda text: JobSkill(skill=text))
-    db.commit()
-    db.refresh(job)
-    return to_detail(job)
+    changes = dict(data)
+    if "pay_period" in changes or "salary_max" in changes:      # the derived yearly figure needs both values
+        changes["pay_period"], changes["salary_max"] = merged["pay_period"], merged["salary_max"]
+    changes.update(documents.derived("jobs", changes))           # skills_lower, salary_yearly_max
+    mongo.update(db, "jobs", job.id, changes)
+    updated = mongo.get(db, "jobs", job.id)
+    with_companies(db, [updated])
+    log_activity(db, "company", job.company_id, "job_updated", "job", job.id)
+    return to_detail(updated)
 
 
 # ---------------- everyone: search / details ----------------
@@ -110,7 +107,7 @@ def list_jobs(
     include_expired: bool = Query(False, description="Also show jobs whose deadline has passed"),
     sort: Literal["newest", "deadline", "salary"] = Query("newest"),
     page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=100),
-    identity: Identity = Depends(get_identity), db: Session = Depends(get_db),
+    identity: Identity = Depends(get_identity), db: Database = Depends(get_db),
 ):
     try:
         jobs, total = search_jobs(
@@ -126,14 +123,14 @@ def list_jobs(
 
 
 @router.get("/{job_id}", response_model=JobDetail, summary="Job details with company profile")
-def get_job(job_id: int, identity: Identity = Depends(get_identity), db: Session = Depends(get_db)):
-    job = db.get(Job, job_id)
+def get_job(job_id: int, identity: Identity = Depends(get_identity), db: Database = Depends(get_db)):
+    job = mongo.get(db, "jobs", job_id)
     if job is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Job not found")
+    with_companies(db, [job])
     detail = to_detail(job)
     if identity.role == "student":
-        mine = db.scalar(select(Application).where(Application.student_id == identity.user.id,
-                                                   Application.job_id == job.id))
+        mine = mongo.find_one(db, "applications", {"student_id": identity.user.id, "job_id": job.id})
         if mine is not None:
             detail.my_application = ApplicationRef(id=mine.id, status=mine.status, applied_at=mine.applied_at)
     return detail

@@ -1,65 +1,50 @@
 """
 Shared test setup. pytest loads this file BEFORE the test files.
 
-Two safety rules enforced here:
-  1. DATABASE_URL is forced to in-memory SQLite, so tests can never touch your MySQL data.
-  2. UPLOAD_DIR is forced to a temporary folder, so tests never write into backend/uploads.
-Environment variables set here win over anything in your .env file.
+Safety rule enforced here: the tests never touch a real MongoDB. Each test gets its own in-memory database
+(mongomock) with the same indexes as the real one, and MONGO_URL is pointed at an address that cannot work,
+so a test that forgot to use the fixture fails at once instead of reaching a real database.
 """
-import atexit
 import os
-import shutil
-import tempfile
 
-_TMP_UPLOADS = tempfile.mkdtemp(prefix="handshake_test_uploads_")
-os.environ["UPLOAD_DIR"] = _TMP_UPLOADS
-os.environ["DATABASE_URL"] = "sqlite://"
-atexit.register(shutil.rmtree, _TMP_UPLOADS, ignore_errors=True)
+os.environ["MONGO_URL"] = "mongodb://127.0.0.1:1/?serverSelectionTimeoutMS=200"   # nothing listens on port 1
 
-import pytest  # noqa: E402  (must come after the environment is set)
+import mongomock  # noqa: E402
+import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
-from sqlalchemy import create_engine  # noqa: E402
-from sqlalchemy.orm import sessionmaker  # noqa: E402
-from sqlalchemy.pool import StaticPool  # noqa: E402
+from mongomock import gridfs as mongomock_gridfs  # noqa: E402
 
-from app.database import Base, get_db  # noqa: E402
+from app import mongo  # noqa: E402
 from app.main import app  # noqa: E402
+
+mongomock_gridfs.enable_gridfs_integration()     # lets gridfs.GridFS work on the in-memory database
 
 STUDENT = {"name": "Ada Lovelace", "email": "ada@example.com", "password": "Secret123", "college": "SJSU"}
 COMPANY = {"name": "Acme Corp", "email": "hr@acme.com", "password": "Secret123", "location": "San Jose"}
 
 
 @pytest.fixture()
-def session_factory():
-    """Creates a fresh, empty in-memory database and returns a way to open sessions on it."""
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
-    Base.metadata.create_all(engine)
-    yield sessionmaker(bind=engine, autoflush=False, autocommit=False)
-    engine.dispose()
+def mongo_db():
+    """A fresh, empty in-memory database with the real indexes, plugged in as THE database for this test."""
+    database = mongomock.MongoClient()["p06_test"]
+    mongo.ensure_indexes(database)
+    mongo.use_database(database)
+    yield database
+    mongo.use_database(None)
 
 
 @pytest.fixture()
-def client(session_factory):
+def client(mongo_db):
     """A test client wired to that in-memory database."""
-    def override_get_db():
-        db = session_factory()
-        try:
-            yield db
-        finally:
-            db.close()
-
-    app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as c:
         yield c
-    app.dependency_overrides.clear()
 
 
 @pytest.fixture()
-def db(session_factory):
-    """Direct database access for tests that need rows the API would refuse to create
-    (e.g. an already-expired job). Remember to db.commit()."""
-    with session_factory() as session:
-        yield session
+def db(mongo_db):
+    """Direct database access for tests that need documents the API would refuse to create
+    (e.g. an already-expired job). See tests/factories.py."""
+    return mongo_db
 
 
 @pytest.fixture()

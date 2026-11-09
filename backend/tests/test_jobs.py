@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
-from app import models
+from tests.factories import make_application, make_job, make_student
 
 TODAY = date.today()
 
@@ -61,13 +61,8 @@ def world(client, db, student_headers):
         "marketing": post(globex_h, title="Marketing Associate", category="part_time", city="Sunnyvale",
                           salary_min=20, salary_max=24, skills=["Marketing", "Communication"], deadline=iso(40)),
     }
-    expired = models.Job(company_id=acme_id, title="Old Data Role", description="An old posting that closed.",
-                         category=models.JobCategory.internship, city="San Jose", is_remote=False,
-                         salary_min=20, salary_max=25, pay_period=models.PayPeriod.hourly,
-                         posting_date=TODAY - timedelta(days=60), deadline=TODAY - timedelta(days=1))
-    db.add(expired)
-    db.commit()
-    ids["expired"] = expired.id
+    ids["expired"] = make_job(db, acme_id, title="Old Data Role", description="An old posting that closed.",
+                              posting_date=TODAY - timedelta(days=60), deadline=TODAY - timedelta(days=1)).id
     return {"ids": ids, "acme": acme_h, "globex": globex_h, "acme_id": acme_id, "student": student_headers}
 
 
@@ -125,12 +120,8 @@ def test_missing_required_fields_rejected(client, company_headers):
 def test_mine_lists_only_own_jobs_with_applicant_counts(client, db, world):
     ds = world["ids"]["ds_intern"]
     for n in range(3):
-        student = models.Student(name=f"S{n}", email=f"s{n}@x.edu", password_hash="x", college="SJSU")
-        db.add(student)
-        db.flush()
-        db.add(models.Application(student_id=student.id, job_id=ds, resume_path="resumes/x.pdf",
-                                  applied_at=datetime.now()))
-    db.commit()
+        student = make_student(db, name=f"S{n}", email=f"s{n}@x.edu")
+        make_application(db, student.id, ds, applied_at=datetime.now())
 
     r = client.get("/jobs/mine", headers=world["acme"])
     assert r.status_code == 200

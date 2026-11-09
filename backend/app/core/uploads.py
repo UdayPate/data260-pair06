@@ -1,27 +1,35 @@
 """
 File upload helpers: profile pictures (public) and resume PDFs (private).
 
-Safety rules we follow (pictures AND resumes):
-  * We NEVER use the filename the user sent. We make our own name, so nobody can
-    upload "../../something" to write outside the uploads folder.
+Lab 2: the files are stored in MongoDB (GridFS), not on a disk. That way every service container
+stays stateless and any of them can serve a file that another one stored.
+
+Safety rules we follow (pictures AND resumes), unchanged from Lab 1:
+  * We NEVER use the filename the user sent. We make our own name.
   * We check the file's first bytes ("magic bytes"), not just the extension or the
     Content-Type header, because both of those are easy to fake.
   * We only accept PNG, JPEG and WebP. SVG is refused on purpose: an SVG file can
     contain JavaScript.
   * There is a size limit.
 
-Database rows store only the RELATIVE path (e.g. "profile_pics/student_1_ab12.png").
+GridFS keeps two buckets: "profile_pics" (public, found by file name) and "resumes" (private, found by id;
+only the Application service's /applications/{id}/resume endpoint hands them out after checking who asks).
+A document stores only a reference: profile_pic_path = "profile_pics/<name>", resume_file_id = <GridFS id>.
 """
-import os
 import uuid
-from typing import Optional
+from typing import Optional, Tuple
 
+from bson import ObjectId
 from fastapi import HTTPException, UploadFile, status
+from pymongo.database import Database
 
-from .. import config  # read config.UPLOAD_DIR at call time (lets tests point it at a temp folder)
+from ..mongo import bucket
 
 MAX_IMAGE_BYTES = 2 * 1024 * 1024  # 2 MB
 MAX_RESUME_BYTES = 5 * 1024 * 1024  # 5 MB
+PICTURES = "profile_pics"
+RESUMES = "resumes"
+IMAGE_TYPES = {"png": "image/png", "jpg": "image/jpeg", "webp": "image/webp"}
 
 
 def detect_image_type(data: bytes) -> Optional[str]:
@@ -35,8 +43,8 @@ def detect_image_type(data: bytes) -> Optional[str]:
     return None
 
 
-def save_profile_picture(file: UploadFile, owner_type: str, owner_id: int) -> str:
-    """Validate and store an uploaded picture. Returns its relative path."""
+def save_profile_picture(db: Database, file: UploadFile, owner_type: str, owner_id: int) -> str:
+    """Validate and store an uploaded picture. Returns its path ("profile_pics/<name>")."""
     data = file.file.read(MAX_IMAGE_BYTES + 1)
     if not data:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "The uploaded file is empty")
@@ -46,39 +54,33 @@ def save_profile_picture(file: UploadFile, owner_type: str, owner_id: int) -> st
     if ext is None:
         raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "Only PNG, JPEG or WebP images are allowed")
 
-    rel_path = f"profile_pics/{owner_type}_{owner_id}_{uuid.uuid4().hex[:12]}.{ext}"
-    abs_path = os.path.join(config.UPLOAD_DIR, rel_path)
-    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
-    with open(abs_path, "wb") as f:
-        f.write(data)
-    return rel_path
+    name = f"{owner_type}_{owner_id}_{uuid.uuid4().hex[:12]}.{ext}"
+    bucket(db, PICTURES).put(data, filename=name, content_type=IMAGE_TYPES[ext],
+                             owner_type=owner_type, owner_id=owner_id)
+    return f"{PICTURES}/{name}"
 
 
-def _inside(base: str, target: str) -> bool:
-    """True if `target` is inside folder `base` (guards against '../' tricks)."""
-    try:
-        return os.path.commonpath([base, target]) == base
-    except ValueError:      # e.g. paths on different drives on Windows
-        return False
+def read_profile_picture(db: Database, name: str) -> Optional[Tuple[bytes, str]]:
+    """(the picture bytes, its content type) for a stored name, or None."""
+    stored = bucket(db, PICTURES).find_one({"filename": name})
+    if stored is None:
+        return None
+    return stored.read(), getattr(stored, "content_type", None) or "application/octet-stream"
 
 
-def delete_upload(rel_path: Optional[str]) -> None:
-    """Delete a stored file. Silently ignores missing files and paths outside UPLOAD_DIR."""
-    if not rel_path:
+def delete_upload(db: Database, path: Optional[str]) -> None:
+    """Delete a stored profile picture by its path. Silently ignores a missing file or any other kind of path."""
+    if not path or not path.startswith(f"{PICTURES}/"):
         return
-    base = os.path.abspath(config.UPLOAD_DIR)
-    target = os.path.abspath(os.path.join(base, rel_path))
-    if not _inside(base, target):
-        return
-    try:
-        os.remove(target)
-    except FileNotFoundError:
-        pass
+    files = bucket(db, PICTURES)
+    for stored in list(files.find({"filename": path[len(PICTURES) + 1:]})):
+        files.delete(stored._id)
 
 
-def save_resume(file: UploadFile, student_id: int, job_id: int) -> str:
+def save_resume(db: Database, file: UploadFile, student_id: int, job_id: int) -> ObjectId:
     """Validate and store an uploaded resume. Only real PDFs are accepted: the file must
-    START with the PDF signature "%PDF-" (we do not trust the filename or Content-Type)."""
+    START with the PDF signature "%PDF-" (we do not trust the filename or Content-Type).
+    Returns the GridFS id to keep in the application document."""
     data = file.file.read(MAX_RESUME_BYTES + 1)
     if not data:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "The uploaded file is empty")
@@ -87,26 +89,26 @@ def save_resume(file: UploadFile, student_id: int, job_id: int) -> str:
     if not data.startswith(b"%PDF-"):
         raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "Resume must be a PDF file")
 
-    rel_path = f"resumes/app_{student_id}_{job_id}_{uuid.uuid4().hex[:12]}.pdf"
-    abs_path = os.path.join(config.UPLOAD_DIR, rel_path)
-    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
-    with open(abs_path, "wb") as f:
-        f.write(data)
-    return rel_path
+    name = f"app_{student_id}_{job_id}_{uuid.uuid4().hex[:12]}.pdf"
+    return bucket(db, RESUMES).put(data, filename=name, content_type="application/pdf",
+                                   student_id=student_id, job_id=job_id)
 
 
-def resume_file_path(rel_path: Optional[str]) -> Optional[str]:
-    """Absolute path of a stored resume, or None if it is missing or is NOT inside the
-    resumes folder (so a bad value in the database can never expose other files)."""
-    if not rel_path:
+def read_resume(db: Database, file_id: Optional[ObjectId]) -> Optional[bytes]:
+    """The resume PDF bytes, or None if the file is missing."""
+    if file_id is None:
         return None
-    base = os.path.abspath(os.path.join(config.UPLOAD_DIR, "resumes"))
-    target = os.path.abspath(os.path.join(config.UPLOAD_DIR, rel_path))
-    if not _inside(base, target) or not os.path.isfile(target):
+    files = bucket(db, RESUMES)
+    if not files.exists(file_id):
         return None
-    return target
+    return files.get(file_id).read()
 
 
-def public_url(rel_path: Optional[str]) -> Optional[str]:
-    """URL the browser can use to show a profile picture (served by main.py)."""
-    return f"/media/{rel_path}" if rel_path else None
+def delete_resume(db: Database, file_id: Optional[ObjectId]) -> None:
+    if file_id is not None:
+        bucket(db, RESUMES).delete(file_id)
+
+
+def public_url(path: Optional[str]) -> Optional[str]:
+    """URL the browser can use to show a profile picture (served by routers/media.py)."""
+    return f"/media/{path}" if path else None

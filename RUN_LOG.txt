@@ -1239,3 +1239,238 @@ $ docker ps --format "{{.Names}}" | grep -c "^p06-"      -> 0      (the images a
 Not tested in this phase: the full stack with a database (Docker Compose, a later phase); the containers report healthy
 without MySQL or MongoDB because /health does not touch the database.
 ### end of Lab 2, PHASE 1
+
+
+----------------------------------------------------------------------------------------------
+PHASE 2: MongoDB migration (2026-11-08)
+----------------------------------------------------------------------------------------------
+What was built: backend/app/mongo.py (connection, Doc, ids, dates, helpers, GridFS, INDEXES), documents.py (builders), enums.py,
+core/sessions.py (login sessions with expiry), services/activity_log.py, routers/media.py (pictures from GridFS); every router,
+service, the assistant tools, core/deps.py, core/uploads.py and seed/generate_seed.py rewritten for MongoDB; models.py,
+database.py and services/skill_sync.py removed; requirements (pymongo in, sqlalchemy/pymysql/cryptography out); Dockerfiles (no
+uploads folder); tests/conftest.py, tests/factories.py, tests/test_mongo.py (new) and the tests that touched the SQL layer;
+docs/lab2/MONGO_SCHEMA.md. The API (paths, request bodies, response shapes) is unchanged except: new GET /media/profile_pics/{name}
+(was a static folder), POST /auth/logout now really ends the session, and POST /jobs/{id}/apply still answers 201 (the async 202
+change comes with Kafka).
+
+--- 2.1  Can the in-memory test database do what the code needs? (probe with mongomock 4.3.0 / pymongo 4.10.1, before writing the code)
+regex i         [1, 3]
+city eq (i)     [2]
+$in             [1, 2]
+$all            [1]
+sort/skip/lim   [3, 1]
+count           2
+aggregate       [{'n': 2, '_id': 'hourly'}, {'n': 1, '_id': 'yearly'}]
+counters        1 2
+unique index    DuplicateKeyError
+ttl index ok    True
+gridfs get      b'%PDF-1.4 hi' True
+gridfs delete   None
+upsert update   s1
+update_many     2
+
+--- 2.2  A real MongoDB 7 for the live checks, and the seed on it
+$ docker run -d --name p06-mongo -p 9069:27017 mongo:7
+$ docker exec p06-mongo mongosh --quiet --eval 'db.runCommand({ping:1}).ok'
+1
+(venv) $env:MONGO_URL='mongodb://localhost:9069'; python -m seed.generate_seed --reset
+First attempt: AttributeError: 'dict' object has no attribute 'name'  (seed/generate_seed.py, make_events: company.name -> company["name"]); fixed.
+Second attempt (2.07 s):
+Seeded database p06_handshake with SEED=6, CITY_SET=['San Jose', 'Sunnyvale', 'Mountain View']
+  companies            50
+  students             200
+  jobs                 300
+  applications         1500
+  events               100
+  event_registrations  400
+  student_preferences  151
+  saved_items          150
+  student_skills       877   (inside the student documents)
+  job_skills           1073   (inside the job documents)
+These are exactly the Lab 1 numbers (docs/lab1/part_a_metrics.md), including 151 preferences and 877 / 1073 skills, which only come out
+the same if the order of the random numbers is unchanged.
+
+--- 2.3  Backend tests
+First full run after the rewrite (output redirected to a file):
+(venv) python -m pytest -q --tb=line -p no:cacheprovider
+4 failed, 404 passed, 26 errors in 289.37s (0:04:49)
+Causes found in that output:
+  * 26 errors + 2 failures: pydantic ValidationError for ExperienceOut ("field required"). Real bug in the new code: PATCH
+    /students/me used model_dump(exclude_unset=True), which also drops unset fields INSIDE each experience entry, so stored entries
+    lacked end_date / description. Fix: documents.experience() always writes every key.
+  * test_services.py (2 failures, my new tests): the endpoint count test did not know the new GET /media/profile_pics/{name}
+    (now 41 endpoints, and only the Student service serves it: the Company service no longer mounts it); the requirements test read
+    a comment line that mentioned the removed packages (it now looks only at package lines).
+After the fixes:
+(venv) python -m pytest tests/test_services.py tests/test_directory.py tests/test_profiles.py tests/test_applications.py -q
+161 passed in 142.68s (0:02:22)
+New tests for the data layer:
+(venv) python -m pytest tests/test_mongo.py -q
+27 passed in 1.50s
+Mutation check (does a test notice a missing unique index?): the unique flag of the applications (student_id, job_id) index was
+removed on purpose:
+(venv) python -m pytest tests/test_mongo.py tests/test_applications.py -q
+FAILED tests/test_mongo.py::test_one_application_per_student_and_job - Failed...
+1 failed, 68 passed in 46.87s
+(test_applications.py still passed because the API checks for a duplicate before inserting; only the database-level test caught it.)
+The file was restored:  27 passed in 1.44s
+Final full run of the whole backend suite:
+(venv) python -m pytest -q --tb=short -p no:cacheprovider
+461 passed in 292.13s (0:04:52)
+Tests per file (pytest --collect-only): test_activity 17, test_agent 42, test_applications 42, test_assistant 12, test_auth 29,
+test_directory 26, test_events 72, test_jobs 68, test_mongo 27, test_preferences 33, test_profiles 66, test_services 27 = 461.
+(Before: 432. test_applications went from 47 to 42: the 6 "tampered file path" cases became 1 test about a wrong resume reference,
+because resumes are no longer paths on a disk; test_auth gained 7 session tests; test_mongo is new.)
+The frontend tests were not re-run: no frontend file changed and the API shapes are unchanged.
+
+--- 2.4  Same questions, old code and new code: Lab 1 API on MySQL (port 9070) vs Lab 2 API on MongoDB (port 9060)
+The Lab 1 code was taken from the tag with  git archive lab1 backend | tar -x -C <temporary folder>  (outside the repository), run
+against the original MySQL database p06_handshake, and compared with the new code on a freshly seeded MongoDB. A script logged in as
+the demo student and the demo company on both and compared the JSON of the same requests: 29 job filter combinations x 3 pages + a
+100-row page, 16 job ids, application filters, 14 event filters, 19 event ids, 12 student filters, 16 student ids, 8 company ids, the
+company's own postings / applicants / applications / events / registrations, heat-map windows, and 45 resume downloads (bytes + headers).
+First run:   {"compared": 382, "same": 371, "different": 11}
+  Of the 11: 3 were the resume Content-Disposition header (old: filename*=utf-8''Resume%20-%20Demo%20Student.pdf, new: filename="...");
+  fixed by encoding the name the same way. The other 8 (kept in the second run below) are explained under it.
+Second run, after the fix:   {"compared": 382, "same": 374, "different": 8}
+  DIFF [student] GET /students/me : .date_of_birth: '1998-06-05' vs '1998-07-06'
+  DIFF [student] GET /students/me/preferences : .updated_at: '2026-10-08T22:55:08' vs '2026-11-08T17:15:41.698000'
+  DIFF [student] GET /students/1 : .experience[0].id: 201 vs 2
+  DIFF [company] GET /students {'major': ['data science', 'Marketing'], 'page_size': 20}: .items[9].skills: length 5 vs 4
+  DIFF [company] GET /students {'skills': ['Python'], 'page_size': 20}: .items[7].skills: length 5 vs 4
+  DIFF [company] GET /students {'skills': ['python', 'sql'], 'skills_match': 'all', 'page_size': 20}: .items[0].skills: length 5 vs 4
+  DIFF [company] GET /students {'skills': ['Python', 'SQL'], 'skills_match': 'any', 'major': ['Data Science'], 'page_size': 20}: .items[1].skills: length 5 vs 4
+  DIFF [company] GET /students/1 : .experience[0].id: 201 vs 2
+Explanation (checked, not assumed): all 8 are about the demo student (id 1) or the seed date, not about the migration.
+  * skills 5 vs 4: only student id 1. The Lab 1 database has an extra skill "Java" ['Java','Machine Learning','Pandas','Python','SQL'] added
+    during the Lab 1 demos (the PATCH /students/me screenshot); the freshly seeded MongoDB has the 4 seeded skills.
+  * experience id 201 vs 2: the same demo edit replaced student 1's experience list in Lab 1 (new row ids); the seed gives ids 1..n.
+  * preferences updated_at: the Lab 1 value is the time of the Lab 1 seed run, the new one is the time of today's seed run.
+  * date_of_birth: Faker's date_of_birth() computes the age range from today's date (its source: now = datetime.now(tzinfo).date()),
+    so the same SEED gives a different date of birth when the seed runs on a different day. Nothing else in the seed depends on the date.
+Every search filter, sort order, page, id, count and ordering was identical (all other 374 comparisons).
+
+--- 2.5  Live checks against the real MongoDB, through the real API
+Script: 67 checks (database counts, indexes, bcrypt login, sessions, sign-out, pictures and resumes in GridFS, role privacy, job and
+event workflows, the activity log, and MongoDB's own session expiry). Three runs, in this order:
+Run A (API started with uvicorn on this laptop, MongoDB container on port 9069): 66 passed, 1 failed. The failing check expected the
+  skill "python" back after PATCH /students/me; the API correctly returns the shared spelling "Python" (Lab 1 behaviour: normalize_skills).
+  The expectation in my script was wrong, the API was right; the script was corrected.
+Run B (through the gateway to the six service containers, see 2.6): 66 passed, 1 failed:  FAIL  activity heatmap counts today's application
+  The check compared with this laptop's date (2026-11-08, Pacific time) while the containers run on UTC (2026-11-09 01:28 UTC). Looking at
+  the data:  heatmap last days: [..., {'date': '2026-10-05', 'count': 1}, {'date': '2026-11-09', 'count': 1}]  Windows local date: 2026-11-08
+  | UTC date: 2026-11-09.  The application WAS counted, on the server's date. Not a bug: business timestamps use the server's clock
+  (as in Lab 1); the check now accepts either date.
+Run C (the database was seeded again first, same stack): 67 passed, 0 failed. Full output:
+PASS  documents in companies (50)
+PASS  documents in students (200)
+PASS  documents in jobs (300)
+PASS  documents in applications (1500)
+PASS  documents in events (100)
+PASS  documents in event_registrations (400)
+PASS  documents in student_preferences (151)
+PASS  documents in saved_items (150)
+PASS  student skills inside student documents 
+PASS  job skills inside job documents 
+PASS  unique index students.email 
+PASS  unique index companies.email 
+PASS  unique index applications (student, job) 
+PASS  unique index event_registrations (student, event) 
+PASS  unique index saved_items 
+PASS  unique index student_preferences.student_id 
+PASS  TTL index on sessions.expires_at (expireAfterSeconds=0) 
+PASS  passwords are bcrypt hashes 
+PASS  counters continue after the seed 
+PASS  seeded student can log in (bcrypt hash from the seed) 
+PASS  seeded company can log in 
+PASS  each login created a session document (2)
+PASS  bad password -> 401 
+PASS  /auth/me works with the session 
+PASS  signup 201 
+PASS  new student got the next integer id (id 201)
+PASS  duplicate email 409 
+PASS  signup wrote an activity log 
+PASS  token works before logout 
+PASS  logout 200 
+PASS  same token is refused after logout 
+PASS  picture upload 200 
+PASS  picture is served from GridFS, public /media/profile_pics/student_1_3d1405df7146.png
+PASS  picture is in the profile_pics bucket 
+PASS  old picture was deleted when replaced 
+PASS  fake image refused 415 
+PASS  preferences saved 
+PASS  only one preferences document for the student 
+PASS  profile update with skills and experience 
+PASS  experience got a counter id 
+PASS  derived search fields were updated 
+PASS  company posts a job 201 
+PASS  job got id 301 (301)
+PASS  derived salary_yearly_max stored 
+PASS  new job is found by search 
+PASS  apply 201 Pending 
+PASS  application got the next id 1501 (1501)
+PASS  apply again 409 (unique index / check) 
+PASS  fake resume refused 415 
+PASS  resume stored in GridFS (bucket resumes) 
+PASS  company owner can read the resume 
+PASS  student can read own resume 
+PASS  another student cannot (404) 
+PASS  a different company gets 404 for the resume 
+PASS  resume is not public 
+PASS  company sets Reviewed 
+PASS  student sees Reviewed 
+PASS  activity heatmap counts today's application 
+PASS  activity log has application_created and status change 
+PASS  event posted 201 
+PASS  student registers 201 
+PASS  register twice 409 
+PASS  registration count 1 
+PASS  company sees the registered student 
+PASS  cancel registration 204 
+... waiting up to 130 s for MongoDB's TTL monitor to delete the expired session
+PASS  TTL: MongoDB deleted the expired session by itself 
+PASS  TTL: a session that has not expired was kept 
+SUMMARY: 67 passed, 0 failed
+
+--- 2.6  The whole stack in containers (no Compose yet: docker run on one network)
+$ docker build -q -f backend/docker/Dockerfile.<service> -t p06-<service>:1.0.0 backend     (six images, rebuilt with the new requirements)
+=== p06-student exit=0 (18s) / p06-company 18s / p06-job 29s / p06-application 23s / p06-event 30s / p06-assistant 24s  (BUILD6 DONE in 142s)
+$ docker network create p06-net ; docker network connect p06-net p06-mongo
+$ docker run -d --name p06-<service> --network p06-net -e MONGO_URL=mongodb://p06-mongo:27017 -e JWT_SECRET=<a throw-away test value> p06-<service>:1.0.0
+$ docker run -d --name p06-gateway --network p06-net -p 9060:9060 p06-gateway:1.0.0
+$ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"          (about 30 s later)
+p06-assistant     Up 25 seconds (healthy)   9067/tcp
+p06-event         Up 25 seconds (healthy)   9066/tcp
+p06-application   Up 26 seconds (healthy)   9065/tcp
+p06-job           Up 26 seconds (healthy)   9064/tcp
+p06-company       Up 26 seconds (healthy)   9063/tcp
+p06-student       Up 27 seconds (healthy)   9062/tcp
+p06-gateway       Up 27 seconds (healthy)   8080/tcp, 0.0.0.0:9060->9060/tcp
+p06-mongo         Up 12 minutes             0.0.0.0:9069->27017/tcp
+$ docker logs p06-student|job|application   ->  "Application startup complete." and no errors
+$ docker exec p06-student sh -c 'id -un; ls /srv; test -f /srv/.env ...; pip list | grep -iE "sqlalchemy|pymysql|mongomock|pytest|pymongo"'
+p06 / app requirements services / no .env / pymongo 4.10.1      (non-root, no uploads folder, no SQL or test libraries)
+$ docker exec p06-job sh -c 'pip list | grep -iE "multipart|httpx|sqlalchemy|pymysql|pymongo"'
+pymongo 4.10.1                                                  (no multipart, no httpx)
+$ docker exec p06-mongo mongosh --quiet p06_handshake --eval 'db.getCollectionNames().sort().join(", ")'
+activity_logs, applications, companies, counters, event_registrations, events, jobs, profile_pics.chunks, profile_pics.files, resumes.chunks, resumes.files, saved_items, sessions, student_preferences, students
+Cross-service statelessness (a file stored by one container is served by another; one session honoured by all):
+PASS  company logo uploaded (Company service container) /media/profile_pics/company_1_0f7542e26bdb.png
+PASS  logo served by the Student service container (gateway /media), same bytes
+PASS  a job of that company shows the logo (Job service reads the company)
+PASS  the logo is public (no token needed)
+PASS  requests were answered by five different service containers ['p06-application', 'p06-company', 'p06-event', 'p06-job', 'p06-student']
+PASS  session from the Student service accepted by the Application service
+SUMMARY: 6 passed, 0 failed
+
+--- 2.7  Clean-up and things worth knowing
+* The temporary folder with the Lab 1 code (it held a copy of backend\.env) was deleted; the eight p06 containers and the network
+  were removed; only the p06-mongo container was left running.
+* While working, one git command was run by mistake (git rm --cached on backend/app/services/skill_sync.py, which stages a deletion).
+  It was noticed at once and undone (git restore --staged); nothing was staged or committed by this phase.
+* Lab 1's scripts/run_transcripts.py, scripts/run_part_c.py and scripts/collect_metrics.py use the SQL layer and no longer run on
+  this code (left untouched, as agreed). docs/openapi.json and docs/postman_collection.json were not regenerated and do not list the
+  new GET /media/profile_pics/{name}.
+* Times: stored business timestamps use the server's local clock (as in Lab 1). The containers run on UTC, so a day starts at 16:00
+  Pacific time there (visible in the heat-map date above). Sessions and activity logs are always UTC.
+### end of Lab 2, PHASE 2

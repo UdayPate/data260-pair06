@@ -16,11 +16,11 @@ as a student id.
 from typing import List, Literal, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from pymongo.database import Database
 
+from .. import mongo
 from ..core.deps import Identity, get_identity
-from ..database import get_db
-from ..models import Student
+from ..mongo import get_db
 from ..schemas.student_views import (PeerProfile, PeersPage, StudentForEmployer, StudentsPage)
 from ..services.directory import search_students
 from ..services.jobs import total_pages
@@ -38,7 +38,7 @@ def list_students(
     skills: Optional[List[str]] = Query(None, max_length=10, description="Repeat to require several"),
     skills_match: Literal["any", "all"] = Query("any"),
     page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=100),
-    identity: Identity = Depends(get_identity), db: Session = Depends(get_db),
+    identity: Identity = Depends(get_identity), db: Database = Depends(get_db),
 ):
     is_company = identity.role == "company"
     students, total = search_students(
@@ -55,8 +55,8 @@ def list_students(
 
 @router.get("/{student_id}", response_model=Union[StudentForEmployer, PeerProfile],
             summary="View one student's profile (company: full profile; student: limited peer profile)")
-def get_student(student_id: int, identity: Identity = Depends(get_identity), db: Session = Depends(get_db)):
-    student = db.get(Student, student_id)
+def get_student(student_id: int, identity: Identity = Depends(get_identity), db: Database = Depends(get_db)):
+    student = mongo.get(db, "students", student_id)
     if student is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     if identity.role == "company":

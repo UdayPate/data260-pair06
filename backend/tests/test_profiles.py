@@ -2,12 +2,11 @@
 Student profile, company profile, picture upload and reference-data tests.
 Run from backend/:   python -m pytest -q
 """
-import os
 from datetime import date, timedelta
 
 import pytest
 
-from app import config
+from app import mongo
 
 # Fake image bytes: only the first bytes matter to our "magic byte" check.
 PNG = b"\x89PNG\r\n\x1a\n" + b"0" * 200
@@ -15,9 +14,10 @@ JPEG = b"\xff\xd8\xff\xe0" + b"0" * 200
 WEBP = b"RIFF\x00\x00\x00\x00WEBP" + b"0" * 200
 
 
-def stored_path(url: str) -> str:
-    """Map a '/media/profile_pics/x.png' URL to the file on disk."""
-    return os.path.join(config.UPLOAD_DIR, url.removeprefix("/media/"))
+def is_stored(url: str) -> bool:
+    """Is the picture behind '/media/profile_pics/x.png' stored in the (test) database?"""
+    name = url.removeprefix("/media/profile_pics/")
+    return mongo.get_database()["profile_pics.files"].count_documents({"filename": name}) == 1
 
 
 # ======================= student: view =======================
@@ -174,18 +174,18 @@ def test_upload_picture_and_serve_it(client, student_headers):
     url = r.json()["profile_pic_url"]
     assert url.startswith("/media/profile_pics/student_1_") and url.endswith(".png")
     assert client.get("/students/me", headers=student_headers).json()["profile_pic_url"] == url
-    assert os.path.exists(stored_path(url))
+    assert is_stored(url)
     served = client.get(url)                       # public: no token needed
     assert served.status_code == 200 and served.content == PNG
 
 
-def test_new_picture_replaces_and_deletes_the_old_file(client, student_headers):
+def test_new_picture_replaces_and_deletes_the_old_one(client, student_headers):
     first = client.post("/students/me/profile-picture", files={"file": ("a.png", PNG, "image/png")},
                         headers=student_headers).json()["profile_pic_url"]
     second = client.post("/students/me/profile-picture", files={"file": ("b.jpg", JPEG, "image/jpeg")},
                          headers=student_headers).json()["profile_pic_url"]
     assert first != second and second.endswith(".jpg")
-    assert not os.path.exists(stored_path(first)) and os.path.exists(stored_path(second))
+    assert not is_stored(first) and is_stored(second)
 
 
 def test_webp_is_accepted(client, student_headers):
@@ -208,7 +208,7 @@ def test_bad_uploads_rejected(client, student_headers, name, content, expected):
     assert client.get("/students/me", headers=student_headers).json()["profile_pic_url"] is None
 
 
-def test_upload_filename_cannot_escape_the_uploads_folder(client, student_headers):
+def test_upload_filename_is_never_used_as_the_stored_name(client, student_headers):
     r = client.post("/students/me/profile-picture", files={"file": ("../../evil.png", PNG, "image/png")}, headers=student_headers)
     assert r.status_code == 200
     assert "evil" not in r.json()["profile_pic_url"]     # our own generated name is used instead
@@ -220,11 +220,11 @@ def test_upload_requires_student_login(client, company_headers):
     assert client.post("/students/me/profile-picture", files=files, headers=company_headers).status_code == 403
 
 
-def test_resumes_folder_is_not_publicly_served(client):
-    os.makedirs(os.path.join(config.UPLOAD_DIR, "resumes"), exist_ok=True)
-    with open(os.path.join(config.UPLOAD_DIR, "resumes", "secret.pdf"), "wb") as f:
-        f.write(b"%PDF-1.4 private")
+def test_resumes_are_not_publicly_served(client, db):
+    from tests.factories import store_resume
+    store_resume(db, b"%PDF-1.4 private", "secret.pdf")
     assert client.get("/media/resumes/secret.pdf").status_code == 404
+    assert client.get("/media/profile_pics/secret.pdf").status_code == 404       # the picture route cannot reach the resumes bucket
     assert client.get("/media/profile_pics/../resumes/secret.pdf").status_code in (400, 404)
     assert client.get("/uploads/resumes/secret.pdf").status_code == 404
 

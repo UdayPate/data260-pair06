@@ -6,7 +6,7 @@ skills.py the seed generator and the AI assistant use, so everyone sees one voca
 from fastapi import APIRouter
 
 from ..config import CITY_SET
-from ..models import ApplicationStatus, JobCategory
+from ..enums import ApplicationStatus, JobCategory
 from ..skills import CAMPUS_TITLES, DEGREES, JOB_FIELDS, MAJORS, SKILLS_BY_AREA
 
 router = APIRouter(prefix="/meta", tags=["Reference data"])

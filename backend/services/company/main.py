@@ -6,5 +6,4 @@ app = create_service_app(
     "company",
     "Company signup and company profile (including the logo).",
     routers=[routes_of(auth.router, "/auth/company/signup"), companies.router],
-    serve_profile_pictures=True,
-)
+)   # company logos are uploaded here but served by the Student service (/media), from the shared MongoDB

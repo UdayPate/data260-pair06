@@ -19,15 +19,17 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from pymongo.database import Database
+from pymongo.errors import DuplicateKeyError
 
+from .. import documents, mongo
 from ..config import CITY_SET
-from ..models import Event, Job, JobCategory, PayPeriod, SavedItem, SavedItemType, Student
+from ..enums import JobCategory, PayPeriod, SavedItemType
+from ..mongo import Doc
 from ..services import events as event_service
 from ..services import jobs as job_service
 from ..services import preferences as preference_service
+from ..services.activity_log import log_activity
 
 MAX_RESULTS = 10   # never hand the model more than this many rows (keeps prompts short)
 
@@ -52,8 +54,8 @@ def mark_untrusted(text: str) -> str:
 class ToolContext:
     """Everything a tool needs: the database session and WHO is asking.
     The student always comes from the login token, never from the model."""
-    db: Session
-    student: Student
+    db: Database
+    student: Doc
     today: date = field(default_factory=date.today)
     defense: bool = True   # prompt-injection defense (see mark_untrusted); False only for the "before" test runs
 
@@ -254,7 +256,7 @@ def _limit(value: Optional[int]) -> int:
 # ---------------------------------------------------------------------------
 def get_student_preferences(ctx: ToolContext) -> str:
     s = ctx.student
-    skills = ", ".join(sorted((k.skill for k in s.skills), key=str.lower)) or "none listed"
+    skills = ", ".join(sorted(s.skills, key=str.lower)) or "none listed"
     profile = (f"Profile: city {s.city or 'not set'}, major {s.major or 'not set'}, "
                f"college {s.college}, skills: {skills}.")
     prefs = preference_service.to_preferences_out(
@@ -284,10 +286,10 @@ _NOT_TITLE_WORDS = {"intern", "interns", "internship", "internships", "job", "jo
                     "opportunities", "full-time", "part-time", "on-campus", "fulltime", "parttime"}
 
 
-def _job_line(job: Job) -> str:
+def _job_line(job: Doc) -> str:
     where = f"Remote (company in {job.city}, {job.state})" if job.is_remote else f"{job.city}, {job.state}"
-    skills = ", ".join(sorted((k.skill for k in job.skills), key=str.lower))
-    return (f"- id {job.id} | {job.title} | {job.company.name} | {where} | {job.category.value} | "
+    skills = ", ".join(sorted(job.skills, key=str.lower))
+    return (f"- id {job.id} | {job.title} | {job.company.name} | {where} | {job.category} | "
             f"{job_service.format_salary(job)} | deadline {job.deadline.isoformat()} | skills: {skills}")
 
 
@@ -319,20 +321,20 @@ def search_jobs(ctx: ToolContext, title: str = "", company: str = "", category: 
 
 
 def get_job_details(ctx: ToolContext, job_id: int) -> str:
-    job = ctx.db.get(Job, job_id)
+    job = mongo.get(ctx.db, "jobs", job_id)
     if job is None:
         return f"Error: there is no job with id {job_id}."
-    c = job.company
+    c = job_service.with_companies(ctx.db, [job])[0].company
     where = "Remote" if job.is_remote else f"{job.city}, {job.state}"
-    skills = ", ".join(sorted((k.skill for k in job.skills), key=str.lower))
+    skills = ", ".join(sorted(job.skills, key=str.lower))
     status = "CLOSED (deadline passed)" if job.deadline < ctx.today else "open"
-    recent = ctx.db.scalars(select(Job).where(Job.company_id == c.id, Job.id != job.id)
-                            .order_by(Job.posting_date.desc(), Job.id.desc()).limit(3)).all()
+    recent = mongo.find(ctx.db, "jobs", {"company_id": c.id, "_id": {"$ne": job.id}},
+                        sort=[("posting_date", -1), ("_id", -1)], limit=3)
     recent_lines = [f"  - id {r.id} | {r.title} | posted {r.posting_date.isoformat()}" for r in recent] or ["  - none"]
     return "\n".join([
         f"Job id {job.id}: {job.title}",
         f"Company: {c.name} ({c.industry or 'industry not listed'}), based in {c.city}",
-        f"Location: {where} | Category: {job.category.value} | Pay: {job_service.format_salary(job)}",
+        f"Location: {where} | Category: {job.category} | Pay: {job_service.format_salary(job)}",
         f"Posted {job.posting_date.isoformat()} ({max((ctx.today - job.posting_date).days, 0)} days ago) | "
         f"Deadline {job.deadline.isoformat()} ({status})",
         f"Skills: {skills}",
@@ -344,8 +346,8 @@ def get_job_details(ctx: ToolContext, job_id: int) -> str:
     ])
 
 
-def _event_line(event: Event, student_major: Optional[str], show_student: bool) -> str:
-    majors = sorted((m.major for m in event.eligible_majors), key=str.lower)
+def _event_line(event: Doc, student_major: Optional[str], show_student: bool) -> str:
+    majors = sorted(event.eligible_majors, key=str.lower)
     line = (f"- id {event.id} | {event.name} | {event.event_datetime:%Y-%m-%d %H:%M} | "
             f"{event.location}, {event.city} | host: {event.company.name} | open to: {', '.join(majors)}")
     if show_student:   # only when no major was searched for, so it cannot contradict the search
@@ -375,13 +377,11 @@ def search_events(ctx: ToolContext, name: str = "", city: Optional[str] = None,
 def find_save_target(ctx: ToolContext, item_type: str, item_id: int) -> Tuple[Optional[str], Optional[str]]:
     """Before asking the student to confirm, check the save makes sense.
     Returns (label, None) when it does, or (None, error message) when it does not."""
-    model = Job if item_type == "job" else Event
-    item = ctx.db.get(model, item_id)
+    item = mongo.get(ctx.db, "jobs" if item_type == "job" else "events", item_id)
     if item is None:
         return None, f"Error: there is no {item_type} with id {item_id}. Nothing was saved."
-    already = ctx.db.scalar(select(SavedItem).where(
-        SavedItem.student_id == ctx.student.id, SavedItem.item_type == SavedItemType(item_type),
-        SavedItem.item_id == item_id))
+    already = mongo.find_one(ctx.db, "saved_items", {"student_id": ctx.student.id,
+                                                      "item_type": SavedItemType(item_type), "item_id": item_id})
     label = f"{item_type} {item_id} ({item.title if item_type == 'job' else item.name})"
     if already is not None:
         return None, f"The {label} is already in the student's saved list. Nothing changed."
@@ -394,11 +394,11 @@ def save_job_or_event(ctx: ToolContext, item_type: str, item_id: int) -> str:
     if problem:
         return problem
     try:
-        ctx.db.add(SavedItem(student_id=ctx.student.id, item_type=SavedItemType(item_type), item_id=item_id))
-        ctx.db.commit()
-    except IntegrityError:
-        ctx.db.rollback()
+        mongo.insert(ctx.db, "saved_items", documents.saved_item(
+            student_id=ctx.student.id, item_type=SavedItemType(item_type), item_id=item_id))
+    except DuplicateKeyError:     # the unique index (student, type, id) caught a second save
         return f"The {label} is already in the student's saved list. Nothing changed."
+    log_activity(ctx.db, "student", ctx.student.id, "item_saved", item_type, item_id)
     return f"Saved: the {label} is now in the student's saved list."
 
 
@@ -425,8 +425,4 @@ def execute_tool(name: str, arguments: dict, ctx: ToolContext) -> str:
     except ArgumentError as exc:
         return f"Error: invalid arguments for {name}: {exc}."
     except Exception as exc:  # a bug or a database problem must not crash the chat
-        try:
-            ctx.db.rollback()
-        except Exception:
-            pass
         return f"Error: {name} failed ({type(exc).__name__}). Please try different arguments."

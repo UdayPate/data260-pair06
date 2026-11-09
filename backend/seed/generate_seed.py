@@ -1,7 +1,7 @@
 """
-Seed generator for DATA-260 Lab 1 (Pair 06).
+Seed generator for DATA-260 Labs 1 and 2 (Pair 06). Lab 2: it fills MongoDB (database p06_handshake).
 
-Run from the backend/ folder:
+Run from the backend/ folder (MONGO_URL says which MongoDB; the default is mongodb://localhost:27017):
     python -m seed.generate_seed --reset
 
 Every random choice goes through rng = random.Random(SEED) or a Faker seeded with SEED,
@@ -12,18 +12,15 @@ Demo logins (password for ALL seeded accounts: Password123!)
     company: demo.company@example.com
 """
 import argparse
-import os
 import random
 from datetime import datetime, time, timedelta
 
 import bcrypt
 from faker import Faker
-from sqlalchemy import create_engine, func, select, text
-from sqlalchemy.engine import make_url
 
-from app import models as m
-from app.config import ANCHOR_DATE, CITY_SET, DATABASE_URL, SEED, STATE, UPLOAD_DIR
-from app.database import Base, SessionLocal, engine
+from app import documents, mongo
+from app.config import ANCHOR_DATE, CITY_SET, MONGO_DB_NAME, SEED, STATE
+from app.enums import ApplicationStatus, JobCategory, PayPeriod, SavedItemType
 from app.skills import (ALL_SKILLS, CAMPUS_SKILLS, CAMPUS_TITLES, COLLEGES, DEGREES,
                         JOB_FIELDS, MAJORS)
 
@@ -53,22 +50,8 @@ fake.seed_instance(SEED)
 
 
 # ---------------- helpers ----------------
-def ensure_database():
-    """For MySQL, create the p06_handshake database if it doesn't exist yet."""
-    url = make_url(DATABASE_URL)
-    if not url.drivername.startswith("mysql"):
-        return
-    server = create_engine(url._replace(database=None))
-    with server.connect() as conn:
-        conn.execute(text(
-            f"CREATE DATABASE IF NOT EXISTS `{url.database}` "
-            "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"))
-    server.dispose()
-
-
-def write_placeholder_pdf(path):
-    """Write a tiny valid one-page PDF so seeded applications have a resume to preview."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+def placeholder_pdf() -> bytes:
+    """A tiny valid one-page PDF, so seeded applications have a resume to preview."""
     content = b"BT /F1 18 Tf 72 720 Td (Seed placeholder resume - Pair 06) Tj ET"
     objects = [
         b"<< /Type /Catalog /Pages 2 0 R >>",
@@ -88,8 +71,7 @@ def write_placeholder_pdf(path):
     for off in offsets:
         out += b"%010d 00000 n \n" % off
     out += b"trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % (len(objects) + 1, xref)
-    with open(path, "wb") as f:
-        f.write(bytes(out))
+    return bytes(out)
 
 
 def rand_date_between(start, end):
@@ -99,15 +81,15 @@ def rand_date_between(start, end):
 
 def salary_for(category):
     """Returns (min, max, pay_period). Internship/part-time/on-campus are hourly."""
-    if category == m.JobCategory.full_time:
+    if category == JobCategory.full_time:
         low = rng.randrange(70_000, 160_001, 5_000)
-        return low, low + rng.randrange(10_000, 40_001, 5_000), m.PayPeriod.yearly
-    ranges = {m.JobCategory.internship: (20, 55),
-              m.JobCategory.part_time: (17, 35),
-              m.JobCategory.on_campus: (17, 25)}
+        return low, low + rng.randrange(10_000, 40_001, 5_000), PayPeriod.yearly
+    ranges = {JobCategory.internship: (20, 55),
+              JobCategory.part_time: (17, 35),
+              JobCategory.on_campus: (17, 25)}
     lo, hi = ranges[category]
     low = rng.randint(lo, hi)
-    return low, low + rng.randint(0, 10), m.PayPeriod.hourly
+    return low, low + rng.randint(0, 10), PayPeriod.hourly
 
 
 # ---------------- generators ----------------
@@ -124,18 +106,21 @@ def make_companies(pw_hash):
             name = fake.company()
             email = f"recruiting{i}@{name.split()[0].lower().strip(',')}.example.com"
         is_campus = name in CAMPUS_EMPLOYERS
-        companies.append(m.Company(
+        company = documents.company(
             name=name, email=email, password_hash=pw_hash, city=city, state=STATE,
             industry="Higher Education" if is_campus else rng.choice(INDUSTRIES),
             description=fake.paragraph(nb_sentences=4),
             contact_email=email, contact_phone=fake.numerify("(408) ###-####"),
             website=f"https://www.{name.split()[0].lower().strip(',')}.example.com",
-        ))
+        )
+        company["_id"] = i + 1          # ids count up from 1 in creation order, like the MySQL auto-increment did
+        companies.append(company)
     return companies
 
 
 def make_students(pw_hash):
-    students = []
+    """Returns (students, preferences). Skills and experience are stored inside the student document."""
+    students, preferences, experience_id = [], [], 0
     for i in range(N_STUDENTS):
         first, last = fake.first_name(), fake.last_name()
         if i == 0:
@@ -146,7 +131,7 @@ def make_students(pw_hash):
             email = f"{first.lower()}.{last.lower()}{i}@student.example.edu"
             college = rng.choices(COLLEGES, weights=[50, 10, 10, 10, 10, 10])[0]
             major, city = rng.choice(MAJORS), rng.choice(CITY_SET)
-        s = m.Student(
+        fields = dict(
             name=name, email=email, password_hash=pw_hash, college=college,
             date_of_birth=fake.date_of_birth(minimum_age=19, maximum_age=30),
             city=city, state=STATE, country="United States",
@@ -156,37 +141,47 @@ def make_students(pw_hash):
             cgpa=round(rng.uniform(2.5, 4.0), 2),
             phone=fake.numerify("(408) ###-####"),
         )
-        skills = ["Python", "SQL", "Machine Learning", "Pandas"] if i == 0 else rng.sample(ALL_SKILLS, rng.randint(3, 6))
-        s.skills = [m.StudentSkill(skill=sk) for sk in skills]
+        fields["skills"] = ["Python", "SQL", "Machine Learning", "Pandas"] if i == 0 else rng.sample(ALL_SKILLS, rng.randint(3, 6))
+        experiences = []
         for _ in range(rng.randint(0, 2)):
             start = rand_date_between(ANCHOR_DATE - timedelta(days=1200), ANCHOR_DATE - timedelta(days=200))
-            s.experiences.append(m.StudentExperience(
+            experience_id += 1
+            experiences.append(dict(
+                id=experience_id,
                 title=rng.choice(["Intern", "Teaching Assistant", "Research Assistant", "Sales Associate"]),
                 company=fake.company(), start_date=start,
                 end_date=start + timedelta(days=rng.randint(60, 365)),
                 description=fake.sentence(nb_words=12)))
+        fields["experiences"] = experiences
+        student = documents.student(**fields)
+        student["_id"] = i + 1
+        students.append(student)
         # ~80% of students have saved preferences; the rest test the "no preferences" case.
         if i == 0:
-            s.preferences = m.StudentPreference(
+            prefs = dict(
                 preferred_categories=["internship"], preferred_cities=["San Jose"],
                 preferred_roles=["Data Analyst", "Data Science"], min_hourly_rate=25,
                 open_to_remote=True, event_interests=["Career Fair", "Tech Talk"])
         elif rng.random() < 0.8:
-            s.preferences = m.StudentPreference(
-                preferred_categories=rng.sample([c.value for c in m.JobCategory], rng.randint(1, 2)),
+            prefs = dict(
+                preferred_categories=rng.sample([c.value for c in JobCategory], rng.randint(1, 2)),
                 preferred_cities=rng.sample(CITY_SET, rng.randint(1, 2)),
                 preferred_roles=rng.sample(JOB_FIELDS[rng.choice(list(JOB_FIELDS))]["titles"], 2),
                 min_hourly_rate=rng.choice([None, 20, 25, 30]),
                 open_to_remote=rng.random() < 0.6,
                 event_interests=rng.sample(["Career Fair", "Workshop", "Tech Talk", "Networking", "Hackathon"], 2))
-        students.append(s)
-    return students
+        else:
+            continue
+        pref = documents.preferences(student_id=student["_id"], **prefs)
+        pref["_id"] = len(preferences) + 1
+        preferences.append(pref)
+    return students, preferences
 
 
 def make_jobs(companies):
-    campus = [c for c in companies if c.name in CAMPUS_EMPLOYERS]
-    others = [c for c in companies if c.name not in CAMPUS_EMPLOYERS]
-    cats = [m.JobCategory.internship, m.JobCategory.full_time, m.JobCategory.part_time, m.JobCategory.on_campus]
+    campus = [c for c in companies if c["name"] in CAMPUS_EMPLOYERS]
+    others = [c for c in companies if c["name"] not in CAMPUS_EMPLOYERS]
+    cats = [JobCategory.internship, JobCategory.full_time, JobCategory.part_time, JobCategory.on_campus]
     # The first few jobs are fixed "scenarios" so Part B's required tests always have
     # matching data (remote data science internships, internships in each city).
     # (title, remote?, fixed city, skills the job must list)
@@ -198,17 +193,17 @@ def make_jobs(companies):
         city_fixed = None
         if i < len(scenarios):
             base, is_remote, city_fixed, _ = scenarios[i]
-            category, company = m.JobCategory.internship, rng.choice(others)
+            category, company = JobCategory.internship, rng.choice(others)
             title = f"{base} Intern"
             skill_pool = ["Python", "Machine Learning", "Data Analysis", "SQL", "Statistics", "Pandas"]
-        elif category == m.JobCategory.on_campus:
+        elif category == JobCategory.on_campus:
             company = rng.choice(campus)
             title, skill_pool, is_remote = rng.choice(CAMPUS_TITLES), CAMPUS_SKILLS, False
         else:
             company = rng.choice(others)
             field = JOB_FIELDS[rng.choice(list(JOB_FIELDS))]
             base = rng.choice(field["titles"])
-            title = f"{base} Intern" if category == m.JobCategory.internship else base
+            title = f"{base} Intern" if category == JobCategory.internship else base
             skill_pool, is_remote = field["skills"], rng.random() < 0.15
         skills = rng.sample(skill_pool, rng.randint(2, min(5, len(skill_pool))))
         if i < len(scenarios):  # planted jobs always list the skills the Part B tests search for
@@ -221,34 +216,37 @@ def make_jobs(companies):
         # Planted scenario jobs stay open until at least January so the Part B tests keep
         # working on grading day. All other jobs close 20-90 days after they were posted.
         deadline = ANCHOR_DATE + timedelta(days=90 + span) if i < len(scenarios) else posted + timedelta(days=span)
-        job = m.Job(
-            company=company, title=title, category=category, city=city, state=STATE,
+        job = documents.job(
+            company_id=company["_id"], title=title, category=category, city=city, state=STATE,
             is_remote=is_remote, salary_min=lo, salary_max=hi, pay_period=period,
             posting_date=posted, deadline=deadline,
-            contact_email=company.contact_email,
-            description=(f"{company.name} is hiring a {title} ({where}). "
+            contact_email=company["contact_email"],
+            description=(f"{company['name']} is hiring a {title} ({where}). "
                          f"Ideal candidates have experience with {', '.join(skills)}. "
                          + fake.paragraph(nb_sentences=3)),
+            skills=skills,
         )
-        job.skills = [m.JobSkill(skill=sk) for sk in skills]
+        job["_id"] = i + 1
         jobs.append(job)
     return jobs
 
 
-def make_applications(students, jobs, resume_path):
+def make_applications(students, jobs, resume_file_id):
     pairs, apps = set(), []
-    statuses = [m.ApplicationStatus.pending, m.ApplicationStatus.reviewed, m.ApplicationStatus.declined]
+    statuses = [ApplicationStatus.pending, ApplicationStatus.reviewed, ApplicationStatus.declined]
     while len(apps) < N_APPLICATIONS:
         s, j = rng.choice(students), rng.choice(jobs)
-        if (s.id, j.id) in pairs:
+        if (s["_id"], j["_id"]) in pairs:
             continue
-        pairs.add((s.id, j.id))
-        last_day = min(j.deadline, ANCHOR_DATE)
-        day = rand_date_between(j.posting_date, last_day)
-        apps.append(m.Application(
-            student_id=s.id, job_id=j.id, resume_path=resume_path,
+        pairs.add((s["_id"], j["_id"]))
+        last_day = min(j["deadline"], ANCHOR_DATE)
+        day = rand_date_between(j["posting_date"], last_day)
+        app = documents.application(
+            student_id=s["_id"], job_id=j["_id"], resume_file_id=resume_file_id,   # every seeded resume is the same placeholder PDF
             status=rng.choices(statuses, weights=[50, 30, 20])[0],
-            applied_at=datetime.combine(day, time(rng.randint(8, 22), rng.randint(0, 59)))))
+            applied_at=datetime.combine(day, time(rng.randint(8, 22), rng.randint(0, 59))))
+        app["_id"] = len(apps) + 1
+        apps.append(app)
     return apps
 
 
@@ -257,17 +255,18 @@ def make_events(companies):
     for _ in range(N_EVENTS):
         company = rng.choice(companies)
         topic = rng.choice(EVENT_TOPICS)
-        name = rng.choice(EVENT_TEMPLATES).format(topic=topic, company=company.name)
+        name = rng.choice(EVENT_TEMPLATES).format(topic=topic, company=company["name"])
         day = ANCHOR_DATE + timedelta(days=rng.randint(-10, 90))  # mostly upcoming
         city = rng.choice(CITY_SET)
-        ev = m.Event(
-            company=company, name=name, city=city,
+        fields = dict(
+            company_id=company["_id"], name=name, city=city,
             event_datetime=datetime.combine(day, time(rng.randint(9, 18), rng.choice([0, 30]))),
             location=f"{fake.street_address()}, {city}, {STATE}",
-            description=f"Join {company.name} for {name}. " + fake.paragraph(nb_sentences=2),
+            description=f"Join {company['name']} for {name}. " + fake.paragraph(nb_sentences=2),
         )
         majors = ["All"] if rng.random() < 0.4 else rng.sample(MAJORS, rng.randint(1, 3))
-        ev.eligible_majors = [m.EventEligibleMajor(major=mj) for mj in majors]
+        ev = documents.event(eligible_majors=majors, **fields)
+        ev["_id"] = len(events) + 1
         events.append(ev)
     return events
 
@@ -277,13 +276,15 @@ def make_registrations(students, events):
     while len(regs) < N_REGISTRATIONS and attempts < 20_000:
         attempts += 1
         s, e = rng.choice(students), rng.choice(events)
-        majors = {em.major for em in e.eligible_majors}
-        if (s.id, e.id) in pairs or ("All" not in majors and s.major not in majors):
+        majors = set(e["eligible_majors"])
+        if (s["_id"], e["_id"]) in pairs or ("All" not in majors and s["major"] not in majors):
             continue  # skip duplicates and ineligible students
-        pairs.add((s.id, e.id))
-        regs.append(m.EventRegistration(
-            student_id=s.id, event_id=e.id,
-            registered_at=e.event_datetime - timedelta(days=rng.randint(1, 20))))
+        pairs.add((s["_id"], e["_id"]))
+        reg = documents.registration(
+            student_id=s["_id"], event_id=e["_id"],
+            registered_at=e["event_datetime"] - timedelta(days=rng.randint(1, 20)))
+        reg["_id"] = len(regs) + 1
+        regs.append(reg)
     return regs
 
 
@@ -292,59 +293,74 @@ def make_saved_items(students, jobs, events):
     while len(items) < N_SAVED_ITEMS:
         s = rng.choice(students)
         if rng.random() < 0.7:
-            key = (s.id, m.SavedItemType.job, rng.choice(jobs).id)
+            key = (s["_id"], SavedItemType.job, rng.choice(jobs)["_id"])
         else:
-            key = (s.id, m.SavedItemType.event, rng.choice(events).id)
+            key = (s["_id"], SavedItemType.event, rng.choice(events)["_id"])
         if key in seen:
             continue
         seen.add(key)
-        items.append(m.SavedItem(student_id=key[0], item_type=key[1], item_id=key[2]))
+        item = documents.saved_item(student_id=key[0], item_type=key[1], item_id=key[2])
+        item["_id"] = len(items) + 1
+        items.append(item)
     return items
 
 
 # ---------------- main ----------------
+def store(db, collection, docs):
+    """Insert the documents (they already have their integer _id) and set the id counter so that
+    documents created later through the API continue after the last seeded id."""
+    if docs:
+        db[collection].insert_many([mongo.dump(d) for d in docs])
+        db.counters.replace_one({"_id": collection}, {"_id": collection, "seq": len(docs)}, upsert=True)
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Seed the Pair 06 Handshake database")
-    parser.add_argument("--reset", action="store_true", help="drop and recreate all tables first")
+    parser = argparse.ArgumentParser(description="Seed the Pair 06 Handshake database (MongoDB)")
+    parser.add_argument("--reset", action="store_true", help="empty every collection first")
     args = parser.parse_args()
 
-    ensure_database()
+    db = mongo.get_database()
     if args.reset:
-        Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+        for name in db.list_collection_names():      # includes the GridFS collections (resumes.files, ...)
+            db[name].drop()
+    mongo.ensure_indexes(db)
 
-    with SessionLocal() as db:
-        if db.scalar(select(func.count(m.Student.id))):
-            print("Database already has data. Re-run with --reset to start fresh.")
-            return
+    if db.students.count_documents({}):
+        print("Database already has data. Re-run with --reset to start fresh.")
+        return
 
-        # bcrypt is slow on purpose, so hash the shared demo password once.
-        pw_hash = bcrypt.hashpw(DEMO_PASSWORD.encode(), bcrypt.gensalt()).decode()
-        resume_rel = "resumes/seed_resume.pdf"
-        write_placeholder_pdf(os.path.join(UPLOAD_DIR, resume_rel))
+    # bcrypt is slow on purpose, so hash the shared demo password once.
+    pw_hash = bcrypt.hashpw(DEMO_PASSWORD.encode(), bcrypt.gensalt()).decode()
+    # One placeholder PDF in GridFS; every seeded application points at it.
+    resume_id = mongo.bucket(db, "resumes").put(placeholder_pdf(), filename="seed_resume.pdf",
+                                                content_type="application/pdf")
 
-        companies = make_companies(pw_hash)
-        students = make_students(pw_hash)
-        db.add_all(companies + students)
-        db.flush()  # assigns ids
+    companies = make_companies(pw_hash)
+    students, preferences = make_students(pw_hash)
+    jobs = make_jobs(companies)
+    events = make_events(companies)
+    store(db, "companies", companies)
+    store(db, "students", students)
+    store(db, "student_preferences", preferences)
+    store(db, "jobs", jobs)
+    store(db, "events", events)
+    store(db, "applications", make_applications(students, jobs, resume_id))
+    store(db, "event_registrations", make_registrations(students, events))
+    store(db, "saved_items", make_saved_items(students, jobs, events))
+    db.counters.replace_one({"_id": "student_experience"},
+                            {"_id": "student_experience",
+                             "seq": sum(len(s["experiences"]) for s in students)}, upsert=True)
 
-        jobs = make_jobs(companies)
-        events = make_events(companies)
-        db.add_all(jobs + events)
-        db.flush()
-
-        db.add_all(make_applications(students, jobs, resume_rel))
-        db.add_all(make_registrations(students, events))
-        db.add_all(make_saved_items(students, jobs, events))
-        db.commit()
-
-        print(f"Seeded database with SEED={SEED}, CITY_SET={CITY_SET}")
-        for label, model in [("companies", m.Company), ("students", m.Student), ("jobs", m.Job),
-                             ("applications", m.Application), ("events", m.Event),
-                             ("event_registrations", m.EventRegistration),
-                             ("student_preferences", m.StudentPreference),
-                             ("saved_items", m.SavedItem)]:
-            print(f"  {label:<20} {db.scalar(select(func.count(model.id)))}")
+    print(f"Seeded database {MONGO_DB_NAME} with SEED={SEED}, CITY_SET={CITY_SET}")
+    for label, collection in [("companies", "companies"), ("students", "students"), ("jobs", "jobs"),
+                              ("applications", "applications"), ("events", "events"),
+                              ("event_registrations", "event_registrations"),
+                              ("student_preferences", "student_preferences"),
+                              ("saved_items", "saved_items")]:
+        print(f"  {label:<20} {db[collection].count_documents({})}")
+    # skills are stored inside the student and job documents, so count them there
+    print(f"  {'student_skills':<20} {sum(len(s['skills']) for s in students)}   (inside the student documents)")
+    print(f"  {'job_skills':<20} {sum(len(j['skills']) for j in jobs)}   (inside the job documents)")
 
 
 if __name__ == "__main__":

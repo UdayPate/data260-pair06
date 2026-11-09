@@ -96,8 +96,14 @@ and `trace_id` (in the Kafka headers AND in the payload).
 
 ## Architecture and conventions (follow these, do not reinvent)
 
-Backend (FastAPI, Pydantic v2). The data layer is SQLAlchemy 2.0 on MySQL until the MongoDB
-migration lands, then pymongo on MongoDB; the migration keeps the API and the response shapes unchanged.
+Backend (FastAPI, Pydantic v2). The data layer is pymongo on MongoDB (`backend/app/mongo.py` helpers,
+`backend/app/documents.py` builders; schema in `docs/lab2/MONGO_SCHEMA.md`). Lab 1 used SQLAlchemy on MySQL (tag
+`lab1`); the migration kept every endpoint and response shape unchanged.
+- MongoDB keeps integer ids (`mongo.insert` / `mongo.next_id`), stores dates as `"YYYY-MM-DD"` text, and builds
+  documents only through `documents.*` (they fill the derived search fields). Index and unique rules are the
+  `INDEXES` list in `mongo.py`. Files (resumes, pictures) are in GridFS.
+- Sessions: every login makes a document in `sessions` (TTL index); the JWT's `jti` must match a live session, and
+  `POST /auth/logout` deletes it. Important actions go to `activity_logs` (`services/activity_log.py`).
 - Layering: `routers/` (HTTP only) -> `schemas/` (Pydantic validation) -> `services/`
   (business rules and queries). Routers stay thin.
 - Passwords: bcrypt. Auth: JWT (HS256, 8 hours). Role checks in `core/deps.py`.
@@ -107,7 +113,8 @@ migration lands, then pymongo on MongoDB; the migration keeps the API and the re
   Profile pictures are public under `/media/...`.
 - Role views: a company sees student email, phone and GPA (never date of birth); a
   student sees a limited view of peers (no email, phone or GPA).
-- Tests use pytest. They never touch the real database (in-memory SQLite today).
+- Tests use pytest on an in-memory MongoDB (`mongomock`, see `tests/conftest.py` and `tests/factories.py`). They never
+  touch a real database: `MONGO_URL` is pointed at a dead address while they run.
 - The six services (`backend/services/`) must together serve exactly the endpoints of the single
   app, with no overlap: `backend/tests/test_services.py` checks it. A new endpoint needs an owner.
 - Docker: one Dockerfile per service in `backend/docker/`, each installing only
@@ -128,9 +135,10 @@ Frontend (React 18, Vite, react-router 6, Axios, react-bootstrap):
 ## Commands (Windows PowerShell, from the repo root `data260-pair06`)
 
 ```powershell
-# Backend, single app for local development (needs backend\.env copied from backend\.env.example)
+# Backend, single app for local development (needs backend\.env copied from backend\.env.example, with MONGO_URL)
 cd backend
-python -m seed.generate_seed --reset        # drop + rebuild + seed p06_handshake (MySQL, until the migration)
+docker run -d --name p06-mongo -p 9069:27017 mongo:7      # MongoDB for local development (set MONGO_URL=mongodb://localhost:9069 in backend\.env)
+python -m seed.generate_seed --reset        # empty + index + seed p06_handshake in MongoDB
 uvicorn app.main:app --port 9060            # API; docs at http://localhost:9060/docs
 python -m pytest -q                         # all backend tests (about 4 minutes)
 
@@ -234,8 +242,9 @@ Due: Monday 11/16/2026.
 - Lab 1: complete and tagged `lab1` (`61f114c`). Evidence in `docs/lab1/`.
 - Lab 2, Uday's scope:
   - Cleanup done (Lab 1 evidence moved to `docs/lab1/`, `.gitignore` merged, `docs/lab2/` created).
-  - Phase 1 (Dockerfiles + `/health`): the six services, gateway and frontend images build, report
-    healthy and route correctly. Not committed yet.
-  - Next: MongoDB migration (+ `MONGO_SCHEMA.md`), Compose, Kafka (+ `KAFKA_CONTRACT.md`), failure demos,
-    Kubernetes manifests tested on kind.
-- The data layer is still MySQL until the MongoDB migration is done.
+  - Phase 1 (Dockerfiles + `/health`): done, committed and pushed (`69b2f52`). The six services, gateway and
+    frontend images build, report healthy and route correctly; 432 backend tests pass.
+  - Phase 2 (MongoDB migration + `docs/lab2/MONGO_SCHEMA.md`): built and verified; waiting for the human to commit.
+    Lab 1's `scripts/run_transcripts.py`, `run_part_c.py` and `collect_metrics.py` used the SQL layer and no longer run.
+  - Next: Compose, Kafka (+ `KAFKA_CONTRACT.md`), failure demos, Kubernetes manifests tested on kind.
+- The data layer is MongoDB (the Lab 1 MySQL database is untouched and still on the laptop).

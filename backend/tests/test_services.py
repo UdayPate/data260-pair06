@@ -19,7 +19,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.config import PAIR_STR, SERVICE_PORTS
-from app.database import get_db
 from app.main import app as single_app
 from services.common import routes_of
 
@@ -52,7 +51,7 @@ def test_six_services_with_the_pair_ports():
 
 def test_every_lab1_endpoint_belongs_to_exactly_one_service():
     everything = endpoints(single_app)
-    assert len(everything) == 40
+    assert len(everything) == 41      # the 40 Lab 1 endpoints + GET /media/profile_pics/{name} (pictures now come from MongoDB)
     owned = {key: endpoints(service_app(key)) for key in KEYS}
     assert set().union(*owned.values()) == everything             # nothing lost, nothing invented
     for a, b in itertools.combinations(KEYS, 2):
@@ -61,7 +60,8 @@ def test_every_lab1_endpoint_belongs_to_exactly_one_service():
 
 @pytest.mark.parametrize("key, expected", [
     ("student", {("POST", "/auth/student/signup"), ("POST", "/auth/login"), ("POST", "/auth/logout"),
-                 ("GET", "/auth/me"), ("GET", "/students"), ("GET", "/students/me")}),
+                 ("GET", "/auth/me"), ("GET", "/students"), ("GET", "/students/me"),
+                 ("GET", "/media/profile_pics/{name}")}),
     ("company", {("POST", "/auth/company/signup"), ("GET", "/companies/me")}),
     ("job", {("GET", "/jobs"), ("POST", "/jobs"), ("GET", "/jobs/mine"), ("GET", "/jobs/{job_id}"),
              ("GET", "/meta/options")}),
@@ -114,12 +114,18 @@ def test_dockerfile_matches_config_and_real_files(key):
 
 
 def test_requirements_stay_minimal_and_pinned():
-    base = (BACKEND / "requirements" / "base.txt").read_text()
-    for forbidden in ("pytest", "faker", "httpx", "python-multipart"):   # extras live in the files that need them
+    # only the package lines count (comments may talk about packages that were removed)
+    def packages(name):
+        lines = (BACKEND / "requirements" / name).read_text().splitlines()
+        return [l.split("==")[0].split("[")[0].lower() for l in lines if l and not l.startswith(("#", "-r"))]
+    base = packages("base.txt")
+    for forbidden in ("pytest", "faker", "httpx", "python-multipart", "mongomock",
+                      "sqlalchemy", "pymysql"):                           # extras live in the files that need them
         assert forbidden not in base
-    assert "httpx" in (BACKEND / "requirements" / "assistant.txt").read_text()
+    assert "pymongo" in base
+    assert "httpx" in packages("assistant.txt")
     for name in ("student", "company", "application"):
-        assert "python-multipart" in (BACKEND / "requirements" / f"{name}.txt").read_text()
+        assert "python-multipart" in packages(f"{name}.txt")
     for path in (BACKEND / "requirements").glob("*.txt"):
         for line in path.read_text().splitlines():
             if line and not line.startswith(("#", "-r")):
@@ -136,22 +142,9 @@ def test_no_secret_is_baked_into_an_image():
 
 # ---------------- the services share one login system ----------------
 @pytest.fixture()
-def clients(session_factory):
+def clients(mongo_db):
     """One test client per service, all on the SAME in-memory database (like the real shared database)."""
-    def override():
-        db = session_factory()
-        try:
-            yield db
-        finally:
-            db.close()
-
-    apps = {key: service_app(key) for key in KEYS}
-    for a in apps.values():
-        a.dependency_overrides[get_db] = override
-    opened = {key: TestClient(a) for key, a in apps.items()}
-    yield opened
-    for a in apps.values():
-        a.dependency_overrides.clear()
+    return {key: TestClient(service_app(key)) for key in KEYS}
 
 
 def test_signup_in_one_service_works_in_the_others(clients):

@@ -10,20 +10,23 @@ Every service gets the same four things from create_service_app():
   * CORS             which website addresses may call it (CORS_ORIGINS, comma separated)
   * an X-P06-Service response header, so you can see which service answered (used in the demo)
   * the clean 500 reply for database errors
+  * the MongoDB indexes, created when the service starts
 
 The old single app (app/main.py, port 9060) still exists. The tests and local development use it.
 """
 import logging
 import os
+from contextlib import asynccontextmanager
 from typing import Iterable
 
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
-from sqlalchemy.exc import SQLAlchemyError
+from pymongo.errors import PyMongoError
 
-from app.config import FRONTEND_PORT, PAIR_STR, SERVICE_PORTS, UPLOAD_DIR
+from app import mongo
+from app.config import FRONTEND_PORT, PAIR_STR, SERVICE_PORTS
+from app.routers import media
 
 logger = logging.getLogger("handshake")
 
@@ -52,7 +55,13 @@ def create_service_app(key: str, description: str, routers: Iterable[APIRouter],
                        serve_profile_pictures: bool = False) -> FastAPI:
     """key = "student", "company", "job", "application", "event" or "assistant"."""
     name = f"p06-{key}"                       # the pair prefix is part of every service name
-    app = FastAPI(title=f"{name} (Pair {PAIR_STR})", version="2.0.0", description=description)
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        mongo.ensure_indexes_quietly()        # safe to repeat; a database that is down does not stop the service
+        yield
+
+    app = FastAPI(title=f"{name} (Pair {PAIR_STR})", version="2.0.0", description=description, lifespan=lifespan)
 
     app.add_middleware(
         CORSMiddleware, allow_origins=cors_origins(), allow_credentials=True,
@@ -65,19 +74,16 @@ def create_service_app(key: str, description: str, routers: Iterable[APIRouter],
         response.headers["X-P06-Service"] = name
         return response
 
-    @app.exception_handler(SQLAlchemyError)
-    async def database_error_handler(request: Request, exc: SQLAlchemyError):
+    @app.exception_handler(PyMongoError)
+    async def database_error_handler(request: Request, exc: PyMongoError):
         logger.exception("Database error on %s %s", request.method, request.url.path)
         return JSONResponse(status_code=500, content={"detail": "A database error occurred"})
 
-    if serve_profile_pictures:
-        # Profile pictures are public. Resumes are private and are NOT mounted here.
-        pictures = os.path.join(UPLOAD_DIR, "profile_pics")
-        os.makedirs(pictures, exist_ok=True)
-        app.mount("/media/profile_pics", StaticFiles(directory=pictures), name="profile_pics")
-
     for router in routers:
         app.include_router(router)
+    if serve_profile_pictures:
+        # Profile pictures are public (read from MongoDB GridFS). Resumes are private and are NOT served here.
+        app.include_router(media.router)
 
     @app.get("/health", tags=["Health"], summary="Is this service running?")
     def health():

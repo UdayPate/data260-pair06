@@ -5,10 +5,13 @@ bcrypt  - a deliberately SLOW one-way hash. We never store the real password,
           only the hash. To check a login we hash the typed password again
           and compare. Slowness makes guessing passwords expensive.
 JWT     - JSON Web Token. A signed string the server hands out after login.
-          It contains {who you are, your role, when it expires}. The browser
-          sends it back with every request, and the server verifies the
-          signature with JWT_SECRET. Nobody can edit the token without
+          It contains {who you are, your role, which session it belongs to, when it
+          expires}. The browser sends it back with every request, and the server
+          verifies the signature with JWT_SECRET. Nobody can edit the token without
           knowing the secret.
+Session - Lab 2: every login also creates a session document in MongoDB (core/sessions.py).
+          The token is only accepted while that session exists, so signing out really ends
+          the login, and MongoDB deletes expired sessions by itself (TTL index).
 """
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -38,12 +41,14 @@ def verify_password(plain: str, hashed: str) -> bool:
 DUMMY_HASH = hash_password("dummy-password-for-timing-only-1")
 
 
-def create_access_token(user_id: int, role: str) -> str:
-    """Create a signed JWT for this user. role is 'student' or 'company'."""
+def create_access_token(user_id: int, role: str, session_id: str) -> str:
+    """Create a signed JWT for this user. role is 'student' or 'company'; session_id is the id of
+    the session document (stored in the token as "jti", the standard name for a token id)."""
     now = datetime.now(timezone.utc)
     payload = {
         "sub": str(user_id),                 # "subject": who the token is about
         "role": role,
+        "jti": session_id,                   # which session this token belongs to
         "iat": now,                          # issued at
         "exp": now + timedelta(minutes=JWT_EXPIRE_MINUTES),  # expires at
     }

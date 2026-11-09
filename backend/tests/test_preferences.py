@@ -4,7 +4,7 @@ Run from backend/:   python -m pytest -q
 """
 import pytest
 
-from app import models
+from tests.factories import make_preferences
 from app.services.preferences import get_student_preferences, to_preferences_out
 
 URL = "/students/me/preferences"
@@ -82,10 +82,10 @@ def test_values_are_cleaned_and_use_the_shared_spelling(client, student_headers)
     assert body["event_interests"] == ["career fair"]
 
 
-def test_one_row_per_student_no_matter_how_often_you_save(client, db, student_headers):
+def test_one_document_per_student_no_matter_how_often_you_save(client, db, student_headers):
     for rate in (10, 20, 30):
         client.put(URL, json={"min_hourly_rate": rate}, headers=student_headers)
-    assert db.query(models.StudentPreference).count() == 1
+    assert db.student_preferences.count_documents({}) == 1
     assert client.get(URL, headers=student_headers).json()["min_hourly_rate"] == 30
 
 
@@ -138,7 +138,6 @@ def test_service_functions_match_the_api(client, db, student_headers):
     assert get_student_preferences(db, student_id) is None
     assert to_preferences_out(None).saved is False
     client.put(URL, json=FULL, headers=student_headers)
-    db.expire_all()
     row = get_student_preferences(db, student_id)
     out = to_preferences_out(row)
     assert out.saved is True and out.preferred_cities == ["San Jose", "Sunnyvale"]
@@ -146,12 +145,11 @@ def test_service_functions_match_the_api(client, db, student_headers):
 
 
 def test_rows_written_by_the_seed_script_can_be_read(client, db, student_headers):
-    # The seed stores plain JSON lists, and may leave open_to_remote or lists empty.
+    # The seed stores plain lists, and may leave open_to_remote or lists empty.
     student_id = client.get("/students/me", headers=student_headers).json()["id"]
-    db.add(models.StudentPreference(student_id=student_id, preferred_categories=["internship", "not-a-category"],
-                                    preferred_cities=["San Jose"], preferred_roles=None, min_hourly_rate=25,
-                                    open_to_remote=None, event_interests=["Career Fair"]))
-    db.commit()
+    make_preferences(db, student_id, preferred_categories=["internship", "not-a-category"],
+                     preferred_cities=["San Jose"], preferred_roles=None, min_hourly_rate=25,
+                     open_to_remote=None, event_interests=["Career Fair"])
     body = client.get(URL, headers=student_headers).json()
     assert body["saved"] is True and body["preferred_categories"] == ["internship"]      # junk value ignored
     assert body["preferred_roles"] == [] and body["open_to_remote"] is True and body["min_hourly_rate"] == 25

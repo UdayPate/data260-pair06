@@ -2,21 +2,19 @@
 Application activity for the heatmap: how many applications a student sent on each day.
 
 We read the applied_at time of every application in the window and count them by calendar
-date in Python. That is easy to follow and behaves the same on MySQL and on the SQLite
-database used by the tests (date functions in SQL differ between the two).
+date in Python. That is easy to follow and works the same on real MongoDB and on the in-memory
+database used by the tests.
 """
 from collections import Counter
 from datetime import date, datetime, time, timedelta
 from typing import List, Optional
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from pymongo.database import Database
 
-from ..models import Application
 from ..schemas.activity import ActivityDay
 
 
-def application_activity(db: Session, student_id: int, days: int,
+def application_activity(db: Database, student_id: int, days: int,
                          today: Optional[date] = None) -> List[ActivityDay]:
     """One {date, count} item per day with at least one application, oldest first.
 
@@ -28,12 +26,7 @@ def application_activity(db: Session, student_id: int, days: int,
     start = datetime.combine(first_day, time.min)                 # 00:00 on the first day
     end = datetime.combine(today + timedelta(days=1), time.min)   # up to, not including, tomorrow
 
-    applied_times = db.scalars(
-        select(Application.applied_at)
-        .where(Application.student_id == student_id,
-               Application.applied_at >= start,
-               Application.applied_at < end)
-    ).all()
-
-    per_day = Counter(applied_at.date() for applied_at in applied_times)
+    rows = db.applications.find({"student_id": student_id, "applied_at": {"$gte": start, "$lt": end}},
+                                {"applied_at": 1})
+    per_day = Counter(row["applied_at"].date() for row in rows)
     return [ActivityDay(date=day, count=per_day[day]) for day in sorted(per_day)]

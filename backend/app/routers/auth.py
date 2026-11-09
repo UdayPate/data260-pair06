@@ -6,71 +6,71 @@ Error codes used:
     401 Unauthorized   = wrong email or password
 """
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from pymongo.database import Database
+from pymongo.errors import DuplicateKeyError
 
+from .. import documents, mongo
 from ..core.deps import Identity, get_identity
 from ..core.security import DUMMY_HASH, create_access_token, hash_password, verify_password
-from ..database import get_db
-from ..models import Company, Student
+from ..core.sessions import create_session, end_session
+from ..mongo import Doc, get_db
 from ..schemas.auth import (CompanySignup, LoginRequest, MeResponse, MessageResponse,
                             StudentSignup, TokenResponse)
+from ..services.activity_log import log_activity
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 EMAIL_TAKEN = "An account with this email already exists"
 
 
-def _token_response(role: str, user) -> TokenResponse:
+def _token_response(db: Database, role: str, user: Doc) -> TokenResponse:
+    """Start a session (a document in MongoDB) and sign a token that points at it."""
+    session_id = create_session(db, role, user.id)
     return TokenResponse(
-        access_token=create_access_token(user.id, role),
+        access_token=create_access_token(user.id, role, session_id),
         role=role, user_id=user.id, name=user.name,
     )
 
 
-def _save_new_account(db: Session, account) -> None:
-    """Insert a new student/company. The email column is UNIQUE, so if two signups
+def _save_new_account(db: Database, collection: str, document: dict) -> Doc:
+    """Insert a new student/company. The email has a UNIQUE index, so if two signups
     race each other the database itself rejects the second one."""
-    db.add(account)
     try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
+        return mongo.insert(db, collection, document)
+    except DuplicateKeyError:
         raise HTTPException(status.HTTP_409_CONFLICT, EMAIL_TAKEN)
-    db.refresh(account)
 
 
 @router.post("/student/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED,
              summary="Create a student account")
-def student_signup(body: StudentSignup, db: Session = Depends(get_db)):
-    if db.scalar(select(Student.id).where(Student.email == body.email)):
+def student_signup(body: StudentSignup, db: Database = Depends(get_db)):
+    if mongo.find_one(db, "students", {"email": body.email}):
         raise HTTPException(status.HTTP_409_CONFLICT, EMAIL_TAKEN)
-    student = Student(
+    student = _save_new_account(db, "students", documents.student(
         name=body.name, email=body.email, college=body.college,
         password_hash=hash_password(body.password),
-    )
-    _save_new_account(db, student)
-    return _token_response("student", student)
+    ))
+    log_activity(db, "student", student.id, "signup")
+    return _token_response(db, "student", student)
 
 
 @router.post("/company/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED,
              summary="Create a company account")
-def company_signup(body: CompanySignup, db: Session = Depends(get_db)):
-    if db.scalar(select(Company.id).where(Company.email == body.email)):
+def company_signup(body: CompanySignup, db: Database = Depends(get_db)):
+    if mongo.find_one(db, "companies", {"email": body.email}):
         raise HTTPException(status.HTTP_409_CONFLICT, EMAIL_TAKEN)
-    company = Company(
+    company = _save_new_account(db, "companies", documents.company(
         name=body.name, email=body.email, city=body.location,
         password_hash=hash_password(body.password),
-    )
-    _save_new_account(db, company)
-    return _token_response("company", company)
+    ))
+    log_activity(db, "company", company.id, "signup")
+    return _token_response(db, "company", company)
 
 
 @router.post("/login", response_model=TokenResponse, summary="Sign in as a student or company")
-def login(body: LoginRequest, db: Session = Depends(get_db)):
-    model = Student if body.role == "student" else Company
-    user = db.scalar(select(model).where(model.email == body.email))
+def login(body: LoginRequest, db: Database = Depends(get_db)):
+    collection = "students" if body.role == "student" else "companies"
+    user = mongo.find_one(db, collection, {"email": body.email})
 
     # Always run one bcrypt check, even for unknown emails (see DUMMY_HASH in security.py).
     password_ok = verify_password(body.password, user.password_hash if user else DUMMY_HASH)
@@ -81,14 +81,16 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
             status.HTTP_401_UNAUTHORIZED, "Invalid email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return _token_response(body.role, user)
+    log_activity(db, body.role, user.id, "login")
+    return _token_response(db, body.role, user)
 
 
 @router.post("/logout", response_model=MessageResponse, summary="Sign out")
-def logout(identity: Identity = Depends(get_identity)):
-    # JWTs are "stateless": the server keeps no list of active logins, so signing
-    # out means the browser deletes its stored token (the React app does this).
-    # This endpoint confirms the token was valid and gives the frontend a clear signal.
+def logout(identity: Identity = Depends(get_identity), db: Database = Depends(get_db)):
+    # Lab 2: the login is a session document in MongoDB. Deleting it makes this token useless at once,
+    # even if someone copied it. The browser should also discard its stored token (the React app does).
+    end_session(db, identity.session_id)
+    log_activity(db, identity.role, identity.user.id, "logout")
     return MessageResponse(message="Signed out. Discard the token on the client.")
 
 

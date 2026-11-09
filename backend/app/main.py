@@ -7,24 +7,34 @@ Run from the backend/ folder (port comes from the pair formula, 9000 + 6x10):
 Then open  http://localhost:9060/docs  for the interactive Swagger UI.
 """
 import logging
-import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
-from sqlalchemy.exc import SQLAlchemyError
+from pymongo.errors import PyMongoError
 
-from .config import FRONTEND_PORT, PAIR_STR, UPLOAD_DIR
-from .routers import applications, assistant, auth, companies, directory, events, jobs, meta, preferences, students
+from . import mongo
+from .config import FRONTEND_PORT, PAIR_STR
+from .routers import applications, assistant, auth, companies, directory, events, jobs, media, meta, preferences, students
 
 logger = logging.getLogger("handshake")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Runs when the app starts: create the unique rules and search indexes (safe to repeat; a database
+    that is down does not stop the app from starting)."""
+    mongo.ensure_indexes_quietly()
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title=f"Handshake Clone API (Pair {PAIR_STR})",
-    version="1.0.0",
+    version="2.0.0",
     description=(
-        "Student and Company platform for DATA-260 Lab 1.\n\n"
+        "Student and Company platform for DATA-260 Labs 1 and 2 (all endpoints in one app; Lab 2 also runs them as six services).\n\n"
         "**How to authorize in Swagger:** call `POST /auth/login`, copy `access_token` "
         "from the response, click the **Authorize** button, and paste it."
     ),
@@ -41,19 +51,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Folders for uploads (git ignores them, so create them if missing).
-PROFILE_PICS_DIR = os.path.join(UPLOAD_DIR, "profile_pics")
-os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
-os.makedirs(os.path.join(UPLOAD_DIR, "resumes"), exist_ok=True)
 
-# Profile pictures are public (like on LinkedIn), so we serve ONLY that sub-folder.
-# Resumes are private: the uploads/resumes folder is deliberately NOT mounted here.
-# They will be sent through a login-protected endpoint that checks who is asking.
-app.mount("/media/profile_pics", StaticFiles(directory=PROFILE_PICS_DIR), name="profile_pics")
-
-
-@app.exception_handler(SQLAlchemyError)
-async def database_error_handler(request: Request, exc: SQLAlchemyError):
+@app.exception_handler(PyMongoError)
+async def database_error_handler(request: Request, exc: PyMongoError):
     """Safety net: an unexpected database failure becomes a clean 500 JSON reply
     instead of a stack trace. The details go to the server log, not to the client."""
     logger.exception("Database error on %s %s", request.method, request.url.path)
@@ -70,6 +70,7 @@ app.include_router(applications.router)
 app.include_router(events.router)
 app.include_router(meta.router)
 app.include_router(assistant.router)
+app.include_router(media.router)       # public profile pictures (read from MongoDB GridFS)
 
 
 @app.get("/health", tags=["Health"], summary="Is the API running?")

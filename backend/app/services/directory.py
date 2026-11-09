@@ -6,14 +6,14 @@ assistant tool later).
 """
 from typing import List, Optional, Sequence, Tuple
 
-from sqlalchemy import func, or_, select
-from sqlalchemy.orm import Session, selectinload
+from pymongo.database import Database
 
-from ..models import Student, StudentSkill
+from .. import mongo
+from ..mongo import Doc, contains, equals_ignoring_case
 
 
 def search_students(
-    db: Session, *,
+    db: Database, *,
     q: Optional[str] = None,
     college: Optional[str] = None,
     major: Optional[Sequence[str]] = None,
@@ -22,7 +22,7 @@ def search_students(
     exclude_id: Optional[int] = None,
     page: int = 1,
     page_size: int = 20,
-) -> Tuple[List[Student], int]:
+) -> Tuple[List[Doc], int]:
     """Filter students. Returns (students for this page, total matches), sorted by name.
 
     Every filter is optional and filters combine with AND.
@@ -32,30 +32,22 @@ def search_students(
     skills       students with any (default) or all of these skills, ignoring case
     exclude_id   leave this student out (so a student browsing doesn't see themselves)
     """
-    conditions = []
+    conditions: List[dict] = []
     for word in (q or "").split()[:8]:
-        conditions.append(or_(Student.name.icontains(word, autoescape=True),       # autoescape: a typed "%"
-                              Student.college.icontains(word, autoescape=True)))   # is literal, not a wildcard
+        conditions.append({"$or": [{"name": contains(word)}, {"college": contains(word)}]})
     for word in (college or "").split()[:8]:
-        conditions.append(Student.college.icontains(word, autoescape=True))
+        conditions.append({"college": contains(word)})
 
-    majors = [m.strip().lower() for m in (major or []) if m and m.strip()]
+    majors = [m.strip() for m in (major or []) if m and m.strip()]
     if majors:
-        conditions.append(func.lower(Student.major).in_(majors))
+        conditions.append({"$or": [{"major": equals_ignoring_case(m)} for m in majors]})
 
     wanted = sorted({s.strip().lower() for s in (skills or []) if s and s.strip()})
     if wanted:
-        matching = select(StudentSkill.student_id).where(func.lower(StudentSkill.skill).in_(wanted))
-        if skills_match == "all":
-            matching = matching.group_by(StudentSkill.student_id).having(
-                func.count(func.distinct(func.lower(StudentSkill.skill))) == len(wanted))
-        conditions.append(Student.id.in_(matching))
+        conditions.append({"skills_lower": {"$all" if skills_match == "all" else "$in": wanted}})
 
     if exclude_id is not None:
-        conditions.append(Student.id != exclude_id)
+        conditions.append({"_id": {"$ne": exclude_id}})
 
-    total = db.scalar(select(func.count(Student.id)).where(*conditions)) or 0
-    stmt = (select(Student).where(*conditions).options(selectinload(Student.skills))
-            .order_by(func.lower(Student.name).asc(), Student.id.asc())
-            .limit(page_size).offset((page - 1) * page_size))
-    return list(db.scalars(stmt).all()), total
+    return mongo.page(db, "students", {"$and": conditions} if conditions else {},
+                      [("name_lower", 1), ("_id", 1)], page, page_size)

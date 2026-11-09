@@ -6,7 +6,7 @@ from datetime import date, datetime, time, timedelta
 
 import pytest
 
-from app import models
+from tests.factories import make_application
 
 TODAY = date.today()
 
@@ -44,9 +44,7 @@ def add_applications(db, student_id, job_ids, applied_at_list):
     """Insert one application per (job, time) pair, straight into the database so the
     test can choose the applied_at time (the API always uses 'now')."""
     for job_id, applied_at in zip(job_ids, applied_at_list):
-        db.add(models.Application(student_id=student_id, job_id=job_id, resume_path="resumes/x.pdf",
-                                  applied_at=applied_at))
-    db.commit()
+        make_application(db, student_id, job_id, applied_at=applied_at)
 
 
 def at(days_ago, hour=12, minute=0):

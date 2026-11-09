@@ -2,9 +2,9 @@
 "Who is logged in?" helpers, used as FastAPI dependencies.
 
 A dependency is a function FastAPI runs BEFORE your endpoint. Write
-    def my_endpoint(student: Student = Depends(require_student)): ...
+    def my_endpoint(student: Doc = Depends(require_student)): ...
 and FastAPI will first read the Authorization header, verify the token, load the
-student from MySQL, and hand it to you. If anything is wrong the request stops
+student from MongoDB, and hand it to you. If anything is wrong the request stops
 with an error and your endpoint code never runs.
 
 HTTP status codes used here:
@@ -12,24 +12,28 @@ HTTP status codes used here:
     403 Forbidden    = "we know who you are, but you may not do this" (wrong role)
 """
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy.orm import Session
+from pymongo.database import Database
 
-from ..database import get_db
-from ..models import Company, Job, Student
+from .. import mongo
+from ..mongo import Doc, get_db
 from .security import decode_access_token
+from .sessions import find_valid_session
 
 # Makes Swagger UI show an "Authorize" button where you paste a token.
 bearer_scheme = HTTPBearer(auto_error=False)
+
+COLLECTIONS = {"student": "students", "company": "companies"}
 
 
 @dataclass
 class Identity:
     role: str                       # "student" or "company"
-    user: Union[Student, Company]
+    user: Doc                       # the student or company document
+    session_id: str = ""            # the session this login belongs to (signing out ends it)
 
 
 def _unauthorized(detail: str = "Not authenticated") -> HTTPException:
@@ -42,7 +46,7 @@ def _unauthorized(detail: str = "Not authenticated") -> HTTPException:
 
 def get_identity(
     creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
-    db: Session = Depends(get_db),
+    db: Database = Depends(get_db),
 ) -> Identity:
     """Any logged-in user (student OR company)."""
     if creds is None:
@@ -58,24 +62,29 @@ def get_identity(
     except (TypeError, ValueError):
         raise _unauthorized("Invalid token")
 
-    model = {"student": Student, "company": Company}.get(role)
-    if model is None:
+    collection = COLLECTIONS.get(role)
+    if collection is None:
         raise _unauthorized("Invalid token")
 
-    user = db.get(model, user_id)
+    # The token is only good while its session exists (a sign-out deletes it; MongoDB deletes it when it expires).
+    session = find_valid_session(db, payload.get("jti"))
+    if session is None or session["role"] != role or session["user_id"] != user_id:
+        raise _unauthorized("Session ended or expired")
+
+    user = mongo.get(db, collection, user_id)
     if user is None:  # account was deleted after the token was issued
         raise _unauthorized("Account no longer exists")
-    return Identity(role=role, user=user)
+    return Identity(role=role, user=user, session_id=session["_id"])
 
 
-def require_student(identity: Identity = Depends(get_identity)) -> Student:
+def require_student(identity: Identity = Depends(get_identity)) -> Doc:
     """Only students may call this endpoint."""
     if identity.role != "student":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Students only")
     return identity.user
 
 
-def require_company(identity: Identity = Depends(get_identity)) -> Company:
+def require_company(identity: Identity = Depends(get_identity)) -> Doc:
     """Only companies may call this endpoint."""
     if identity.role != "company":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Companies only")
@@ -84,12 +93,12 @@ def require_company(identity: Identity = Depends(get_identity)) -> Company:
 
 def get_owned_job(
     job_id: int,
-    company: Company = Depends(require_company),
-    db: Session = Depends(get_db),
-) -> Job:
+    company: Doc = Depends(require_company),
+    db: Database = Depends(get_db),
+) -> Doc:
     """The job in the URL (/jobs/{job_id}/...), but ONLY if it belongs to the logged-in
     company. 404 = no such job, 403 = it exists but belongs to someone else."""
-    job = db.get(Job, job_id)
+    job = mongo.get(db, "jobs", job_id)
     if job is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Job not found")
     if job.company_id != company.id:

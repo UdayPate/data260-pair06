@@ -13,15 +13,16 @@ Example for the assistant:
 from datetime import date, timedelta
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from sqlalchemy import case, func, or_, select
-from sqlalchemy.orm import Session, contains_eager, selectinload
+from pymongo.database import Database
 
+from .. import mongo
 from ..core.uploads import public_url
-from ..models import Application, Company, Job, JobCategory, JobSkill, PayPeriod
+from ..documents import HOURS_PER_YEAR
+from ..enums import JobCategory, PayPeriod
+from ..mongo import Doc, contains, equals_ignoring_case
 from ..schemas.jobs import CompanyMini, JobDetail, JobSummary
 from ..schemas.profile import CompanyPublic
 
-HOURS_PER_YEAR = 2080            # 40 hours x 52 weeks, used to compare hourly and yearly pay
 HOURLY_CAP = 500                 # sanity limits so typos like $50000/hr are rejected
 YEARLY_CAP = 1_000_000
 MAX_DEADLINE_SPAN_DAYS = 730
@@ -51,7 +52,7 @@ def check_job_rules(*, posting_date: date, deadline: date, salary_min: int, sala
 
 
 # ---------------- formatting ----------------
-def format_salary(job: Job) -> str:
+def format_salary(job: Doc) -> str:
     unit = "hr" if job.pay_period == PayPeriod.hourly else "yr"
     if job.salary_min is None and job.salary_max is None:
         return "Not listed"
@@ -60,24 +61,24 @@ def format_salary(job: Job) -> str:
     return f"${low:,}/{unit}" if low == high else f"${low:,}–${high:,}/{unit}"
 
 
-def summary_fields(job: Job, today: date) -> dict:
+def summary_fields(job: Doc, today: date) -> dict:
     return dict(
         id=job.id, title=job.title, city=job.city, state=job.state, is_remote=job.is_remote,
         category=job.category, salary_min=job.salary_min, salary_max=job.salary_max,
         pay_period=job.pay_period, salary_display=format_salary(job),
         posting_date=job.posting_date, deadline=job.deadline, is_expired=job.deadline < today,
-        skills=sorted((s.skill for s in job.skills), key=str.lower),
+        skills=sorted(job.skills, key=str.lower),
     )
 
 
-def to_summary(job: Job, today: Optional[date] = None) -> JobSummary:
+def to_summary(job: Doc, today: Optional[date] = None) -> JobSummary:
     today = today or date.today()
     company = CompanyMini(id=job.company.id, name=job.company.name,
                           profile_pic_url=public_url(job.company.profile_pic_path))
     return JobSummary(company=company, **summary_fields(job, today))
 
 
-def to_detail(job: Job, today: Optional[date] = None) -> JobDetail:
+def to_detail(job: Doc, today: Optional[date] = None) -> JobDetail:
     today = today or date.today()
     return JobDetail(
         company=CompanyPublic.from_company(job.company), description=job.description,
@@ -87,28 +88,25 @@ def to_detail(job: Job, today: Optional[date] = None) -> JobDetail:
     )
 
 
-def applicant_counts(db: Session, job_ids: Sequence[int]) -> Dict[int, int]:
+def with_companies(db: Database, jobs: Sequence[Doc]) -> Sequence[Doc]:
+    """Store each job's company document as job.company (one query for the whole list)."""
+    return mongo.attach(db, jobs, "company_id", "companies", "company")
+
+
+def applicant_counts(db: Database, job_ids: Sequence[int]) -> Dict[int, int]:
     """{job_id: number of applications} for the given jobs (jobs with none are absent)."""
     if not job_ids:
         return {}
-    rows = db.execute(select(Application.job_id, func.count(Application.id))
-                      .where(Application.job_id.in_(job_ids)).group_by(Application.job_id)).all()
-    return {job_id: count for job_id, count in rows}
+    rows = db.applications.aggregate([
+        {"$match": {"job_id": {"$in": list(job_ids)}}},
+        {"$group": {"_id": "$job_id", "n": {"$sum": 1}}},
+    ])
+    return {row["_id"]: row["n"] for row in rows}
 
 
 # ---------------- search ----------------
-def _yearly_max():
-    """The job's top pay converted to a yearly figure (so hourly and yearly jobs compare)."""
-    return case((Job.pay_period == PayPeriod.hourly, Job.salary_max * HOURS_PER_YEAR), else_=Job.salary_max)
-
-
-def _hourly_max():
-    return case((Job.pay_period == PayPeriod.hourly, Job.salary_max),
-                else_=Job.salary_max / float(HOURS_PER_YEAR))
-
-
 def search_jobs(
-    db: Session, *,
+    db: Database, *,
     q: Optional[str] = None,
     category: Optional[Sequence[JobCategory]] = None,
     city: Optional[Sequence[str]] = None,
@@ -124,8 +122,8 @@ def search_jobs(
     page: int = 1,
     page_size: int = 20,
     today: Optional[date] = None,
-) -> Tuple[List[Job], int]:
-    """Filter jobs. Returns (jobs for this page, total number of matches).
+) -> Tuple[List[Doc], int]:
+    """Filter jobs. Returns (jobs for this page, total number of matches). Each job has job.company.
 
     Every filter is optional and filters combine with AND.
     q               words that must each appear in the job title OR the company name
@@ -136,51 +134,44 @@ def search_jobs(
     include_expired False hides jobs whose deadline has passed
     """
     today = today or date.today()
-    conditions = []
+    conditions: List[dict] = []
 
     for word in (q or "").split()[:8]:
-        conditions.append(or_(Job.title.icontains(word, autoescape=True),     # autoescape: a typed "%"
-                              Company.name.icontains(word, autoescape=True)))  # is literal, not a wildcard
+        # the company name lives in another collection: first find the companies whose name has the word
+        company_ids = [c["_id"] for c in db.companies.find({"name": contains(word)}, {"_id": 1})]
+        conditions.append({"$or": [{"title": contains(word)}, {"company_id": {"$in": company_ids}}]})
     if category:
-        conditions.append(Job.category.in_(list(category)))
-    cities = [c.strip().lower() for c in (city or []) if c and c.strip()]
+        conditions.append({"category": {"$in": [JobCategory(c).value for c in category]}})
+    cities = [c.strip() for c in (city or []) if c and c.strip()]
     if cities:
-        conditions.append(func.lower(Job.city).in_(cities))
+        conditions.append({"$or": [{"city": equals_ignoring_case(c)} for c in cities]})
     if is_remote is not None:
-        conditions.append(Job.is_remote == is_remote)
+        conditions.append({"is_remote": is_remote})
     if min_salary is not None:
         if salary_unit is None:
             raise ValueError("salary_unit (hourly or yearly) is required when min_salary is used")
-        top_pay = _hourly_max() if PayPeriod(salary_unit) == PayPeriod.hourly else _yearly_max()
-        conditions.append(top_pay >= min_salary)
+        # every job stores its top pay as a yearly number (salary_yearly_max), so compare in yearly terms
+        yearly_needed = min_salary * HOURS_PER_YEAR if PayPeriod(salary_unit) == PayPeriod.hourly else min_salary
+        conditions.append({"salary_yearly_max": {"$gte": yearly_needed}})
 
     wanted = sorted({s.strip().lower() for s in (skills or []) if s and s.strip()})
     if wanted:
-        matching = select(JobSkill.job_id).where(func.lower(JobSkill.skill).in_(wanted))
-        if skills_match == "all":
-            matching = matching.group_by(JobSkill.job_id).having(
-                func.count(func.distinct(func.lower(JobSkill.skill))) == len(wanted))
-        conditions.append(Job.id.in_(matching))
+        conditions.append({"skills_lower": {"$all" if skills_match == "all" else "$in": wanted}})
 
     if deadline_before is not None:
-        conditions.append(Job.deadline <= deadline_before)
+        conditions.append({"deadline": {"$lte": deadline_before}})
     if deadline_after is not None:
-        conditions.append(Job.deadline >= deadline_after)
+        conditions.append({"deadline": {"$gte": deadline_after}})
     if not include_expired:
-        conditions.append(Job.deadline >= today)
-
-    base = select(Job.id).join(Job.company).where(*conditions)
-    total = db.scalar(select(func.count()).select_from(base.subquery())) or 0
+        conditions.append({"deadline": {"$gte": today}})
 
     order = {
-        "newest": (Job.posting_date.desc(), Job.id.desc()),
-        "deadline": (Job.deadline.asc(), Job.id.asc()),
-        "salary": (_yearly_max().desc(), Job.id.asc()),
+        "newest": [("posting_date", -1), ("_id", -1)],
+        "deadline": [("deadline", 1), ("_id", 1)],
+        "salary": [("salary_yearly_max", -1), ("_id", 1)],
     }[sort]
-    stmt = (select(Job).join(Job.company).where(*conditions)
-            .options(contains_eager(Job.company), selectinload(Job.skills))
-            .order_by(*order).limit(page_size).offset((page - 1) * page_size))
-    return list(db.scalars(stmt).all()), total
+    jobs, total = mongo.page(db, "jobs", {"$and": conditions} if conditions else {}, order, page, page_size)
+    return list(with_companies(db, jobs)), total
 
 
 def total_pages(total: int, page_size: int) -> int:

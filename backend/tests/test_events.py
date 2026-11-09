@@ -6,7 +6,8 @@ from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
-from app import models
+from app import mongo
+from tests.factories import make_event, make_registration
 
 NOW = datetime.now()
 
@@ -66,12 +67,7 @@ def world(client, db):
         "open": post(globex, name="Open House", city="Mountain View", event_datetime=when(20), eligible_majors=["All"]),
         "workshop": post(acme, name="Resume Workshop", city="San Jose", event_datetime=when(40), eligible_majors=["All"]),
     }
-    old = models.Event(company_id=acme_id, name="Old Meetup", description="This meetup already happened.",
-                       event_datetime=NOW - timedelta(days=3), location="1 Old Rd", city="San Jose")
-    old.eligible_majors = [models.EventEligibleMajor(major="All")]
-    db.add(old)
-    db.commit()
-    ids["old"] = old.id
+    ids["old"] = make_event(db, acme_id, name="Old Meetup", event_datetime=NOW - timedelta(days=3)).id
     return {"ids": ids, "acme": acme, "globex": globex, "ada": ada, "bob": bob, "cara": cara,
             "acme_id": acme_id, "ada_id": ada_id, "bob_id": bob_id, "cara_id": cara_id}
 
@@ -341,9 +337,7 @@ def test_student_without_a_major_can_only_join_open_events(client, world):
 
 
 def test_major_match_ignores_case(client, db, world):
-    ada = db.get(models.Student, world["ada_id"])
-    ada.major = "computer SCIENCE"
-    db.commit()
+    mongo.update(db, "students", world["ada_id"], {"major": "computer SCIENCE"})
     assert client.post(f"/events/{world['ids']['tech']}/register", headers=world["ada"]).status_code == 201
 
 
@@ -365,8 +359,7 @@ def test_unregister_and_register_again(client, world):
 
 
 def test_cannot_unregister_from_a_past_event(client, db, world):
-    db.add(models.EventRegistration(student_id=world["ada_id"], event_id=world["ids"]["old"], registered_at=NOW - timedelta(days=9)))
-    db.commit()
+    make_registration(db, world["ada_id"], world["ids"]["old"], NOW - timedelta(days=9))
     assert client.delete(f"/events/{world['ids']['old']}/register", headers=world["ada"]).status_code == 409
 
 
@@ -380,9 +373,8 @@ def test_unregister_requires_student(client, world):
 def test_my_registered_events(client, db, world):
     for key in ("workshop", "open", "tech"):
         assert client.post(f"/events/{world['ids'][key]}/register", headers=world["ada"]).status_code == 201
-    db.add(models.EventRegistration(student_id=world["ada_id"], event_id=world["ids"]["old"], registered_at=NOW - timedelta(days=9)))
-    db.add(models.EventRegistration(student_id=world["bob_id"], event_id=world["ids"]["mixer"], registered_at=NOW))
-    db.commit()
+    make_registration(db, world["ada_id"], world["ids"]["old"], NOW - timedelta(days=9))
+    make_registration(db, world["bob_id"], world["ids"]["mixer"], NOW)
     assert names(client.get("/events/registered", headers=world["ada"])) == ["Tech Career Fair", "Open House", "Resume Workshop"]
     with_past = client.get("/events/registered", params={"include_past": True}, headers=world["ada"])
     assert names(with_past) == ["Old Meetup", "Tech Career Fair", "Open House", "Resume Workshop"]

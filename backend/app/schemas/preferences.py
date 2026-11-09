@@ -12,7 +12,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ..config import CITY_SET
-from ..models import JobCategory
+from ..enums import JobCategory
 
 _CANON_CITIES = {c.lower(): c for c in CITY_SET}
 _TEXT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 &()/.+#\-]*$")

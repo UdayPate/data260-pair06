@@ -9,7 +9,7 @@ from typing import Annotated, List, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, field_validator
 
-from ..models import ApplicationStatus, JobCategory, PayPeriod
+from ..enums import ApplicationStatus, JobCategory, PayPeriod
 from .auth import Name
 from .profile import CompanyPublic, PartialUpdate, Short, Title, normalize_skills
 
