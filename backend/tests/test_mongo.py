@@ -241,3 +241,40 @@ def test_the_assistant_save_tool_writes_a_saved_item_and_a_log_entry(db):
     assert db.activity_logs.find_one({"action": "item_saved"})["ref_id"] == job.id
     assert "already in the student's saved list" in execute_tool("save_job_or_event", {"item_type": "job", "item_id": job.id}, ctx)
     assert db.saved_items.count_documents({}) == 1
+
+
+# ---------------- start-up order: MongoDB may come up after the service ----------------
+def test_indexes_are_created_on_the_first_request_after_mongodb_comes_up(db):
+    from pymongo.errors import ServerSelectionTimeoutError
+
+    class FlakyDatabase:
+        """Refuses to create indexes (as if MongoDB were still starting), then works."""
+        def __init__(self, real):
+            self.real, self.down, self.attempts = real, True, 0
+
+        def __getitem__(self, name):
+            return _Collection(self, self.real[name])
+
+    class _Collection:
+        def __init__(self, owner, real):
+            self.owner, self.real = owner, real
+
+        def create_index(self, *args, **kwargs):
+            self.owner.attempts += 1
+            if self.owner.down:
+                raise ServerSelectionTimeoutError("MongoDB is not up yet")
+            return self.real.create_index(*args, **kwargs)
+
+    flaky = FlakyDatabase(db)
+    mongo.use_database(flaky)
+    mongo.ensure_indexes_quietly()                      # start-up: MongoDB is down, the service still starts
+    assert flaky.attempts == 1 and mongo._indexes_ready is False
+    with pytest.raises(ServerSelectionTimeoutError):
+        mongo.get_db()                                  # a request while MongoDB is down fails (the API answers 500)
+    flaky.down = False                                  # MongoDB is up now
+    assert mongo.get_db() is flaky                      # the first request after that creates the indexes ...
+    assert mongo._indexes_ready is True
+    attempts = flaky.attempts
+    mongo.get_db()
+    assert flaky.attempts == attempts                   # ... and only once
+    mongo.use_database(db)

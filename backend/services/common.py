@@ -5,8 +5,10 @@ All six run the SAME Lab 1 code (the routers, services and models in backend/app
 small FastAPI app that mounts only the routers it owns (see services/<name>/main.py), so each
 one can be built into its own Docker image, started on its own port and scaled on its own.
 
-Every service gets the same four things from create_service_app():
-  * GET /health      a cheap "am I alive?" answer, used by Docker HEALTHCHECK and Kubernetes probes
+Every service gets the same things from create_service_app():
+  * GET /health      a cheap "am I alive?" answer, used by the Docker HEALTHCHECK and the Kubernetes liveness probe
+  * GET /health/ready  "can I do my job?": it pings MongoDB (503 when the database cannot be reached); used as the
+                     Kubernetes readiness probe and to show that a service reaches its database
   * CORS             which website addresses may call it (CORS_ORIGINS, comma separated)
   * an X-P06-Service response header, so you can see which service answered (used in the demo)
   * the clean 500 reply for database errors
@@ -88,5 +90,14 @@ def create_service_app(key: str, description: str, routers: Iterable[APIRouter],
     @app.get("/health", tags=["Health"], summary="Is this service running?")
     def health():
         return {"status": "ok", "service": name, "pair": PAIR_STR, "port": SERVICE_PORTS[key]}
+
+    @app.get("/health/ready", tags=["Health"], summary="Is this service ready (can it reach MongoDB)?")
+    def ready():
+        try:
+            mongo.get_database().command("ping")
+        except PyMongoError:
+            return JSONResponse(status_code=503, content={"status": "unavailable", "service": name,
+                                                          "mongodb": "unreachable"})
+        return {"status": "ready", "service": name, "mongodb": "ok"}
 
     return app

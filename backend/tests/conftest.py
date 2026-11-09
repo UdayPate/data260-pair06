@@ -7,7 +7,8 @@ so a test that forgot to use the fixture fails at once instead of reaching a rea
 """
 import os
 
-os.environ["MONGO_URL"] = "mongodb://127.0.0.1:1/?serverSelectionTimeoutMS=200"   # nothing listens on port 1
+os.environ["MONGO_URL"] = "mongodb://127.0.0.1:1"      # nothing listens on port 1
+os.environ["MONGO_TIMEOUT_MS"] = "200"                  # so a test that forgot the fixture fails fast, not after 5 s
 
 import mongomock  # noqa: E402
 import pytest  # noqa: E402

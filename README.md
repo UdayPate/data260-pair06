@@ -99,6 +99,8 @@ cd frontend ; npm test                 # frontend
 
 ## Lab 2: the six services and Docker images
 
+(For running everything at once, skip to "run the whole stack with Docker Compose" below.)
+
 The Lab 1 backend is one FastAPI app. For Lab 2 it is split into six services that share the same code in
 `backend/app/` but each start only their own routes (`backend/services/<name>/main.py`):
 
@@ -112,7 +114,8 @@ The Lab 1 backend is one FastAPI app. For Lab 2 it is split into six services th
 | AI Assistant | 9067 | `p06-assistant` | `/assistant/chat` |
 
 The 40 Lab 1 endpoints are split with no overlap and none missing (checked by `backend/tests/test_services.py`).
-Every service has `GET /health` and adds an `X-P06-Service` header to its replies, so you can see who answered.
+Every service has `GET /health` (alive) and `GET /health/ready` (alive and MongoDB answers), and adds an `X-P06-Service` header to its
+replies, so you can see who answered. The assistant also has `GET /health/dependencies`.
 A token issued by one service is accepted by all of them (same JWT secret, same database).
 
 The website still calls one address, `http://localhost:9060`. In Docker that address is the **gateway**
@@ -142,8 +145,69 @@ curl.exe -i http://localhost:9062/health   # {"status":"ok","service":"p06-stude
 docker logs p06-student
 docker stop p06-student; docker rm p06-student
 ```
-The full stack (services, database, Kafka, gateway, website) is started with Docker Compose; those commands are added in
-the Compose step of Lab 2.
+
+## Lab 2: run the whole stack with Docker Compose
+
+`docker-compose.yml` (repo root) starts everything: MongoDB, one Kafka broker (KRaft, no ZooKeeper), the six services, the gateway
+and the website, all on one network (`p06-net`), with the data kept in two named volumes (`p06-mongo-data`, `p06-kafka-data`).
+Every container, image, network and volume is named `p06-...`. Each service waits (`depends_on ... service_healthy`) until
+MongoDB is healthy, the gateway waits for the six services, and the website waits for the gateway.
+
+| What | Address on your machine | Container |
+|---|---|---|
+| Website | http://localhost:9061 | `p06-frontend` |
+| API gateway (what the website calls) | http://localhost:9060 | `p06-gateway` |
+| Student / Company / Job / Application / Event / AI Assistant | 127.0.0.1:9062 ... 9067 (this machine only) | `p06-student` ... `p06-assistant` |
+| Kafka (for tools on your machine) | localhost:9068 (inside Docker: `p06-kafka:9092`) | `p06-kafka` |
+| MongoDB | 127.0.0.1:9069 (inside Docker: `p06-mongo:27017`) | `p06-mongo` |
+
+**1. Settings.** Compose reads passwords from a file named `.env` (git-ignored; never commit it):
+```powershell
+copy .env.example .env        # then open .env and change MONGO_PASSWORD and JWT_SECRET
+```
+The MongoDB password goes into a connection URL, so use letters, digits and hyphens only. Compose refuses to start if a password is missing.
+
+**2. Build, start, inspect, stop** (PowerShell, repo root, Docker Desktop running)
+```powershell
+docker compose build                      # builds the eight images p06-<name>:1.0.0
+docker compose up -d                      # starts the stack; waits for every dependency to be healthy
+docker compose ps                         # every container should say (healthy)
+docker compose logs -f p06-student        # follow one container's log (Ctrl+C to stop following)
+docker compose logs --tail 20             # the last lines of every container
+docker compose exec p06-mongo mongosh -u p06admin -p <your MONGO_PASSWORD> --authenticationDatabase admin p06_handshake --eval "db.getCollectionNames()"
+docker compose down                       # stop and remove the containers; the data stays in the volumes
+docker compose down -v                    # ... and ALSO delete the data (MongoDB and Kafka volumes)
+```
+
+**3. Put the seed data into the stack's MongoDB** (the database starts empty; this runs from your Python environment)
+```powershell
+cd backend
+.\venv\Scripts\Activate.ps1
+$env:MONGO_URL = "mongodb://p06admin:<your MONGO_PASSWORD>@localhost:9069/?authSource=admin"
+python -m seed.generate_seed --reset      # 50 companies, 200 students, 300 jobs, 1500 applications, ...
+cd ..
+```
+Then open http://localhost:9061 and sign in as `demo.student@sjsu.edu` (or `demo.company@example.com`).
+
+**4. Check that the parts reach each other**
+```powershell
+curl.exe -s http://localhost:9060/health                                  # the gateway
+curl.exe -si http://localhost:9060/jobs/mine | Select-String "HTTP|x-p06"   # 401 from p06-job: gateway -> Job service
+curl.exe -s http://127.0.0.1:9064/health/ready                            # the Job service can reach MongoDB
+curl.exe -s http://127.0.0.1:9067/health/dependencies                     # the AI assistant: MongoDB, the five services, Kafka, Ollama
+```
+`/health` says "the process is alive" (used by Docker's HEALTHCHECK). `/health/ready` also pings MongoDB and answers 503 when it cannot
+(used later as the Kubernetes readiness probe). `/health/dependencies` (assistant only) lists what the assistant can reach:
+`required` = MongoDB and the five platform services, `optional` = Kafka and Ollama.
+
+**Notes**
+* **Ollama** runs on your machine, not in Docker. The assistant container reaches it at `http://host.docker.internal:11434`. Ollama listens only
+  on 127.0.0.1 by default; if `/health/dependencies` says `"ollama": "unreachable"`, set the Windows environment variable `OLLAMA_HOST=0.0.0.0`
+  and restart Ollama.
+* **Ports already in use?** Stop whatever uses them (`npm run dev` uses 9061, `uvicorn` 9060, a `docker run` MongoDB 9069 and the name `p06-mongo`).
+  The Compose stack and the "run it by hand" setup above are alternatives, not a pair.
+* **Images for AWS:** the images are named `p06-<service>:<TAG>` (TAG defaults to 1.0.0) so they are easy to retag for ECR,
+  for example `docker tag p06-job:1.0.0 <account>.dkr.ecr.<region>.amazonaws.com/p06-job:1.0.0`.
 
 ## Features
 

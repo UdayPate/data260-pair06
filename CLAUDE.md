@@ -119,7 +119,11 @@ Backend (FastAPI, Pydantic v2). The data layer is pymongo on MongoDB (`backend/a
   app, with no overlap: `backend/tests/test_services.py` checks it. A new endpoint needs an owner.
 - Docker: one Dockerfile per service in `backend/docker/`, each installing only
   `backend/requirements/<service>.txt`, running as a non-root user, with a `HEALTHCHECK` on `/health`.
-  Never copy `.env`, tests or secrets into an image. Kubernetes manifests and Compose files hold no real secrets.
+  Never copy `.env`, tests or secrets into an image. Kubernetes manifests and Compose files hold no real secrets
+  (Compose reads them from the git-ignored root `.env`; `.env.example` has placeholders only).
+- Every service has `GET /health` (alive, no database) and `GET /health/ready` (pings MongoDB, 503 if it cannot): use the
+  first for liveness and the second for readiness. `get_db()` creates the indexes on the first request that finds MongoDB, so
+  a service that starts before MongoDB (Kubernetes) still ends up with the unique rules.
 
 Frontend (React 18, Vite, react-router 6, Axios, react-bootstrap):
 - Pages never call Axios directly. Pages -> `services/*.js` -> `services/api.js`.
@@ -148,8 +152,8 @@ npm install
 npm run dev                                 # http://localhost:9061 (strict port)
 npm test                                    # 210 tests expected
 
-# Docker images (see README, "Lab 2: the six services and Docker images")
-cd ..\backend; docker build -f docker/Dockerfile.student -t p06-student:1.0.0 .   # likewise job, company, application, event, assistant
+# Whole stack in Docker (see README, "run the whole stack with Docker Compose"); needs a root .env (copy .env.example)
+cd ..; docker compose build; docker compose up -d; docker compose ps; docker compose down   # down -v also deletes the data
 ```
 
 Use the Python virtual environment (`venv`) in `backend/`. Never commit `venv`,
@@ -244,7 +248,9 @@ Due: Monday 11/16/2026.
   - Cleanup done (Lab 1 evidence moved to `docs/lab1/`, `.gitignore` merged, `docs/lab2/` created).
   - Phase 1 (Dockerfiles + `/health`): done, committed and pushed (`69b2f52`). The six services, gateway and
     frontend images build, report healthy and route correctly; 432 backend tests pass.
-  - Phase 2 (MongoDB migration + `docs/lab2/MONGO_SCHEMA.md`): built and verified; waiting for the human to commit.
+  - Phase 2 (MongoDB migration + `docs/lab2/MONGO_SCHEMA.md`): done, committed and pushed (`c299a74`).
+  - Phase 3 (Docker Compose: MongoDB with a password, Kafka KRaft broker, six services, gateway, website; `/health/ready`
+    and the assistant's `/health/dependencies`): built and verified; waiting for the human to commit.
     Lab 1's `scripts/run_transcripts.py`, `run_part_c.py` and `collect_metrics.py` used the SQL layer and no longer run.
-  - Next: Compose, Kafka (+ `KAFKA_CONTRACT.md`), failure demos, Kubernetes manifests tested on kind.
+  - Next: Kafka topics, producers, workers (+ `KAFKA_CONTRACT.md`), failure demos, Kubernetes manifests tested on kind.
 - The data layer is MongoDB (the Lab 1 MySQL database is untouched and still on the laptop).

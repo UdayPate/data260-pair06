@@ -1474,3 +1474,224 @@ SUMMARY: 6 passed, 0 failed
 * Times: stored business timestamps use the server's local clock (as in Lab 1). The containers run on UTC, so a day starts at 16:00
   Pacific time there (visible in the heat-map date above). Sessions and activity logs are always UTC.
 ### end of Lab 2, PHASE 2
+
+
+
+----------------------------------------------------------------------------------------------
+PHASE 3: Docker Compose, the full stack (2026-11-08)
+----------------------------------------------------------------------------------------------
+What was built: docker-compose.yml (project name p06-handshake) and a root .env.example; GET /health/ready on every service (pings
+MongoDB, 503 when it cannot); GET /health/dependencies on the assistant service (services/assistant/dependencies.py); get_db() now
+creates the indexes on the first request that finds MongoDB (see 3.2); README section "run the whole stack with Docker Compose";
+tests for all of that. The stack: MongoDB 7 (with a user and password), one Kafka broker (apache/kafka 3.9.0, KRaft mode, no
+ZooKeeper; topics, producers and workers come in the Kafka step), the six services, the gateway and the website, on the network
+p06-net, with the data in the volumes p06-mongo-data and p06-kafka-data. Passwords and the JWT secret come from the git-ignored root
+.env; the compose file contains only ${...} references.
+
+--- 3.1  Before starting: two of the user's own dev processes held the ports
+$ docker ps -a --filter "name=p06-"        ->  p06-mongo  mongo:7  Up 36 minutes  0.0.0.0:9069->27017/tcp   (the plain MongoDB container used for the phase 2 check)
+$ Get-NetTCPConnection -LocalPort 9061 ...  ->  node (pid 73428)                                              (the Vite website dev server)
+Compose needs port 9061, port 9069 and the container name p06-mongo, so the user was asked and said yes to stopping both: only that node
+process was stopped and  docker rm -f p06-mongo  was run. (One earlier command in this phase, pkill -f "docker pull apache/kafka:3.8.1",
+matched its own command line and ended the shell before anything in it ran; nothing was changed by it. Kafka 3.9.0 was already on this machine.)
+
+--- 3.2  A problem found while testing, and its fix
+After adding the new endpoints, tests/test_services.py took 41 s instead of 2 s. Cause: tests that start a service without the in-memory
+database made it wait 5 s for a MongoDB that does not exist (the start-up index step). That also showed a real weakness: if a service
+starts before MongoDB (normal in Kubernetes), the indexes, including the unique rules, were never created. Fix: get_db() creates the
+indexes on the first request that finds MongoDB reachable; the wait time is MONGO_TIMEOUT_MS (default 5000, 200 in the tests).
+(venv) python -m pytest tests/test_services.py tests/test_mongo.py -q
+67 passed in 11.59s
+(New test: test_indexes_are_created_on_the_first_request_after_mongodb_comes_up.)
+
+--- 3.3  Validate and build
+$ docker compose --env-file /dev/null config --quiet
+error while interpolating x-service.environment.JWT_SECRET: required variable JWT_SECRET is missing a value: Set JWT_SECRET in the .env file (copy .env.example to .env)
+$ docker compose --env-file .env.example config --quiet        ->  valid
+$ docker compose config --quiet                                 ->  compose file is valid   (with a throw-away .env made for this check)
+$ docker compose build        ->  p06-frontend, p06-gateway, p06-job, p06-student ... Built   (EXIT=0; the layers were cached from the earlier builds)
+
+--- 3.4  Start the stack
+$ docker compose up -d        (25.0 s; the order of the output shows the dependencies: MongoDB healthy -> services -> assistant -> gateway -> website)
+ Container p06-mongo  Healthy
+ Container p06-student  Healthy / p06-company  Healthy / p06-application  Healthy / p06-event  Healthy / p06-job  Healthy
+ Container p06-assistant  Starting / Started / Healthy
+ Container p06-gateway  Starting / Started / Healthy
+ Container p06-frontend  Starting / Started
+$ docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+p06-application   Up 18 seconds (healthy)                    127.0.0.1:9065->9065/tcp
+p06-assistant     Up 12 seconds (healthy)                    127.0.0.1:9067->9067/tcp
+p06-company       Up 18 seconds (healthy)                    127.0.0.1:9063->9063/tcp
+p06-event         Up 18 seconds (healthy)                    127.0.0.1:9066->9066/tcp
+p06-frontend      Up Less than a second (health: starting)   8080/tcp, 0.0.0.0:9061->9061/tcp
+p06-gateway       Up 6 seconds (healthy)                     8080/tcp, 0.0.0.0:9060->9060/tcp
+p06-job           Up 18 seconds (healthy)                    127.0.0.1:9064->9064/tcp
+p06-kafka         Up 23 seconds (healthy)                    127.0.0.1:9068->9068/tcp, 9092/tcp
+p06-mongo         Up 23 seconds (healthy)                    127.0.0.1:9069->27017/tcp
+p06-student       Up 18 seconds (healthy)                    127.0.0.1:9062->9062/tcp
+(the frontend turned healthy a few seconds later; every container showed (healthy) in the later listings)
+
+--- 3.5  Seed the stack's MongoDB (from the Python environment, with the MongoDB user and password), then "the parts reach each other"
+(venv) $env:MONGO_URL='mongodb://p06admin:<password>@localhost:9069/?authSource=admin'; python -m seed.generate_seed --reset
+Seeded database p06_handshake with SEED=6, CITY_SET=['San Jose', 'Sunnyvale', 'Mountain View']
+  companies 50 / students 200 / jobs 300 / applications 1500 / events 100 / event_registrations 400 / student_preferences 151 / saved_items 150 /
+  student_skills 877 / job_skills 1073
+$ curl http://127.0.0.1:9067/health/dependencies        (the AI assistant container asks for MongoDB, the five services, Kafka, Ollama)
+{"ok": true, "required": {"mongodb": "ok", "student": "ok", "company": "ok", "job": "ok", "application": "ok", "event": "ok"},
+ "optional": {"kafka": "ok", "ollama": "ok"}}
+$ curl http://127.0.0.1:<9062..9067>/health/ready        (each service pings MongoDB)
+{"status":"ready","service":"p06-student","mongodb":"ok"}  ...  company, job, application, event, assistant: the same, all "ready"
+(Ollama runs on the laptop, not in Docker; the assistant container reached it at http://host.docker.internal:11434 even though Ollama
+listens on 127.0.0.1 only.)
+
+--- 3.6  The website, the gateway, Kafka
+$ curl http://localhost:9061/   ->  <!doctype html> <html lang="en" data-theme="student" data-bs-theme="dark"> ...
+SPA fallback /jobs/12 -> 200          (a browser route: the page, not 404)
+$ docker exec p06-frontend sh -c 'grep -o "http://localhost:9060" /usr/share/nginx/html/assets/*.js | sort | uniq -c'     ->  1 http://localhost:9060
+CORS preflight from the website's address (Origin http://localhost:9061) to the gateway, GET /jobs with an Authorization header:
+HTTP/1.1 200 OK / access-control-allow-origin: http://localhost:9061 / x-p06-service: p06-job
+Kafka: create a topic, send a message, read it back, delete it (kafka-topics / console-producer / console-consumer inside p06-kafka)
+Created topic p06.phase3-probe.
+hello from the stack
+Processed a total of 1 messages
+(topic list showed: __consumer_offsets, p06.phase3-probe; then the probe topic was deleted)
+From the host side, the external listener  localhost:9068 (id: 1 rack: null)  answers kafka-broker-api-versions.
+
+--- 3.7  The AI assistant end to end through the stack (browser address -> gateway -> assistant container -> Ollama on the laptop -> tools -> MongoDB)
+(the "-" in the prices is an en dash that this log file cannot show; saved_items is put back to 150 at the end)
+saved_items before: 150
+
+> Find me a job at Hooli Quantum Falconry.
+  status 200 via p06-assistant, 13s, tools: [('search_jobs', {'company': 'Hooli Quantum Falconry'})]
+  reply: There are no jobs available at Hooli Quantum Falconry in the database. Would you like to try a different search?
+
+> Find a remote data science internship.
+  status 200 via p06-assistant, 5s, tools: [('search_jobs', {'remote': True, 'skills': ['Python', 'Machine Learning'], 'title': 'data science', 'category': 'internship'})]
+  reply: Here are 3 remote data science internships:
+
+1. **Data Science Intern** at Smith Inc (Remote) - $23-$32/hr, deadline 2027-03-27  
+   Skills: Machine Learning, Python, Statistics  
+
+2. **Data Science Intern** at Zimmerman and Sons (Remote) - $54-$62/hr, deadline 2027-01-29  
+   Skills: Machine Learning, Python, SQL, Statistics  
+
+3. **Data Science Intern** at Nelson, Norman and Anderson (Remote) - $44-$54/hr, deadline
+
+> Please save job 1 for me.
+  status 200 via p06-assistant, 1s, tools: []
+  reply: Do you want me to save job 1? Reply yes to confirm or no to cancel.
+
+> no
+  status 200 via p06-assistant, 0s, tools: [('save_job_or_event', {'item_type': 'job', 'item_id': 1})]
+  reply: I understand. If you change your mind, feel free to ask!
+saved_items after declining: 150
+
+> Please save job 1 for me.
+  status 200 via p06-assistant, 1s, tools: []
+  reply: Do you want me to save job 1? Reply yes to confirm or no to cancel.
+
+> yes
+  status 200 via p06-assistant, 1s, tools: [('save_job_or_event', {'item_type': 'job', 'item_id': 1})]
+  reply: Job 1 (Data Science Intern) has been successfully saved to your list. Let me know if you need anything else!
+saved_items after confirming: 151 | item: True
+activity log has item_saved: 1
+DONE
+
+--- 3.8  The 67 live checks (same script as phase 2) against the Compose stack, MongoDB with a password
+PASS  documents in companies (50)
+PASS  documents in students (200)
+PASS  documents in jobs (300)
+PASS  documents in applications (1500)
+PASS  documents in events (100)
+PASS  documents in event_registrations (400)
+PASS  documents in student_preferences (151)
+PASS  documents in saved_items (150)
+PASS  student skills inside student documents 
+PASS  job skills inside job documents 
+PASS  unique index students.email 
+PASS  unique index companies.email 
+PASS  unique index applications (student, job) 
+PASS  unique index event_registrations (student, event) 
+PASS  unique index saved_items 
+PASS  unique index student_preferences.student_id 
+PASS  TTL index on sessions.expires_at (expireAfterSeconds=0) 
+PASS  passwords are bcrypt hashes 
+PASS  counters continue after the seed 
+PASS  seeded student can log in (bcrypt hash from the seed) 
+PASS  seeded company can log in 
+PASS  each login created a session document (3)
+PASS  bad password -> 401 
+PASS  /auth/me works with the session 
+PASS  signup 201 
+PASS  new student got the next integer id (id 201)
+PASS  duplicate email 409 
+PASS  signup wrote an activity log 
+PASS  token works before logout 
+PASS  logout 200 
+PASS  same token is refused after logout 
+PASS  picture upload 200 
+PASS  picture is served from GridFS, public /media/profile_pics/student_1_c0f9426e3ff6.png
+PASS  picture is in the profile_pics bucket 
+PASS  old picture was deleted when replaced 
+PASS  fake image refused 415 
+PASS  preferences saved 
+PASS  only one preferences document for the student 
+PASS  profile update with skills and experience 
+PASS  experience got a counter id 
+PASS  derived search fields were updated 
+PASS  company posts a job 201 
+PASS  job got id 301 (301)
+PASS  derived salary_yearly_max stored 
+PASS  new job is found by search 
+PASS  apply 201 Pending 
+PASS  application got the next id 1501 (1501)
+PASS  apply again 409 (unique index / check) 
+PASS  fake resume refused 415 
+PASS  resume stored in GridFS (bucket resumes) 
+PASS  company owner can read the resume 
+PASS  student can read own resume 
+PASS  another student cannot (404) 
+PASS  a different company gets 404 for the resume 
+PASS  resume is not public 
+PASS  company sets Reviewed 
+PASS  student sees Reviewed 
+PASS  activity heatmap counts today's application 
+PASS  activity log has application_created and status change 
+PASS  event posted 201 
+PASS  student registers 201 
+PASS  register twice 409 
+PASS  registration count 1 
+PASS  company sees the registered student 
+PASS  cancel registration 204 
+... waiting up to 130 s for MongoDB's TTL monitor to delete the expired session
+PASS  TTL: MongoDB deleted the expired session by itself 
+PASS  TTL: a session that has not expired was kept 
+SUMMARY: 67 passed, 0 failed
+
+--- 3.9  What happens when MongoDB is down, and does the data survive?
+=== before: 201 students, 301 jobs, 1501 applications        (the numbers include the rows the live checks added)
+$ docker compose stop p06-mongo     (the six services keep running)
+student /health       : 200   (alive)
+student /health/ready : {"status":"unavailable","service":"p06-student","mongodb":"unreachable"} -> HTTP 503
+login via the gateway : {"detail":"A database error occurred"} -> HTTP 500
+container status while MongoDB is down: Up 4 minutes (healthy)        (Docker's HEALTHCHECK is the liveness check and does not need the database: by design)
+$ docker compose start p06-mongo   ->  p06-mongo is healthy
+student /health/ready : {"status":"ready","service":"p06-student","mongodb":"ok"} -> HTTP 200   (no service was restarted)
+login via the gateway : HTTP 200
+$ docker compose down              (containers and network removed; the volumes p06-kafka-data and p06-mongo-data stay)
+$ docker compose up -d             (about 30 s to all (healthy))
+=== after:  201 students, 301 jobs, 1501 applications        (nothing was reseeded: the data survived)
+login after restart   : HTTP 200
+
+--- 3.10  Tests
+(venv) python -m pytest -q --tb=short -p no:cacheprovider
+474 passed in 270.90s (0:04:30)
+(461 before; test_services.py grew from 27 to 39 tests: /health/ready for six services, the 503 case, the assistant's dependency report in
+four cases, only-the-assistant-has-it; test_mongo.py gained the start-order test.) The frontend tests were not re-run: no frontend source changed.
+
+--- 3.11  Clean-up
+$ docker compose down -v   ->  every p06 container, the network p06-net and both volumes removed (the data was deleted on purpose)
+The throw-away .env (test values only) was deleted. No p06 container, volume or network is left; ports 9060-9069 are free. The images stay.
+Known limits: seeding runs from the Python environment (there is no seed container yet; the Kubernetes step will add a Job if needed);
+Kafka has no topics yet; the "Ollama listens only on 127.0.0.1" note in the README is a precaution: it was reachable here without changing it.
+### end of Lab 2, PHASE 3

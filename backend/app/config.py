@@ -46,6 +46,7 @@ DB_NAME = f"{DB_PREFIX}_handshake"  # p06_handshake
 # Secret (it may contain a password), never from a committed file.
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", DB_NAME)
+MONGO_TIMEOUT_MS = int(os.getenv("MONGO_TIMEOUT_MS", "5000"))   # how long to wait for a MongoDB that does not answer
 
 # ---- Auth ----
 JWT_SECRET = os.getenv("JWT_SECRET", "dev-only-change-me")

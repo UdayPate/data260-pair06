@@ -34,26 +34,36 @@ from . import config
 logger = logging.getLogger("handshake")
 
 _database: Optional[Database] = None
+_indexes_ready = False        # have the indexes been created through this connection yet?
 
 
 def get_database() -> Database:
     """The p06_handshake database. The connection is created once and re-used."""
     global _database
     if _database is None:
-        client = pymongo.MongoClient(config.MONGO_URL, serverSelectionTimeoutMS=5000)
+        client = pymongo.MongoClient(config.MONGO_URL, serverSelectionTimeoutMS=config.MONGO_TIMEOUT_MS)
         _database = client[config.MONGO_DB_NAME]
     return _database
 
 
 def use_database(db: Optional[Database]) -> None:
     """The tests call this to plug in an in-memory database (None = go back to the real one)."""
-    global _database
-    _database = db
+    global _database, _indexes_ready
+    _database, _indexes_ready = db, False
 
 
 def get_db() -> Database:
-    """FastAPI dependency: every request gets the shared database object."""
-    return get_database()
+    """FastAPI dependency: every request gets the shared database object.
+
+    The first request that finds MongoDB reachable also creates the indexes (safe to repeat). That matters when a
+    service starts before MongoDB does (Kubernetes does not order start-up): the unique rules are then created as
+    soon as the database is there, instead of never."""
+    global _indexes_ready
+    db = get_database()
+    if not _indexes_ready:
+        ensure_indexes(db)             # raises PyMongoError while MongoDB is unreachable: the request answers 500
+        _indexes_ready = True
+    return db
 
 
 # ---------------- documents ----------------
@@ -230,8 +240,11 @@ def ensure_indexes(db: Database) -> None:
 
 def ensure_indexes_quietly() -> None:
     """For service start-up: a database that is not reachable yet must not stop the service from starting
-    (/health still works; requests fail until the database is back)."""
+    (/health still works; get_db() creates the indexes on the first request once MongoDB answers)."""
+    global _indexes_ready
     try:
         ensure_indexes(get_database())
+        _indexes_ready = True
     except PyMongoError as exc:
-        logger.warning("Could not create the MongoDB indexes at start-up: %s", exc)
+        logger.warning("Could not create the MongoDB indexes at start-up (they are created on the first request "
+                       "that finds the database): %s", exc)

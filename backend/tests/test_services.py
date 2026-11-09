@@ -25,7 +25,7 @@ from services.common import routes_of
 KEYS = list(SERVICE_PORTS)          # student, company, job, application, event, assistant
 BACKEND = Path(__file__).resolve().parents[1]
 # Every FastAPI app has these; they are not Handshake endpoints.
-BUILT_IN = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc", "/health"}
+BUILT_IN = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc", "/health", "/health/ready", "/health/dependencies"}
 # test_auth.py adds two throw-away routes under /_test/ to the single app while the tests run.
 TEST_ONLY_PREFIX = "/_test/"
 
@@ -88,6 +88,29 @@ def test_health_names_the_service(key):
     assert r.status_code == 200
     assert r.json() == {"status": "ok", "service": f"p06-{key}", "pair": PAIR_STR, "port": SERVICE_PORTS[key]}
     assert r.headers["x-p06-service"] == f"p06-{key}"
+
+
+@pytest.mark.parametrize("key", KEYS)
+def test_ready_pings_mongodb(key, mongo_db):
+    with TestClient(service_app(key)) as c:
+        r = c.get("/health/ready")
+    assert r.status_code == 200
+    assert r.json() == {"status": "ready", "service": f"p06-{key}", "mongodb": "ok"}
+
+
+def test_ready_says_503_when_mongodb_cannot_be_reached(mongo_db):
+    from pymongo.errors import ServerSelectionTimeoutError
+    from app import mongo
+
+    class DeadDatabase:
+        def command(self, *_args, **_kwargs):
+            raise ServerSelectionTimeoutError("no server")
+
+    mongo.use_database(DeadDatabase())
+    client = TestClient(service_app("job"))                    # no "with": the start-up index step is not needed here
+    assert client.get("/health").status_code == 200            # alive ...
+    r = client.get("/health/ready")                            # ... but not ready
+    assert r.status_code == 503 and r.json() == {"status": "unavailable", "service": "p06-job", "mongodb": "unreachable"}
 
 
 def test_a_service_does_not_answer_for_another_services_paths():
@@ -176,3 +199,48 @@ def test_role_rules_still_hold_in_the_split(clients):
     assert clients["event"].get("/events/registered", headers=company).status_code == 403
     assert clients["assistant"].post("/assistant/chat", json={"message": "hi"}, headers=company).status_code == 403
     assert clients["job"].get("/jobs/mine").status_code == 401                            # no token
+
+
+# ---------------- the assistant can say what it can reach ----------------
+def test_assistant_reports_what_it_can_reach(mongo_db, monkeypatch):
+    from services.assistant import dependencies
+    monkeypatch.setattr(dependencies, "check_http", lambda url: "unreachable" if "p06-event" in url else "ok")
+    monkeypatch.setattr(dependencies, "check_tcp", lambda target: "ok")
+    monkeypatch.setenv("KAFKA_BOOTSTRAP", "p06-kafka:9092")
+    with TestClient(service_app("assistant")) as c:
+        body = c.get("/health/dependencies").json()
+    assert body["required"] == {"mongodb": "ok", "student": "ok", "company": "ok", "job": "ok",
+                                "application": "ok", "event": "unreachable"}
+    assert body["ok"] is False                                  # one required service is down
+    assert body["optional"] == {"kafka": "ok", "ollama": "ok"}
+
+
+def test_everything_reachable_means_ok_and_kafka_is_optional(mongo_db, monkeypatch):
+    from services.assistant import dependencies
+    monkeypatch.setattr(dependencies, "check_http", lambda url: "ok")
+    monkeypatch.delenv("KAFKA_BOOTSTRAP", raising=False)
+    body = dependencies.report()
+    assert body["ok"] is True and body["optional"]["kafka"] == "not configured"
+
+
+def test_the_platform_services_are_found_by_their_p06_names_and_ports():
+    from services.assistant import dependencies
+    assert dependencies.platform_urls() == {
+        "student": "http://p06-student:9062/health", "company": "http://p06-company:9063/health",
+        "job": "http://p06-job:9064/health", "application": "http://p06-application:9065/health",
+        "event": "http://p06-event:9066/health"}
+
+
+def test_check_helpers_never_raise():
+    from services.assistant import dependencies
+    assert dependencies.check_http("http://127.0.0.1:1/nothing") == "unreachable"
+    assert dependencies.check_tcp("127.0.0.1:1") == "unreachable"
+    assert dependencies.check_tcp("not-a-host-and-port") == "unreachable"
+
+
+def test_only_the_assistant_has_the_dependencies_endpoint(mongo_db, monkeypatch):
+    from services.assistant import dependencies
+    monkeypatch.setattr(dependencies, "check_http", lambda url: "ok")      # no real network calls in a unit test
+    for key in KEYS:
+        status = TestClient(service_app(key)).get("/health/dependencies").status_code
+        assert status == (200 if key == "assistant" else 404), key

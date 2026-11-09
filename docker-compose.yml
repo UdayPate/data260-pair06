@@ -1,0 +1,167 @@
+# The whole Handshake stack for Pair 06: MongoDB, Kafka, six services, the gateway and the website.
+#
+#   docker compose build            build the eight images (p06-<name>:1.0.0)
+#   docker compose up -d            start everything (waits for each dependency to be healthy)
+#   docker compose ps               see the state of every container
+#   docker compose down             stop and remove the containers (the data volumes stay)
+#
+# Settings and passwords come from the file  .env  (copy .env.example). Nothing secret is written here.
+# Ports on your machine:  9060 gateway (the API address)   9061 website   9062-9067 the six services (this machine only)
+#                         9068 Kafka (for tools on this machine)   9069 MongoDB (for the seed script and mongosh)
+
+name: p06-handshake
+
+x-service: &service
+  restart: unless-stopped
+  networks: [p06-net]
+  depends_on:
+    p06-mongo:
+      condition: service_healthy
+  environment: &service-env
+    MONGO_URL: mongodb://${MONGO_USER:-p06admin}:${MONGO_PASSWORD:?Set MONGO_PASSWORD in the .env file (copy .env.example to .env)}@p06-mongo:27017/?authSource=admin
+    MONGO_DB_NAME: p06_handshake
+    JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the .env file (copy .env.example to .env)}
+    CORS_ORIGINS: http://localhost:9061,http://127.0.0.1:9061
+
+services:
+  # ---------------------------------------------------------------- databases and messaging
+  p06-mongo:
+    image: mongo:7
+    container_name: p06-mongo
+    restart: unless-stopped
+    networks: [p06-net]
+    ports: ["127.0.0.1:9069:27017"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-p06admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?Set MONGO_PASSWORD in the .env file (copy .env.example to .env)}
+    volumes: [p06-mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  p06-kafka:                       # one Kafka broker in KRaft mode (no ZooKeeper); topics and workers are added in the Kafka step
+    image: apache/kafka:3.9.0
+    container_name: p06-kafka
+    restart: unless-stopped
+    networks: [p06-net]
+    ports: ["127.0.0.1:9068:9068"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://:9068,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://p06-kafka:9092,EXTERNAL://localhost:9068
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@p06-kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"        # topics are created on purpose, not by accident
+      KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
+    volumes: [p06-kafka-data:/var/lib/kafka/data]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # ---------------------------------------------------------------- the six services (each image has its own HEALTHCHECK)
+  p06-student:
+    <<: *service
+    image: p06-student:${TAG:-1.0.0}
+    build: {context: ./backend, dockerfile: docker/Dockerfile.student}
+    container_name: p06-student
+    ports: ["127.0.0.1:9062:9062"]
+
+  p06-company:
+    <<: *service
+    image: p06-company:${TAG:-1.0.0}
+    build: {context: ./backend, dockerfile: docker/Dockerfile.company}
+    container_name: p06-company
+    ports: ["127.0.0.1:9063:9063"]
+
+  p06-job:
+    <<: *service
+    image: p06-job:${TAG:-1.0.0}
+    build: {context: ./backend, dockerfile: docker/Dockerfile.job}
+    container_name: p06-job
+    ports: ["127.0.0.1:9064:9064"]
+
+  p06-application:
+    <<: *service
+    image: p06-application:${TAG:-1.0.0}
+    build: {context: ./backend, dockerfile: docker/Dockerfile.application}
+    container_name: p06-application
+    ports: ["127.0.0.1:9065:9065"]
+
+  p06-event:
+    <<: *service
+    image: p06-event:${TAG:-1.0.0}
+    build: {context: ./backend, dockerfile: docker/Dockerfile.event}
+    container_name: p06-event
+    ports: ["127.0.0.1:9066:9066"]
+
+  p06-assistant:                   # reaches MongoDB, the other services (/health/dependencies), Kafka, and Ollama on your machine
+    <<: *service
+    image: p06-assistant:${TAG:-1.0.0}
+    build: {context: ./backend, dockerfile: docker/Dockerfile.assistant}
+    container_name: p06-assistant
+    ports: ["127.0.0.1:9067:9067"]
+    environment:
+      <<: *service-env
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:8b}
+      KAFKA_BOOTSTRAP: p06-kafka:9092
+    extra_hosts: ["host.docker.internal:host-gateway"]     # lets the container reach Ollama running on your machine
+    depends_on:
+      p06-mongo: {condition: service_healthy}
+      p06-student: {condition: service_healthy}
+      p06-company: {condition: service_healthy}
+      p06-job: {condition: service_healthy}
+      p06-application: {condition: service_healthy}
+      p06-event: {condition: service_healthy}
+
+  # ---------------------------------------------------------------- the front door
+  p06-gateway:                     # routes each URL path to the service that owns it (gateway/nginx.conf)
+    image: p06-gateway:${TAG:-1.0.0}
+    build: {context: ./gateway}
+    container_name: p06-gateway
+    restart: unless-stopped
+    networks: [p06-net]
+    ports: ["9060:9060"]
+    depends_on:
+      p06-student: {condition: service_healthy}
+      p06-company: {condition: service_healthy}
+      p06-job: {condition: service_healthy}
+      p06-application: {condition: service_healthy}
+      p06-event: {condition: service_healthy}
+      p06-assistant: {condition: service_healthy}
+
+  p06-frontend:                    # the React website, served by nginx; it calls the gateway
+    image: p06-frontend:${TAG:-1.0.0}
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${PUBLIC_API_URL:-http://localhost:9060}
+    container_name: p06-frontend
+    restart: unless-stopped
+    networks: [p06-net]
+    ports: ["9061:9061"]
+    depends_on:
+      p06-gateway: {condition: service_healthy}
+
+networks:
+  p06-net:
+    name: p06-net
+
+volumes:
+  p06-mongo-data:
+    name: p06-mongo-data
+  p06-kafka-data:
+    name: p06-kafka-data
