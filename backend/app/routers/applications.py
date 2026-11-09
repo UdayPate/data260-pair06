@@ -2,6 +2,7 @@
 Application endpoints.
 
 Student:  POST /jobs/{job_id}/apply        apply with a PDF resume (202: a Kafka worker saves the application)
+          PUT  /applications/{id}/resume   replace the resume while the application is Pending (202: a worker saves it)
           GET  /applications/mine          my applications (filter by status)
 Company:  GET  /jobs/{job_id}/applications applicants for one of my postings (filter by status)
           GET  /applications/{id}          one applicant: full profile
@@ -32,7 +33,7 @@ from ..events.errors import PublishError
 from ..events.publisher import Publisher, get_publisher, publish_quietly
 from ..mongo import Doc, get_db
 from ..schemas.applications import (ApplicantDetail, ApplicantsPage, ApplicantSummary, ApplicationAccepted,
-                                    MyApplication, MyApplicationsPage, StatusUpdate)
+                                    ApplicationUpdateAccepted, MyApplication, MyApplicationsPage, StatusUpdate)
 from ..services.activity_log import log_activity
 from ..services.applications import (to_applicant_detail, to_applicant_summary, to_my_application,
                                      with_jobs, with_students)
@@ -90,6 +91,38 @@ def my_applications(
     today = date.today()
     return MyApplicationsPage(items=[to_my_application(a, today) for a in rows], total=total, page=page,
                               page_size=page_size, total_pages=total_pages(total, page_size))
+
+
+@router.put("/applications/{application_id}/resume", response_model=ApplicationUpdateAccepted,
+            status_code=status.HTTP_202_ACCEPTED,
+            summary="Replace my resume on an application that is still Pending (student only). Answers 202: a worker saves it")
+def replace_resume(
+    application_id: int,
+    resume: UploadFile = File(..., description="Your new resume as a PDF, max 5 MB"),
+    student: Doc = Depends(require_student),
+    db: Database = Depends(get_db),
+    publisher: Publisher = Depends(get_publisher),
+    trace_id: str = Depends(get_trace_id),
+):
+    """Store the new PDF and put an `application.updated` event on Kafka; the Application worker points the application at
+    it and removes the old PDF. Only the applicant can do this (anyone else gets 404, like for the resume itself), and only
+    while the application is still Pending."""
+    application = mongo.get(db, "applications", application_id)
+    if application is None or application.student_id != student.id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Application not found")
+    if ApplicationStatus(application.status) != ApplicationStatus.pending:
+        raise HTTPException(status.HTTP_409_CONFLICT, "The resume can only be replaced while the application is Pending")
+    new_resume = save_resume(db, resume, student.id, application.job_id)
+    try:
+        envelope = publisher.publish(
+            topics.APPLICATION_UPDATED, key=str(application.id), trace_id=trace_id,
+            payload={"application_id": application.id, "student_id": student.id,
+                     "changes": {"resume_file_id": str(new_resume)}})
+    except PublishError:
+        delete_resume(db, new_resume)
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
+                            "Your new resume could not be queued right now. Please try again in a moment.")
+    return ApplicationUpdateAccepted(event_id=envelope.event_id, trace_id=envelope.trace_id, application_id=application.id)
 
 
 # ---------------- company ----------------

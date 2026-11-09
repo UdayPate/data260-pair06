@@ -51,7 +51,7 @@ def test_six_services_with_the_pair_ports():
 
 def test_every_lab1_endpoint_belongs_to_exactly_one_service():
     everything = endpoints(single_app)
-    assert len(everything) == 41      # the 40 Lab 1 endpoints + GET /media/profile_pics/{name} (pictures now come from MongoDB)
+    assert len(everything) == 42      # the 40 Lab 1 endpoints + GET /media/profile_pics/{name} + PUT /applications/{id}/resume
     owned = {key: endpoints(service_app(key)) for key in KEYS}
     assert set().union(*owned.values()) == everything             # nothing lost, nothing invented
     for a, b in itertools.combinations(KEYS, 2):

@@ -76,3 +76,13 @@ class ApplicationAccepted(BaseModel):
     trace_id: str
     job_id: int
     message: str = "Your application was received. It will appear in My applications in a moment."
+
+
+class ApplicationUpdateAccepted(BaseModel):
+    """The answer to PUT /applications/{id}/resume (HTTP 202): the new resume was received and queued; a worker points the
+    application at it a moment later."""
+    accepted: bool = True
+    event_id: str
+    trace_id: str
+    application_id: int
+    message: str = "Your new resume was received. It replaces the old one in a moment."

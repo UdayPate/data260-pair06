@@ -16,15 +16,15 @@ by Kafka itself is switched off, so a misspelled topic name fails instead of sil
 | Topic | Event type | Produced by | Consumed by (group) | Message key | What the consumer does |
 |---|---|---|---|---|---|
 | `p06.application.created` | `application.created` | Application API, `POST /jobs/{id}/apply` | Application worker (`p06-application-worker`) | `<student_id>:<job_id>` | Writes the application (status Pending) and an activity-log entry. Idempotent. |
-| `p06.application.updated` | `application.updated` | **nothing yet** (reserved: no API edits an application except its status) | Application worker | `<application_id>` | Replaces the application's resume file. |
+| `p06.application.updated` | `application.updated` | Application API, `PUT /applications/{id}/resume` (a student replaces the resume of a still Pending application; answers **202**) | Application worker | `<application_id>` | Points the application at the new resume, deletes the old PDF if no other application uses it, writes an activity-log entry. Idempotent. |
 | `p06.application.status_changed` | `application.status_changed` | Application API, `PATCH /applications/{id}/status` (after the status is saved) | Application worker | `<application_id>` | Writes a notification for the student. Idempotent. |
 | `p06.event.registration_created` | `event.registration_created` | Event API, `POST /events/{id}/register` (after the registration is saved) | Event worker (`p06-event-worker`) | `<student_id>:<event_id>` | Writes a confirmation notification. Idempotent. |
 | `p06.job.created` | `job.created` | Job API, `POST /jobs` (after the job is saved) | Job worker (`p06-job-worker`) | `<job_id>` | Writes a notification for every student whose saved preferences match the job. Idempotent. |
 | `p06.dlq` | *(see section 4)* | any worker | nobody (a person reads it) | the original key | The dead-letter topic: messages that failed for good. |
 
 The key decides the partition, so events with the same key are delivered **in order** to the same worker.
-Which flows write the main data through Kafka: **only applications**. `POST /jobs/{id}/apply` answers **202 Accepted** and the
-worker saves the application a moment later. The other three flows save their data in the API first and use Kafka for what
+Which flows write the main data through Kafka: **applications** (`POST /jobs/{id}/apply` answers **202 Accepted** and the worker saves
+the application a moment later) and **resume replacement** (`PUT /applications/{id}/resume`, also 202). The other three flows save their data in the API first and use Kafka for what
 follows (notifications), so their endpoints keep answering as before.
 
 ## 2. The message (the "envelope")
@@ -58,7 +58,7 @@ Headers: `event_id`, `event_type`, `trace_id` (text). Message key: see the table
 
 ```
 application.created            { student_id: int, job_id: int, resume_file_id: str (GridFS id, 24 hex characters), applied_at: ISO time }
-application.updated            { application_id: int, changes: { resume_file_id: str } }
+application.updated            { application_id: int, student_id: int, changes: { resume_file_id: str } }   (changes may only hold resume_file_id)
 application.status_changed     { application_id: int, student_id: int, job_id: int, job_title: str, company_name: str,
                                  old_status: str, new_status: str }
 event.registration_created     { registration_id: int, student_id: int, event_id: int, event_name: str, event_datetime: ISO time, company_id: int }
@@ -120,4 +120,18 @@ at once, in the same process, so the website works without Kafka. In Docker Comp
 * One broker, replication factor 1: the data survives a container restart (it is on a volume), not the loss of the disk.
 * While a worker retries a failing message it does not read the messages behind it in that partition (at most about 3 s of pause).
 * Notifications are stored in the `notifications` collection (see `MONGO_SCHEMA.md`); there is no endpoint or page that shows them.
-* `application.updated` has a consumer but no producer yet.
+
+## 7. The three failure demos (real broker)
+
+`backend/scripts/kafka_demos.py` runs them against the Compose stack (`python -m scripts.kafka_demos idempotent|crash|poison|retries`);
+the real output is in `RUN_LOG.txt`, PHASE 5.
+
+| Demo | What is done | What must be seen |
+|---|---|---|
+| 1 `idempotent` | The identical message (same `event_id`, key, headers) is published twice; then a second event with a new `event_id` for the same student and job | worker log `processed` then `duplicate`; one application; one activity-log row; the second PDF removed |
+| 2 `crash` | The hook `demo_crash_if_armed` (file `/tmp/p06-crash-before-commit` inside the worker) kills the worker after the database write and before the commit | the application exists, the offset was not committed, Docker restarts the worker, the message is read again and logged `duplicate`: **not lost, reprocessed, no duplicate** |
+| 3a `poison` | Invalid JSON, an unknown student and a header/body mismatch are published, followed by a good message | three records on `p06.dlq` (no retries for these), the good message is processed, lag 0 |
+| 3b `retries` | MongoDB is paused (`docker pause`) while an application event is published | `retry attempt=1/3`, `2/3`, then `gave_up` and one record on `p06.dlq` with `attempts=3`; after `unpause` the next message works |
+
+The crash hook does nothing unless that file exists; it is part of the worker code only so the demo is honest (a real `docker kill` in
+that exact millisecond is not repeatable).

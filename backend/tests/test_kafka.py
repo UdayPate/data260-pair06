@@ -612,3 +612,146 @@ def test_posting_a_job_publishes_an_event_and_notifies_matching_students(client,
 
 def test_the_notifications_collection_has_its_index(db):
     assert "user_role_1_user_id_1_created_at_-1" in db.notifications.index_information()
+
+
+# =============================================================== application.updated: the new producer (PUT /applications/{id}/resume)
+def an_application(db, people, resume_name="first.pdf"):
+    _, student, job = people
+    first = store_resume(db, PDF, resume_name)
+    handlers.dispatch(db, application_event(student.id, job.id, first))
+    return db.applications.find_one({}), first
+
+
+def update_event(application, new_resume, **extra):
+    return new_envelope("application.updated", {"application_id": application["_id"], "student_id": application["student_id"],
+                                                "changes": {"resume_file_id": str(new_resume)}, **extra})
+
+
+def test_replacing_the_resume_points_the_application_at_the_new_pdf_and_deletes_the_old_one(db, people):
+    application, first = an_application(db, people)
+    newer = store_resume(db, PDF + b"newer", "newer.pdf")
+    env = update_event(application, newer)
+    assert handlers.dispatch(db, env) == handlers.PROCESSED
+    assert db.applications.find_one({"_id": application["_id"]})["resume_file_id"] == newer
+    assert not mongo.bucket(db, "resumes").exists(first) and mongo.bucket(db, "resumes").exists(newer)
+    assert handlers.dispatch(db, env) == handlers.PROCESSED                      # delivered twice: nothing changes
+    assert db.applications.find_one({"_id": application["_id"]})["resume_file_id"] == newer
+    assert db.activity_logs.count_documents({"action": "application_updated"}) == 1     # logged once
+
+
+def test_a_resume_that_other_applications_share_is_not_deleted(db, people):
+    company, student, job = people
+    shared = store_resume(db, PDF, "seed_resume.pdf")                              # like the seeded placeholder
+    other_student = make_student(db)
+    handlers.dispatch(db, application_event(student.id, job.id, shared))
+    handlers.dispatch(db, application_event(other_student.id, job.id, shared))
+    mine = db.applications.find_one({"student_id": student.id})
+    newer = store_resume(db, PDF + b"mine", "mine.pdf")
+    handlers.dispatch(db, update_event(mine, newer))
+    assert mongo.bucket(db, "resumes").exists(shared)                              # the other student still needs it
+    assert db.applications.find_one({"student_id": other_student.id})["resume_file_id"] == shared
+
+
+@pytest.mark.parametrize("make, why", [
+    (lambda app, new: new_envelope("application.updated", {"application_id": app["_id"], "changes": {"resume_file_id": str(ObjectId())}}),
+     "new resume file is not in the database"),
+    (lambda app, new: update_event(app, new, student_id=999), "does not belong to student 999"),
+    (lambda app, new: new_envelope("application.updated", {"application_id": app["_id"], "changes": {"status": "Declined"}}),
+     "may only contain resume_file_id"),
+    (lambda app, new: new_envelope("application.updated", {"application_id": 4242, "changes": {}}), "does not exist"),
+], ids=["new-file-missing", "wrong-student", "other-field", "no-application"])
+def test_a_bad_application_updated_event_is_a_permanent_error_and_changes_nothing(db, people, make, why):
+    application, first = an_application(db, people)
+    with pytest.raises(PermanentError, match=why):
+        handlers.dispatch(db, make(application, store_resume(db, PDF + b"x", "x.pdf")))
+    assert db.applications.find_one({"_id": application["_id"]})["resume_file_id"] == first
+
+
+def test_putting_a_new_resume_through_the_api_publishes_application_updated(client, db, recorder):
+    company, _ = headers_for(client, "company")
+    student, student_id = headers_for(client)
+    job_id = post_job_api(client, company)
+    apply_api(client, job_id, student)
+    application = db.applications.find_one({})
+    old_file = application["resume_file_id"]
+    new_pdf = PDF + b"% the second version\n"
+    r = client.put(f"/applications/{application['_id']}/resume", headers={**student, "X-Request-ID": "trace-put"},
+                   files={"resume": ("v2.pdf", new_pdf, "application/pdf")})
+    assert r.status_code == 202
+    body = r.json()
+    assert body["accepted"] is True and body["application_id"] == application["_id"] and body["trace_id"] == "trace-put"
+    event_type, key, env = [e for e in recorder.events if e[0] == "application.updated"][0]
+    assert key == str(application["_id"]) and env.event_id == body["event_id"] and env.trace_id == "trace-put"
+    assert env.payload["application_id"] == application["_id"] and env.payload["student_id"] == student_id
+    assert client.get(f"/applications/{application['_id']}/resume", headers=student).content == new_pdf   # the worker (inline) did it
+    assert not mongo.bucket(db, "resumes").exists(old_file)
+    assert db["resumes.files"].count_documents({}) == 1
+
+
+def test_only_the_applicant_can_replace_a_resume_and_only_while_pending(client, db, recorder):
+    company, _ = headers_for(client, "company")
+    student, _ = headers_for(client)
+    stranger = make_student(db)                                                    # a second student (no login needed here)
+    job_id = post_job_api(client, company)
+    apply_api(client, job_id, student)
+    application_id = db.applications.find_one({})["_id"]
+    url = f"/applications/{application_id}/resume"
+    pdf = {"resume": ("v2.pdf", PDF, "application/pdf")}
+    assert client.put(url, files=pdf).status_code == 401
+    assert client.put(url, headers=company, files=pdf).status_code == 403                    # companies cannot
+    other = client.post("/auth/student/signup", json={**STUDENT, "email": "other@example.com", "name": "Other"}).json()["access_token"]
+    assert client.put(url, headers={"Authorization": f"Bearer {other}"}, files=pdf).status_code == 404   # someone else's: not found
+    assert client.put("/applications/99999/resume", headers=student, files=pdf).status_code == 404
+    client.patch(url.replace("/resume", "/status"), headers=company, json={"status": "Reviewed"})
+    late = client.put(url, headers=student, files=pdf)
+    assert late.status_code == 409 and "Pending" in late.json()["detail"]
+    assert not [e for e in recorder.events if e[0] == "application.updated"]               # nothing was published
+
+
+def test_a_bad_or_unqueueable_new_resume_changes_nothing(client, db):
+    company, _ = headers_for(client, "company")
+    student, _ = headers_for(client)
+    job_id = post_job_api(client, company)
+    apply_api(client, job_id, student)
+    application = db.applications.find_one({})
+    url = f"/applications/{application['_id']}/resume"
+    assert client.put(url, headers=student, files={"resume": ("x.pdf", b"not a pdf", "application/pdf")}).status_code == 415
+    assert db["resumes.files"].count_documents({}) == 1                                     # still only the original
+    pub.use_publisher(Recording(fail=True))
+    try:
+        r = client.put(url, headers=student, files={"resume": ("v2.pdf", PDF, "application/pdf")})
+    finally:
+        pub.use_publisher(None)
+    assert r.status_code == 503 and "could not be queued" in r.json()["detail"]
+    assert db["resumes.files"].count_documents({}) == 1                                     # the new file was removed again
+    assert db.applications.find_one({"_id": application["_id"]})["resume_file_id"] == application["resume_file_id"]
+
+
+# =============================================================== the demo hook: a worker killed after the write, before the commit
+def test_the_demo_hook_kills_the_worker_after_the_write_and_before_the_commit_only_when_armed(db, people, tmp_path, monkeypatch):
+    from app.events import consumer
+    _, student, job = people
+    flag = tmp_path / "crash-flag"
+    monkeypatch.setattr(consumer, "CRASH_FLAG", str(flag))
+    exits = []
+
+    def fake_exit(code):
+        exits.append(code)
+        raise SystemExit(code)
+    monkeypatch.setattr(consumer.os, "_exit", fake_exit)
+    msg = message_for(application_event(student.id, job.id, store_resume(db)), offset=9)
+    journal = []
+    worker = Worker("application", "g", FakeConsumer(journal), FakeProducer(journal), db, sleep=lambda _s: None)
+
+    other = message_for(application_event(make_student(db).id, job.id, store_resume(db)), offset=8)
+    assert worker.process(other) == "processed" and exits == []                  # not armed: nothing happens, offset committed
+    assert journal == [("commit", 8)]
+
+    flag.write_text("armed")
+    with pytest.raises(SystemExit):
+        worker.process(msg)
+    assert exits == [137] and not flag.exists()                                   # killed once, and the flag is gone
+    assert db.applications.count_documents({"student_id": student.id}) == 1       # the write had happened ...
+    assert ("commit", 9) not in journal                                           # ... the offset had not been committed
+    assert worker.process(msg) == "duplicate" and journal[-1] == ("commit", 9)    # after the "restart": reprocessed, no duplicate
+    assert db.applications.count_documents({"student_id": student.id}) == 1

@@ -221,6 +221,16 @@ docker compose logs --tail 20 p06-application-worker              # one line per
 # the dead-letter topic (messages that failed for good) should be empty
 docker exec p06-kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server p06-kafka:9092 --topic p06.dlq --from-beginning --timeout-ms 5000
 ```
+A student can also replace the resume of a Pending application with `PUT /applications/{id}/resume` (202); that publishes
+`application.updated`, and the worker points the application at the new PDF and removes the old one.
+
+**The three failure demos** (idempotent consumer, a worker killed before its commit, poison messages and bounded retries) run against
+the real broker with the script below; the output of a real run is in `RUN_LOG.txt` (PHASE 5), the explanation in
+`docs/lab2/KAFKA_CONTRACT.md` section 7, and the architecture diagram in `docs/lab2/ARCHITECTURE.md`.
+```powershell
+cd backend; .\venv\Scripts\Activate.ps1          # the stack must be running and seeded; the MongoDB login is read from the root .env
+python -m scripts.kafka_demos idempotent          # also: crash | poison | retries | all
+```
 Without Kafka (`uvicorn app.main:app` on a laptop, and all the unit tests) `KAFKA_BOOTSTRAP` is not set and the same handler runs
 inline, inside the API, so the website still works; the answer is still 202.
 

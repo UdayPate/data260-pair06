@@ -1,0 +1,52 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20261108220938
+Username: DESKTOP-0B8PB15\patel
+RunAs User: DESKTOP-0B8PB15\patel
+Configuration Name: 
+Machine: DESKTOP-0B8PB15 (Microsoft Windows NT 10.0.26300.0)
+Host Application: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe
+Process ID: 38188
+PSVersion: 5.1.26100.9711
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9711
+BuildVersion: 10.0.26100.9711
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is ..\docs\lab2\kafka_demos_output.txt
+PS C:\Users\patel\data260-pair06\backend>
+(venv)   python -m scripts.kafka_demos all
+: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id
+: 6af163ab54f8cc1b991c1d34, topology_type: Single, servers: [<ServerDescription ('p06-mongo', 27017) server_type: Unknow
+n, rtt: None, error=NetworkTimeout('p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connect
+TimeoutMS: 20000.0ms)')>]>
+2026-11-09 06:10:55,738 ERROR handshake.worker worker=application event=dead_lettered type=application.created event_id=
+550a8b2a-61bf-4d9c-80a3-447e5103d1a3 trace_id=demo3b-27e9719e attempts=3 message=p06.application.created[1]@21 error=p06
+-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, T
+opology Description: <TopologyDescription id: 6af163ab54f8cc1b991c1d34, topology_type: Single, servers: [<ServerDescript
+ion ('p06-mongo', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('p06-mongo:27017: timed out (configured t
+imeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+p06.dlq:
+  p06.dlq  error_type=ServerSelectionTimeoutError attempts=3 event_id=550a8b2a-61bf-4d9c-80a3-447e5103d1a3 trace_id=demo
+3b-27e9719e
+           error=p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0m
+s), Timeout: 5.0s, Topology Description: <TopologyDescription id: 6af163ab54f8cc1b991c1d34, topology_type: Single, serve
+rs: [<ServerDescription ('p06-mongo', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('p06-mongo:27017: tim
+ed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+           from p06.application.created[1]@21 key=200:21 group=p06-application-worker
+           original_value='{"event_id":"550a8b2a-61bf-4d9c-80a3-447e5103d1a3","event_type":"application.created","timest
+amp":"2026-11-09T'
+applications for this pair (not saved, it is in the dead-letter topic): 0
+MongoDB is back; the next application is processed normally:
+2026-11-09 06:11:02,899 INFO handshake.worker worker=application event=processed type=application.created event_id=d8de4
+597-cd74-4e2b-9a9b-2f95a9205d27 trace_id=demo3b-after message=p06.application.created[1]@22
+saved: True   (expected True)
+PS C:\Users\patel\data260-pair06\backend>
+(venv)  Stop-Transcript
+**********************
+Windows PowerShell transcript end
+End time: 20261108221119
+**********************

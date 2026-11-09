@@ -34,10 +34,21 @@ logger = logging.getLogger("handshake.worker")
 MAX_ATTEMPTS = 3                       # the first try plus two retries
 BACKOFF_SECONDS = (1.0, 2.0)           # the pause before retry 1 and retry 2
 HEARTBEAT_FILE = os.getenv("WORKER_HEARTBEAT_FILE", "/tmp/p06-worker-heartbeat")
+CRASH_FLAG = os.getenv("WORKER_CRASH_FLAG_FILE", "/tmp/p06-crash-before-commit")   # demo hook, see demo_crash_if_armed
 
 
 class WorkerFatal(Exception):
     """The worker cannot continue safely (for example the dead-letter write failed)."""
+
+
+def demo_crash_if_armed() -> None:
+    """DEMO HOOK for failure case 2 (docs/lab2/KAFKA_CONTRACT.md, scripts/kafka_demos.py crash): if the file CRASH_FLAG exists,
+    delete it (so it fires only once) and kill this process at once, exactly like `docker kill`: after the database write and
+    BEFORE the offset is committed. Without the file, which is the normal state, it does nothing."""
+    if os.path.exists(CRASH_FLAG):
+        os.remove(CRASH_FLAG)
+        logger.critical("event=demo_crash the database write is done, the offset is NOT committed; killing this worker now")
+        os._exit(137)
 
 
 def _text(raw: Any) -> Optional[str]:
@@ -52,6 +63,7 @@ class Worker:
         self.name, self.group_id = name, group_id
         self.consumer, self.producer, self.db = consumer, producer, db
         self.sleep, self.heartbeat = sleep, heartbeat or (lambda: None)
+        self.crash_hook = demo_crash_if_armed
         self.stopping = False
 
     # ---------------------------------------------------------------- one message
@@ -91,6 +103,8 @@ class Worker:
         if outcome != "dead_lettered":
             logger.info("worker=%s event=%s type=%s event_id=%s trace_id=%s message=%s",
                         self.name, outcome, env.event_type, env.event_id, env.trace_id, where)
+        if outcome != "dead_lettered":
+            self.crash_hook()                             # normally nothing; the demo can kill the worker right here
         return self._commit(msg, outcome)                 # the write (or the dead-letter copy) is done: remember the offset
 
     def _commit(self, msg: Any, outcome: str) -> str:

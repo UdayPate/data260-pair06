@@ -1847,3 +1847,192 @@ and the new JWT secret. NOT tested here (the next phase): the three failure case
 during processing, a poison message with bounded retries and p06.dlq) against the real broker, and the architecture diagram. The unit tests
 cover their logic with a fake broker (4.3); the real-broker demos are the evidence the assignment asks for.
 ### end of Lab 2, PHASE 4
+
+======================================================================================================================================
+PHASE 5: the application.updated producer, the three Kafka failure demos, the architecture diagram (2026-11-09)
+======================================================================================================================================
+Run from the repo root (Compose stack up and seeded), backend venv active. Output below is copied from the real runs; lines marked
+"(trimmed)" had columns or repeated rows removed. Passwords are never printed (the script reads them from the git-ignored .env).
+
+--- 5.1  A producer for p06.application.updated (so every topic in the table has a producer and a consumer)
+New endpoint  PUT /applications/{application_id}/resume  (student only, 202 Accepted): stores the new PDF in GridFS, publishes
+application.updated {application_id, student_id, changes:{resume_file_id}} and returns {accepted, event_id, trace_id, application_id}.
+Only the owner (anyone else gets 404), only while the application is Pending (409 otherwise), company 403, no login 401, a file that is
+not a PDF 415; if Kafka cannot confirm the message the new file is deleted again and the answer is 503. The Application worker points
+the application at the new file, deletes the old PDF only when no other application uses it (the seed applications share a placeholder
+resume), and writes an activity-log row with _id "<event_id>:application_updated" (idempotent).
+(venv) python -m pytest tests/test_kafka.py tests/test_services.py -q
+108 passed in 16.52s
+(venv) python -m pytest -q          [the whole backend suite, after all phase 5 changes]
+543 passed in 271.57s (0:04:31)
+tests/test_services.py now expects 42 endpoints (the 41 before + this one) and it still checks that the six services serve them with no overlap.
+
+--- 5.2  The same endpoint against the real stack (docker compose build; docker compose up -d first; 13 containers healthy)
+$ curl -X POST localhost:9060/auth/login ... demo.student@sjsu.edu       -> token
+$ curl localhost:9060/applications/mine      -> [(1501, 'Pending'), (8, 'Reviewed'), (1182, 'Reviewed'), (477, 'Pending'), (479, 'Declined')]
+$ curl -i -X PUT localhost:9060/applications/1501/resume -F "resume=@v2.pdf;type=application/pdf"
+HTTP/1.1 202 Accepted
+{"accepted":true,"event_id":"ed1b0435-4856-4df4-9d3a-d075e500b83c","trace_id":"482d3087892debdbb3f8ecba7398ff53","application_id":1501,"message":"Your new resume was received. It replaces the old one in a moment."}
+$ curl localhost:9060/applications/1501/resume   -> the PDF now ends with "% second version"
+$ docker logs p06-application        -> ... event=published type=application.updated event_id=ed1b0435-... key=1501 trace_id=482d3087...
+$ docker logs p06-application-worker -> ... worker=application event=processed type=application.updated event_id=ed1b0435-... trace_id=482d3087... message=p06.application.updated[1]@0
+$ curl -X PUT .../applications/1501/resume   (no login)   -> 401
+Note: I sent X-Request-ID: p5-trace-put but the trace_id above is the one the nginx gateway generated; the gateway overwrites X-Request-ID
+(that is intended: one id per request, chosen at the edge). The same id is in the API log, the worker log and the response.
+There is no button for this in the website yet (not asked for); it is an API endpoint.
+
+--- 5.3  The crash hook (needed for demo 2)
+A worker cannot be killed "after the write and before the commit" by hand: the window is a few milliseconds. consumer.py now has
+demo_crash_if_armed(): if the file /tmp/p06-crash-before-commit exists inside the worker container, the worker deletes the file (so it
+fires once) and calls os._exit(137) right after the handler finished and before consumer.commit(). Without the file it does nothing.
+A unit test proves: not armed -> nothing; armed -> killed after the write, offset not committed; after the "restart" the same message
+is read again, answered "duplicate", and then committed (test_the_demo_hook_kills_the_worker_after_the_write_and_before_the_commit_only_when_armed).
+Script: backend/scripts/kafka_demos.py   (python -m scripts.kafka_demos idempotent | crash | poison | retries | all)
+
+--- 5.4  Mistakes made while writing the demo script (fixed before the runs below)
+(1) AttributeError: 'GridFS' object has no attribute 'upload_from_stream'   -> this project's bucket is classic GridFS; used .put(...).
+(2) "Kafka did not confirm the message: timed out" (three runs in a row) -> I passed topics.APPLICATION_CREATED, which is the EVENT TYPE
+    "application.created", not the topic name "p06.application.created"; automatic topic creation is off, so the send could never be
+    confirmed. Fixed with topics.topic_for(...). (This is the "misspelled topic fails instead of creating a new one" protection working.)
+(3) The first poison run listed only 2 of the 3 dead letters. I had filtered p06.dlq by a time taken on the Windows host, which differs
+    slightly from the container clock. Now the script notes the end offset of p06.dlq before the demo and reads from there.
+(4) My first wording for the crash demo said "LAG 1"; the real output differs (see 5.6) so the label was corrected before the final run.
+
+--- 5.5  DEMO 1: the same event twice, same key  (python -m scripts.kafka_demos idempotent)
+student=200 job=1 event_id=72dc320c-75e0-40d0-b648-18885551bcc8 trace_id=demo1-c48e1e8e key=200:1
+applications for this pair before: 0
+published the identical message twice (same event_id, same key, same headers)
+worker log lines:
+2026-11-09 03:44:38,046 INFO handshake.worker worker=application event=processed type=application.created event_id=72dc320c-75e0-40d0-b648-18885551bcc8 trace_id=demo1-c48e1e8e message=p06.application.created[1]@3
+2026-11-09 03:44:38,050 INFO handshake.worker worker=application event=duplicate type=application.created event_id=72dc320c-75e0-40d0-b648-18885551bcc8 trace_id=demo1-c48e1e8e message=p06.application.created[1]@4
+applications for this pair after: 1   (expected 1)
+activity-log rows for this event_id: 1   (expected 1)
+Second case: a DIFFERENT event (new event_id) for the same student and job, as after a double click.
+2026-11-09 03:44:38,213 INFO handshake.worker worker=application event=duplicate type=application.created event_id=962d467f-8b1f-452e-a9bc-8a52a09daa4e trace_id=demo1-c48e1e8e message=p06.application.created[1]@5
+applications for this pair after: 1   (expected still 1; unique index on student+job)
+the second PDF was removed again: True   (expected True)
+(the script also repeated the first two worker lines in the second block; omitted here, same lines as above)
+Meaning: two messages with offsets 3 and 4 were delivered; the first wrote the application, the second was recognised and changed nothing.
+
+--- 5.6  DEMO 2: a worker killed after the database write, before the commit  (python -m scripts.kafka_demos crash)
+student=200 job=2 event_id=444a143a-2ec5-474e-beb1-1f92514b6737 trace_id=demo2-6b317140
+worker container before: 2026-11-09T03:44:03.839867323Z restarts=0
+applications for this pair before: 0
+$ docker exec p06-application-worker touch /tmp/p06-crash-before-commit
+(the crash hook is armed: the next message will kill the worker right after its database write)
+worker died: True
+database right after the kill:
+  applications for this pair: 1   (1 = the write happened, nothing was lost)
+consumer group right after the kill:   (trimmed to the rows of p06.application.created)
+GROUP                  TOPIC                          PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
+p06-application-worker p06.application.created        1          6               6               0
+Warning: Consumer group 'p06-application-worker' is rebalancing.
+   -> there is NO row for partition 2, where this message (offset 0) lives: that partition had never had a committed offset and the
+      kill came before the first commit. Kafka therefore still considers the message unread.
+worker container after: 2026-11-09T03:44:44.378969059Z restarts=1
+worker log since the kill:
+2026-11-09 03:44:44,238 INFO handshake.worker worker=application event=processed type=application.created event_id=444a143a-... trace_id=demo2-6b317140 message=p06.application.created[2]@0
+2026-11-09 03:44:45,080 INFO handshake.worker worker=application event=started group=p06-application-worker
+2026-11-09 03:44:59,745 INFO handshake.worker worker=application event=duplicate type=application.created event_id=444a143a-... trace_id=demo2-6b317140 message=p06.application.created[2]@0
+applications for this pair after the restart: 1   (expected 1: reprocessed, not duplicated)
+consumer group after the restart:   (trimmed)
+p06-application-worker p06.application.created        2          1               1               0
+result: PASS
+Reading it: the first "processed" line is the run that was killed (the log line is written, then the hook fires before the commit).
+Docker restarted the container (restarts=1, restart policy unless-stopped); the new worker read offset 0 of partition 2 again (the
+15 s between "started" and "duplicate" is Kafka's consumer-group rebalance waiting for the dead member's session to time out), the handler
+saw the application already existed and answered "duplicate", and only then the offset was committed (partition 2: CURRENT-OFFSET 1, LAG 0).
+Not lost (the row was written before the kill), reprocessed (the message was delivered a second time), not duplicated (idempotent handler).
+If the commit came BEFORE the write, the same kill would have lost the application. test_kafka.py has a mutation-checked test for that order.
+
+--- 5.7  DEMO 3a: poison messages and the dead-letter topic  (python -m scripts.kafka_demos poison)
+Published: (1) text that is not JSON, (2) a valid envelope for student 999999, who does not exist, (3) a message whose trace_id header
+differs from the body, (4) a good application, right behind them.
+worker=application event=invalid ... error=the message is not valid JSON (Expecting value: line 1 column 1 (char 0))
+worker=application event=dead_lettered type=? event_id=None trace_id=None attempts=0 message=p06.application.created[2]@7 ...
+worker=application event=permanent_error type=application.created event_id=b4ff89ae-... trace_id=demo3-a6d1af9b error=student 999999 does not exist
+worker=application event=dead_lettered type=application.created event_id=b4ff89ae-... attempts=1 message=p06.application.created[0]@1 ...
+worker=application event=invalid ... error=header trace_id does not match the message body
+worker=application event=processed type=application.created event_id=aeb61af7-... trace_id=demo3-... message=p06.application.created[1]@7   <- the good one
+(log excerpt from the first poison run, 03:46:46; the listing of p06.dlq below is from the final run, so ids differ; same behaviour)
+the good application was saved: True   (expected True)
+messages on p06.dlq written during this demo:
+  p06.dlq  error_type=InvalidMessage attempts=0 event_id=None trace_id=None
+           error=the message is not valid JSON (Expecting value: line 1 column 1 (char 0))
+           from p06.application.created[2]@7 key=poison:garbage group=p06-application-worker
+           original_value='this is not json {{{'
+  p06.dlq  error_type=PermanentError attempts=1 event_id=b4ff89ae-e4d4-4daf-b700-64e095a90894 trace_id=demo3-a6d1af9b
+           error=student 999999 does not exist
+           from p06.application.created[0]@1 key=999999:1 group=p06-application-worker
+  p06.dlq  error_type=InvalidMessage attempts=0 event_id=None trace_id=None
+           error=header trace_id does not match the message body
+           from p06.application.created[1]@8 key=999999:2 group=p06-application-worker
+consumer group after: every partition of p06.application.created has LAG 0 (the bad messages blocked nothing)
+no application was created for student 999999: True
+Note: the poison demo was run three times in all (once with the topic-name bug, once with the DLQ time filter bug, see 5.4), so p06.dlq
+holds the records of the earlier runs as well; nothing else in the system reads that topic. They are test records, not real failures.
+
+--- 5.8  DEMO 3b: bounded retries  (python -m scripts.kafka_demos retries)
+MongoDB is paused with  docker pause p06-mongo  while an application event is published; then  docker unpause p06-mongo.
+worker=application event=retry type=application.created event_id=4b91dc91-... trace_id=demo3b-5bd91697 attempt=1/3 in=1.0s error=operation cancelled
+worker=application event=retry type=application.created event_id=4b91dc91-... trace_id=demo3b-5bd91697 attempt=2/3 in=2.0s error=p06-mongo:27017: timed out ...
+worker=application event=gave_up type=application.created event_id=4b91dc91-... trace_id=demo3b-5bd91697 attempts=3 error=p06-mongo:27017: timed out ...
+worker=application event=dead_lettered type=application.created event_id=4b91dc91-... attempts=3 message=p06.application.created[0]@2 ...
+  p06.dlq  error_type=ServerSelectionTimeoutError attempts=3 event_id=4b91dc91-... trace_id=demo3b-5bd91697
+           from p06.application.created[0]@2 key=200:5 group=p06-application-worker
+applications for this pair (not saved, it is in the dead-letter topic): 0
+MongoDB is back; the next application is processed normally:
+worker=application event=processed type=application.created event_id=1c08d09f-... trace_id=demo3b-after message=p06.application.created[0]@3
+saved: True   (expected True)
+Timing: attempt 1 at 03:47:50, attempt 2 at 03:47:56, give-up at 03:48:03 (each attempt waits for MongoDB's 5 s server-selection timeout
+plus the 1 s / 2 s pause), so a message is held for about 13 s at most. The script printed pymongo tracebacks ("operation cancelled",
+ServerSelectionTimeoutError) from ITS OWN client on the laptop, which also lost MongoDB while paused; they come from the demo script, not
+from the application. Right after "unpause" docker ps showed p06-mongo "unhealthy" for a few seconds; 20 s later all 13 containers were healthy.
+A dead-lettered message from 3b is not re-driven automatically: its original_value is in p06.dlq and can be published again by hand.
+
+--- 5.9  Documents
+docs/lab2/ARCHITECTURE.md (new): Mermaid diagrams of the containers, the apply sequence, and the topic table.
+docs/lab2/KAFKA_CONTRACT.md: application.updated now has a producer; new section 7 describes the failure demos. MONGO_SCHEMA.md: new
+activity action application_updated. README.md: the PUT endpoint and how to run the demos.
+Not done / not tested here: the Mermaid diagrams were written by hand and not rendered by me (GitHub renders them; check once);
+no website button for replacing a resume; the openapi.json / postman_collection.json were not regenerated; the frontend suite was not
+re-run (no frontend file changed in this phase).
+### end of Lab 2, PHASE 5
+
+--- 5.10  Correction to 5.6 and a clean re-run (2026-11-09, run by the user on the Windows machine)
+What was wrong: in a full run  python -m scripts.kafka_demos all  the user's output for DEMO 2 printed "result: PASS" although the
+"after the restart" consumer-group table still showed LAG 1 on p06.application.created partition 2 and no `duplicate` line for the
+crashed event; that line only appeared later, inside the DEMO 3a log. Cause: a bug in MY script. It treated ANY "event=duplicate" line
+since the kill as proof of the second delivery, and DEMO 1 had just written one. The worker itself behaved correctly (the duplicate for the
+crashed event_id was logged at 06:05:03, still before demo 3a's messages), only the demo's PASS test and its log filter were wrong. My own
+earlier PASS in 5.6 came from the same flawed test; its log lines (processed, started, duplicate for the same event_id, then
+CURRENT-OFFSET 1 / LAG 0) do show the right sequence, but the PASS line is not proof by itself.
+Fix in backend/scripts/kafka_demos.py: DEMO 2 now waits up to 60 s (checking every 2 s) until BOTH are true: the restarted worker logged
+`duplicate` for THIS demo's event_id, and `kafka-consumer-groups --describe` shows LAG 0 on that message's partition with CURRENT-OFFSET =
+message offset + 1. Only then it prints PASS; otherwise "result: FAIL (...)". The worker log is also filtered to this demo's event_id.
+A second problem: Start-Transcript in PowerShell saved only 52 lines (3,248 bytes) of the run, lines cut in the middle of words and no
+"result:" line, so that transcript is NOT used as evidence. The script now takes an optional file name and writes a clean copy of its
+own output (UTF-8):  python -m scripts.kafka_demos all ..\docs\lab2\kafka_demos_output.txt
+
+Clean re-run (the user's pasted console output, after the fix; trimmed to the decisive lines):
+DEMO 1  student=200 job=17 event_id=f913cbae-e362-4851-9e16-15d5f54bdd07
+  06:09:45,373 worker=application event=processed ... message=p06.application.created[1]@16
+  06:09:45,380 worker=application event=duplicate ... message=p06.application.created[1]@17
+  applications for this pair after: 1 (expected 1) / activity-log rows for this event_id: 1 / second PDF removed: True
+  new event_id 992b9216-... same student and job: event=duplicate @18, applications still 1
+DEMO 2  student=200 job=18 event_id=4221665b-dbdc-4dbe-bd07-afbb8ada21b8, worker restarts=4 before
+  applications right after the kill: 1
+  group right after the kill: p06.application.created partition 2: CURRENT-OFFSET 23, LOG-END-OFFSET 24, LAG 1   <- commit never happened
+  06:09:46,168 event=processed ... message=p06.application.created[2]@23      (the run that was killed)
+  06:09:47,549 event=started group=p06-application-worker                     (restarts=5)
+  06:10:00,985 event=duplicate event_id=4221665b-... message=p06.application.created[2]@23     (read again, no-op)
+  applications after the restart: 1; group after: partition 2 CURRENT-OFFSET 24, LOG-END-OFFSET 24, LAG 0
+  result: PASS (reprocessed after the restart, committed, still one application)
+DEMO 3a  dead letters: invalid JSON (@24), PermanentError student 999999 does not exist (attempts=1, @9), header/body trace_id mismatch (@19);
+  the good application behind them: event=processed @20, saved True; all partitions LAG 0; no application for student 999999.
+DEMO 3b  MongoDB paused: retry attempt=1/3 (06:10:42), attempt=2/3 (06:10:48), gave_up attempts=3 (06:10:55), dead_lettered @21 with
+  error_type=ServerSelectionTimeoutError attempts=3; applications for the pair: 0; after unpause the next message: event=processed @22, saved True.
+Same remarks as 5.7 / 5.8 (the pymongo tracebacks printed during 3b come from the script's own client; the DEMO 3a worker-log block can
+contain a line of the previous demo because docker logs --since works in whole seconds). Demo applications use students/jobs
+that had no application, so the database now holds a few extra test applications for student 200 (jobs 1 to 18 and later).
+### end of Lab 2, PHASE 5 (addendum)

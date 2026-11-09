@@ -255,6 +255,8 @@ Due: Monday 11/16/2026.
     and the assistant's `/health/dependencies`): done, committed and pushed (`bf9d345`); 474 backend tests pass.
     Lab 1's `scripts/run_transcripts.py`, `run_part_c.py` and `collect_metrics.py` used the SQL layer and no longer run.
   - Phase 4 (Kafka: topics, producers in the Application/Event/Job APIs, three workers, `docs/lab2/KAFKA_CONTRACT.md`,
-    asynchronous apply with 202): built and verified; waiting for the human to commit.
-  - Next: the three Kafka failure demos with RUN_LOG entries and the architecture diagram, then Kubernetes manifests tested on kind.
+    asynchronous apply with 202): done, committed (`efe6c06`).
+  - Phase 5 (producer for `application.updated` = `PUT /applications/{id}/resume`; three failure demos run on the real broker with
+    `backend/scripts/kafka_demos.py`; `docs/lab2/ARCHITECTURE.md`; RUN_LOG PHASE 5): built and verified (543 backend tests); waiting for the human to commit.
+  - Next: Kubernetes manifests tested on kind (phase 6).
 - The data layer is MongoDB (the Lab 1 MySQL database is untouched and still on the laptop).

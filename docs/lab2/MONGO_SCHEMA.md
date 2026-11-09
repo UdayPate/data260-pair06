@@ -132,7 +132,7 @@ so the API also compares `expires_at` with the clock on every request.
   ref_type: null, ref_id: null, detail: {} }
 ```
 Actions written today: `signup`, `login`, `logout`, `profile_updated`, `preferences_saved`, `job_created`, `job_updated`,
-`application_created` (`ref_type: "application"`, `detail: {job_id}`), `application_status_changed` (`detail: {status}`),
+`application_created` (`ref_type: "application"`, `detail: {job_id}`), `application_updated` (written by the Application worker after a resume replacement, `_id: "<event_id>:application_updated"`, `detail: {trace_id}`), `application_status_changed` (`detail: {status}`),
 `event_created`, `event_updated`, `event_registered`, `event_unregistered`, `item_saved`. A failed log write is logged and
 ignored; it never breaks the request. Entries written by the API use MongoDB's ObjectId as `_id`. **`application_created` is
 written by the Application worker**, with `_id: "<event_id>:application_created"`, so the same Kafka event can never write it

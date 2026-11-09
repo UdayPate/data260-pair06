@@ -85,22 +85,35 @@ def handle_application_created(db: Database, env: Envelope) -> str:
 
 # ---------------------------------------------------------------- application.updated
 def handle_application_updated(db: Database, env: Envelope) -> str:
-    """Reserved flow: an application's data changed (today only the resume file can). No API produces it yet."""
+    """The student replaced the resume on an application (the only thing that can change). Point the application at the new
+    PDF, and delete the old PDF if no other application uses it (the seeded applications all share one placeholder PDF, so
+    that file is never deleted). Delivered twice: the second time the application already has the new file and nothing changes."""
     p = env.payload
     application_id, changes = _need(p, "application_id", int), _need(p, "changes", dict)
-    if mongo.get(db, "applications", application_id) is None:
+    application = mongo.get(db, "applications", application_id)
+    if application is None:
         raise PermanentError(f"application {application_id} does not exist")
+    if "student_id" in p and p["student_id"] != application.student_id:
+        raise PermanentError(f"application {application_id} does not belong to student {p['student_id']}")
     unknown = set(changes) - {"resume_file_id"}
     if unknown:
         raise PermanentError(f"changes may only contain resume_file_id, not {sorted(unknown)}")
-    update = {}
+    update, old_resume = {}, application.resume_file_id
     if "resume_file_id" in changes:
         try:
             update["resume_file_id"] = ObjectId(changes["resume_file_id"])
         except (InvalidId, TypeError):
             raise PermanentError("changes.resume_file_id is not a file id") from None
+        if not mongo.bucket(db, "resumes").exists(update["resume_file_id"]):
+            raise PermanentError("the new resume file is not in the database")
     mongo.update(db, "applications", application_id, {**update, "updated_at": _when(env.timestamp.replace("Z", ""))})
-    return PROCESSED                                       # setting the same values again changes nothing: idempotent
+    new_resume = update.get("resume_file_id")
+    if new_resume is not None and old_resume is not None and old_resume != new_resume \
+            and mongo.count(db, "applications", {"resume_file_id": old_resume}) == 0:
+        mongo.bucket(db, "resumes").delete(old_resume)
+    log_activity(db, "student", application.student_id, "application_updated", "application", application_id,
+                 {"trace_id": env.trace_id}, event_id=env.event_id)
+    return PROCESSED
 
 
 # ---------------------------------------------------------------- application.status_changed
