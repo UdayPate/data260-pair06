@@ -1,52 +1,119 @@
-﻿**********************
-Windows PowerShell transcript start
-Start time: 20261108220938
-Username: DESKTOP-0B8PB15\patel
-RunAs User: DESKTOP-0B8PB15\patel
-Configuration Name: 
-Machine: DESKTOP-0B8PB15 (Microsoft Windows NT 10.0.26300.0)
-Host Application: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe
-Process ID: 38188
-PSVersion: 5.1.26100.9711
-PSEdition: Desktop
-PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9711
-BuildVersion: 10.0.26100.9711
-CLRVersion: 4.0.30319.42000
-WSManStackVersion: 3.0
-PSRemotingProtocolVersion: 2.3
-SerializationVersion: 1.1.0.1
-**********************
-Transcript started, output file is ..\docs\lab2\kafka_demos_output.txt
-PS C:\Users\patel\data260-pair06\backend>
-(venv)   python -m scripts.kafka_demos all
-: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id
-: 6af163ab54f8cc1b991c1d34, topology_type: Single, servers: [<ServerDescription ('p06-mongo', 27017) server_type: Unknow
-n, rtt: None, error=NetworkTimeout('p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connect
-TimeoutMS: 20000.0ms)')>]>
-2026-11-09 06:10:55,738 ERROR handshake.worker worker=application event=dead_lettered type=application.created event_id=
-550a8b2a-61bf-4d9c-80a3-447e5103d1a3 trace_id=demo3b-27e9719e attempts=3 message=p06.application.created[1]@21 error=p06
--mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, T
-opology Description: <TopologyDescription id: 6af163ab54f8cc1b991c1d34, topology_type: Single, servers: [<ServerDescript
-ion ('p06-mongo', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('p06-mongo:27017: timed out (configured t
-imeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+
+====================================================================================================
+DEMO 1  The same event arrives twice (at-least-once delivery): the consumer is idempotent
+====================================================================================================
+student=200 job=23 event_id=3a79a7ca-a120-4d63-87b1-5dfde253b60c trace_id=demo1-c8a55770 key=200:23
+applications for this pair before: 0
+published the identical message twice (same event_id, same key, same headers)
+worker log lines:
+2026-11-09 06:39:47,982 INFO handshake.worker worker=application event=processed type=application.created event_id=3a79a7ca-a120-4d63-87b1-5dfde253b60c trace_id=demo1-c8a55770 message=p06.application.created[2]@0
+2026-11-09 06:39:48,014 INFO handshake.worker worker=application event=duplicate type=application.created event_id=3a79a7ca-a120-4d63-87b1-5dfde253b60c trace_id=demo1-c8a55770 message=p06.application.created[2]@1
+applications for this pair after: 1   (expected 1)
+activity-log rows for this event_id: 1   (expected 1)
+
+Second case: a DIFFERENT event (new event_id) for the same student and job, as after a double click.
+2026-11-09 06:39:48,217 INFO handshake.worker worker=application event=duplicate type=application.created event_id=22b4c042-ef06-40f4-a9f9-649a02524142 trace_id=demo1-c8a55770 message=p06.application.created[2]@2
+applications for this pair after: 1   (expected still 1; unique index on student+job)
+the second PDF was removed again: True   (expected True)
+
+====================================================================================================
+DEMO 2  A worker is killed after the database write and BEFORE the offset is committed
+====================================================================================================
+student=200 job=24 event_id=7b09ca9e-6bfc-48e9-b777-cf405a8f9015 trace_id=demo2-83e5ab68
+worker container before: 2026-11-09T06:35:19.939963983Z restarts=0
+applications for this pair before: 0
+$ docker exec p06-application-worker touch /tmp/p06-crash-before-commit
+
+(the crash hook is armed: the next message will kill the worker right after its database write)
+worker died: True
+database right after the kill:
+  applications for this pair: 1   (1 = the write happened, nothing was lost)
+consumer group right after the kill (the partition that holds the message has NO committed offset, or a LAG of 1: the commit never happened):
+GROUP                  TOPIC                   PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+p06-application-worker p06.application.created 2          3               4               1               -               -               -
+Warning: Consumer group 'p06-application-worker' is rebalancing.
+waiting up to 60 s for the restarted worker to read the message again and commit it ...
+worker container after: 2026-11-09T06:39:49.168406393Z restarts=1
+worker log since the kill (only the lines of this demo):
+2026-11-09 06:39:48,793 INFO handshake.worker worker=application event=processed type=application.created event_id=7b09ca9e-6bfc-48e9-b777-cf405a8f9015 trace_id=demo2-83e5ab68 message=p06.application.created[2]@3
+2026-11-09 06:39:50,070 INFO handshake.worker worker=application event=started group=p06-application-worker
+2026-11-09 06:40:03,063 INFO handshake.worker worker=application event=duplicate type=application.created event_id=7b09ca9e-6bfc-48e9-b777-cf405a8f9015 trace_id=demo2-83e5ab68 message=p06.application.created[2]@3
+applications for this pair after the restart: 1   (expected 1: reprocessed, not duplicated)
+consumer group after the restart (the partition that holds the message must show LAG 0 now: committed after the second, no-op run):
+GROUP                  TOPIC                          PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                 HOST            CLIENT-ID
+p06-application-worker p06.application.status_changed 1          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.status_changed 2          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.status_changed 0          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.created        2          4               4               0               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.created        1          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.created        0          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.updated        1          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.updated        2          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.updated        0          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+result: PASS (reprocessed after the restart, committed, still one application)
+
+====================================================================================================
+DEMO 3a  Messages that can never succeed go to p06.dlq; the pipeline keeps working
+====================================================================================================
+1) not JSON at all
+2) a valid envelope for student 999999, who does not exist
+3) a header that disagrees with the body (trace_id)
+4) a good application right after the three bad ones
+worker log lines:
+2026-11-09 06:40:10,310 WARNING handshake.worker worker=application event=invalid message=p06.application.created[2]@4 error=the message is not valid JSON (Expecting value: line 1 column 1 (char 0))
+2026-11-09 06:40:11,076 ERROR handshake.worker worker=application event=dead_lettered type=? event_id=None trace_id=None attempts=0 message=p06.application.created[2]@4 error=the message is not valid JSON (Expecting value: line 1 column 1 (char 0))
+2026-11-09 06:40:11,079 WARNING handshake.worker worker=application event=permanent_error type=application.created event_id=fad4fc49-5784-4729-81c7-5ddb27350924 trace_id=demo3-0645e6d3 error=student 999999 does not exist
+2026-11-09 06:40:11,083 ERROR handshake.worker worker=application event=dead_lettered type=application.created event_id=fad4fc49-5784-4729-81c7-5ddb27350924 trace_id=demo3-0645e6d3 attempts=1 message=p06.application.created[0]@0 error=student 999999 does not exist
+2026-11-09 06:40:11,085 WARNING handshake.worker worker=application event=invalid message=p06.application.created[1]@0 error=header trace_id does not match the message body
+2026-11-09 06:40:11,086 ERROR handshake.worker worker=application event=dead_lettered type=? event_id=None trace_id=None attempts=0 message=p06.application.created[1]@0 error=header trace_id does not match the message body
+2026-11-09 06:40:11,095 INFO handshake.worker worker=application event=processed type=application.created event_id=8a5e3fb2-6cc2-4354-a15c-2a60038fad8b trace_id=demo3-0645e6d3 message=p06.application.created[2]@5
+the good application was saved: True   (expected True)
+messages on p06.dlq written during this demo:
+  p06.dlq  error_type=InvalidMessage attempts=0 event_id=None trace_id=None
+           error=the message is not valid JSON (Expecting value: line 1 column 1 (char 0))
+           from p06.application.created[2]@4 key=poison:garbage group=p06-application-worker
+           original_value='this is not json {{{'
+  p06.dlq  error_type=PermanentError attempts=1 event_id=fad4fc49-5784-4729-81c7-5ddb27350924 trace_id=demo3-0645e6d3
+           error=student 999999 does not exist
+           from p06.application.created[0]@0 key=999999:1 group=p06-application-worker
+           original_value='{"event_id":"fad4fc49-5784-4729-81c7-5ddb27350924","event_type":"application.created","timestamp":"2026-11-09T'
+  p06.dlq  error_type=InvalidMessage attempts=0 event_id=None trace_id=None
+           error=header trace_id does not match the message body
+           from p06.application.created[1]@0 key=999999:2 group=p06-application-worker
+           original_value='{"event_id":"d675b7bc-43fb-4276-b3e8-a18de915c0ee","event_type":"application.created","timestamp":"2026-11-09T'
+consumer group (LAG 0 = the bad messages did not block anything):
+GROUP                  TOPIC                          PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                 HOST            CLIENT-ID
+p06-application-worker p06.application.status_changed 1          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.status_changed 2          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.status_changed 0          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.created        2          6               6               0               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.created        1          1               1               0               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.created        0          1               1               0               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.updated        1          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.updated        2          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+p06-application-worker p06.application.updated        0          -               0               -               p06-application-worker-f124970f-ce9a-4ebb-b4d2-90aceeb7a478 /172.23.0.6     p06-application-worker
+no application was created for student 999999: True
+
+====================================================================================================
+DEMO 3b  A temporary failure (MongoDB unreachable) is retried 3 times, then dead-lettered; later messages work
+====================================================================================================
+$ docker pause p06-mongo
+p06-mongo
+published event_id=4e579397-3858-483c-bb41-20cc9805af15 while MongoDB is paused
+$ docker unpause p06-mongo
+p06-mongo
+worker log lines:
+2026-11-09 06:40:44,971 WARNING handshake.worker worker=application event=retry type=application.created event_id=4e579397-3858-483c-bb41-20cc9805af15 trace_id=demo3b-5997c665 attempt=1/3 in=1.0s error=operation cancelled
+2026-11-09 06:40:50,799 WARNING handshake.worker worker=application event=retry type=application.created event_id=4e579397-3858-483c-bb41-20cc9805af15 trace_id=demo3b-5997c665 attempt=2/3 in=2.0s error=p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id: 6af16ab6cf15b0c63f16d128, topology_type: Single, servers: [<ServerDescription ('p06-mongo', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2026-11-09 06:40:57,802 ERROR handshake.worker worker=application event=gave_up type=application.created event_id=4e579397-3858-483c-bb41-20cc9805af15 trace_id=demo3b-5997c665 attempts=3 error=p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id: 6af16ab6cf15b0c63f16d128, topology_type: Single, servers: [<ServerDescription ('p06-mongo', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2026-11-09 06:40:57,805 ERROR handshake.worker worker=application event=dead_lettered type=application.created event_id=4e579397-3858-483c-bb41-20cc9805af15 trace_id=demo3b-5997c665 attempts=3 message=p06.application.created[2]@6 error=p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id: 6af16ab6cf15b0c63f16d128, topology_type: Single, servers: [<ServerDescription ('p06-mongo', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
 p06.dlq:
-  p06.dlq  error_type=ServerSelectionTimeoutError attempts=3 event_id=550a8b2a-61bf-4d9c-80a3-447e5103d1a3 trace_id=demo
-3b-27e9719e
-           error=p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0m
-s), Timeout: 5.0s, Topology Description: <TopologyDescription id: 6af163ab54f8cc1b991c1d34, topology_type: Single, serve
-rs: [<ServerDescription ('p06-mongo', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('p06-mongo:27017: tim
-ed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
-           from p06.application.created[1]@21 key=200:21 group=p06-application-worker
-           original_value='{"event_id":"550a8b2a-61bf-4d9c-80a3-447e5103d1a3","event_type":"application.created","timest
-amp":"2026-11-09T'
+  p06.dlq  error_type=ServerSelectionTimeoutError attempts=3 event_id=4e579397-3858-483c-bb41-20cc9805af15 trace_id=demo3b-5997c665
+           error=p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id: 6af16ab6cf15b0c63f16d128, topology_type: Single, servers: [<ServerDescription ('p06-mongo', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('p06-mongo:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+           from p06.application.created[2]@6 key=200:26 group=p06-application-worker
+           original_value='{"event_id":"4e579397-3858-483c-bb41-20cc9805af15","event_type":"application.created","timestamp":"2026-11-09T'
 applications for this pair (not saved, it is in the dead-letter topic): 0
 MongoDB is back; the next application is processed normally:
-2026-11-09 06:11:02,899 INFO handshake.worker worker=application event=processed type=application.created event_id=d8de4
-597-cd74-4e2b-9a9b-2f95a9205d27 trace_id=demo3b-after message=p06.application.created[1]@22
+2026-11-09 06:41:05,789 INFO handshake.worker worker=application event=processed type=application.created event_id=f013b95d-e181-4072-8473-12f8adc94052 trace_id=demo3b-after message=p06.application.created[2]@7
 saved: True   (expected True)
-PS C:\Users\patel\data260-pair06\backend>
-(venv)  Stop-Transcript
-**********************
-Windows PowerShell transcript end
-End time: 20261108221119
-**********************
+
