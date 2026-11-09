@@ -30,7 +30,9 @@ backend/            FastAPI application
   scripts/          export_api_docs.py (OpenAPI + Postman), collect_metrics.py (numbers for METRICS.md)
   tests/            pytest suite (runs on in-memory SQLite, never touches MySQL)
 frontend/           React app (pages / components / services / context / hooks / utils / test)
-docs/               openapi.json, postman_collection.json, part_a_metrics.md, screenshots, checklist
+docs/               openapi.json, postman_collection.json (API docs)
+  lab1/             Lab 1 evidence: metrics, test output, transcripts, screenshots, checklist, report PDF
+  lab2/             Lab 2 work (schema, Kafka contract, evidence)
 METRICS.md  RUN_LOG.txt  AI_USE.md
 ```
 
@@ -149,7 +151,7 @@ message). The only code that talks to Ollama is `OllamaClient.complete(messages,
 what "matching" means. Every tool returns a string and never raises. `save_job_or_event` is the only tool that changes
 data: it asks the student in chat first and saves only after an explicit yes (`confirm.py`).
 
-Real transcripts of the five required queries: `docs/part_b_transcripts.txt`. Regenerate them with
+Real transcripts of the five required queries: `docs/lab1/part_b_transcripts.txt`. Regenerate them with
 `python -m scripts.run_transcripts` (needs Ollama running and the database seeded).
 
 ### Safety and reliability (Part C)

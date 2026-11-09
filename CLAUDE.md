@@ -6,10 +6,10 @@ assistant). Read this whole file at the start of every session.
 
 ## First thing to do in every new session
 
-1. Read the assignment: `docs/Lab_1.pdf`. If it is not in the repo, ask the user to add it
+1. Read the assignment: `docs/lab1/Lab_1.pdf`. If it is not in the repo, ask the user to add it
    and wait. (Lab 1 only. Lab 2 comes later and is not in scope.)
 2. Read the existing code before proposing anything: `README.md`, `METRICS.md`,
-   `RUN_LOG.txt`, `AI_USE.md`, `docs/PART_A_CHECKLIST.md`, then `backend/app/` (main.py,
+   `RUN_LOG.txt`, `AI_USE.md`, `docs/lab1/PART_A_CHECKLIST.md`, then `backend/app/` (main.py,
    models.py, routers/, services/, schemas/), `backend/tests/`, `frontend/src/`
    (App.jsx, pages/, components/, services/), `backend/seed/generate_seed.py`.
 3. Run `git status` and `git log --oneline -15` so you know what is committed.
@@ -163,7 +163,7 @@ assistant use, show one **real** incorrect output, how it was detected, and the 
 ## The report: `LabPair-06_Lab1_Report.pdf`
 
 Source of truth is `docs/report/report.md` (Markdown, with images from
-`docs/screenshots/`). Build the PDF from it with a script in `docs/report/` so it can be
+`docs/lab1/screenshots/`). Build the PDF from it with a script in `docs/report/` so it can be
 rebuilt after every edit. If a PDF toolchain is missing, say so and ask before installing
 anything large. Keep the final PDF at the repo root, and put the final commit hash on the
 title page (the same convention as the homework reports).
@@ -180,9 +180,9 @@ Required sections, in this order (all of them are in the assignment):
 | 1 | Goals | Lab_1.pdf, README | Uday |
 | 2 | System design (architecture diagram, layers, data model, auth, role rules) | code, README | Uday |
 | 3 | Pair parameters (PAIR, PORT_BASE, database, SEED, CITY_SET) | README | Uday |
-| 4 | Seed counts | `docs/part_a_metrics.md`, METRICS.md | Uday |
-| 5 | Screenshots (app screens, tests, row counts, git history) | `docs/screenshots/` | Uday; git history shot needs both partners |
-| 6 | API tests (Swagger evidence, status codes, role rules, test suite results) | `docs/screenshots/api_*.png`, pytest output | Uday |
+| 4 | Seed counts | `docs/lab1/part_a_metrics.md`, METRICS.md | Uday |
+| 5 | Screenshots (app screens, tests, row counts, git history) | `docs/lab1/screenshots/` | Uday; git history shot needs both partners |
+| 6 | API tests (Swagger evidence, status codes, role rules, test suite results) | `docs/lab1/screenshots/api_*.png`, pytest output | Uday |
 | 7 | Five transcripts (every tool call shown) | Part B runs | Partner |
 | 8 | Reliability table (valid and failed calls over 20+ turns, before and after repair) | Part C runs | Partner |
 | 9 | Injection before and after (five verification queries, exactly what changed) | Part C runs | Partner |
@@ -194,9 +194,9 @@ Rules:
   not write them yourself.
 - Each Claude Code session writes only its owner's sections and leaves the other's alone.
   If both edit `report.md`, keep changes to separate sections so merges stay clean.
-- Part A numbers come only from `METRICS.md` / `docs/part_a_metrics.md` and real
+- Part A numbers come only from `METRICS.md` / `docs/lab1/part_a_metrics.md` and real
   command output. Re-run `collect_metrics` if the data changed.
-- Screenshots already saved: `docs/screenshots/api_01` to `api_20` (Swagger). Still
+- Screenshots already saved: `docs/lab1/screenshots/api_01` to `api_20` (Swagger). Still
   to capture: React app screens (student home with chat, job search with filters,
   my applications with resume window, company applicant detail), `pytest` and `npm test`
   summaries, metrics terminal output, and the Git commit history screenshot at the end.

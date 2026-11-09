@@ -51,7 +51,7 @@ What Claude Code did, as the commits and files show: the Part C code (the untrus
 repair path and the no-retry guard in `agent.py`), the unit tests for them, `scripts/run_part_c.py`, running the
 experiments and the Part B transcript rerun, the Part B and Part C sections of `METRICS.md` and `README.md`, report
 sections 7 to 10 and the Word build script. Every number in `METRICS.md` and in the report comes from those runs and
-from the result files in `docs/`. I chose the model for the long experiments (`qwen2.5:1.5b-instruct`, because my
+from the result files in `docs/lab1/`. I chose the model for the long experiments (`qwen2.5:1.5b-instruct`, because my
 laptop has no GPU and `qwen3:8b` takes minutes per answer), and I asked for the commits and the pushes.
 
 ### Incorrect output 1: a failed tool call was counted as "the tool was called"
@@ -78,7 +78,7 @@ laptop has no GPU and `qwen3:8b` takes minutes per answer), and I asked for the 
 ### Other corrections made during review
 
 - The first version of the re-prompt only named the error. The first reliability run
-  (`docs/part_c_reliability_run1_first_repair_wording.txt`, 16 correct turns before repair, 17 after) showed that the
+  (`docs/lab1/part_c_reliability_run1_first_repair_wording.txt`, 16 correct turns before repair, 17 after) showed that the
   small model mostly ignored it. I kept that run in the repository, made the re-prompt end with the exact next step, and
   ran the experiment again (16 before, 20 after).
 - A keyword rule in the repair check asked for `search_jobs` on "What are my job preferences?", so a correct answer was
