@@ -45,6 +45,14 @@ def apply(client, job_id, headers, content=PDF, name="cv.pdf", field="resume"):
     return client.post(f"/jobs/{job_id}/apply", headers=headers, files={field: (name, content, "application/pdf")})
 
 
+def applied(client, job_id, headers):
+    """Apply, check the API answered 202 Accepted, and return the id of the application the worker created.
+    (In the tests there is no Kafka: the same handler runs inline, so the application exists when the API replies.)"""
+    r = apply(client, job_id, headers)
+    assert r.status_code == 202, r.text
+    return client.get(f"/jobs/{job_id}", headers=headers).json()["my_application"]["id"]
+
+
 def stored_resumes():
     """The names of the resume files currently stored in the (test) database."""
     return resume_names(mongo.get_database())
@@ -66,15 +74,20 @@ def world(client, db, student_headers):
 
 
 # ===================================================================== apply
-def test_student_applies_with_pdf(client, world):
+def test_student_applies_with_pdf(client, db, world):
     before = stored_resumes()
     r = apply(client, world["ids"]["job1"], world["ada"])
-    assert r.status_code == 201
-    app = r.json()
+    assert r.status_code == 202                                            # accepted: a worker saves it
+    body = r.json()
+    assert body["accepted"] is True and body["job_id"] == world["ids"]["job1"]
+    assert len(body["event_id"]) == 36 and body["trace_id"]                # the Kafka event that carries it
+    assert "resume_path" not in body and "uploads" not in str(body)        # no file paths leak
+    # the worker (inline in the tests) has written the application by now
+    app = client.get("/applications/mine", headers=world["ada"]).json()["items"][0]
     assert app["status"] == "Pending" and app["job"]["title"] == "Data Analyst"
     assert app["job"]["company_name"] == "Acme Corp" and app["job"]["is_expired"] is False
     assert app["resume_url"] == f"/applications/{app['id']}/resume"
-    assert "resume_path" not in app and "uploads" not in str(app)          # no file paths leak
+    assert db.applications.find_one({"_id": app["id"]})["source_event_id"] == body["event_id"]   # traceable to its event
     new_files = stored_resumes() - before
     assert len(new_files) == 1 and next(iter(new_files)).endswith(".pdf")  # server-chosen filename
 
@@ -94,13 +107,13 @@ def test_apply_to_missing_or_expired_job(client, world):
 
 
 def test_cannot_apply_twice_but_can_apply_to_other_jobs(client, world):
-    assert apply(client, world["ids"]["job1"], world["ada"]).status_code == 201
+    assert apply(client, world["ids"]["job1"], world["ada"]).status_code == 202
     before = stored_resumes()
     again = apply(client, world["ids"]["job1"], world["ada"])
     assert again.status_code == 409 and "already applied" in again.json()["detail"]
     assert stored_resumes() == before            # the refused upload left no file behind
-    assert apply(client, world["ids"]["job2"], world["ada"]).status_code == 201
-    assert apply(client, world["ids"]["job1"], world["bob"]).status_code == 201   # another student: fine
+    assert apply(client, world["ids"]["job2"], world["ada"]).status_code == 202
+    assert apply(client, world["ids"]["job1"], world["bob"]).status_code == 202   # another student: fine
 
 
 @pytest.mark.parametrize("content,name,expected", [
@@ -122,7 +135,7 @@ def test_resume_over_5mb_rejected(client, world):
     big = PDF + b"0" * (5 * 1024 * 1024)
     assert apply(client, world["ids"]["job1"], world["ada"], content=big).status_code == 413
     just_ok = (PDF + b"0" * (5 * 1024 * 1024 - len(PDF) - 10))
-    assert apply(client, world["ids"]["job1"], world["ada"], content=just_ok).status_code == 201
+    assert apply(client, world["ids"]["job1"], world["ada"], content=just_ok).status_code == 202
 
 
 def test_resume_must_be_sent_in_the_resume_field(client, world):
@@ -132,16 +145,16 @@ def test_resume_must_be_sent_in_the_resume_field(client, world):
 
 def test_filename_from_user_is_ignored(client, world):
     r = apply(client, world["ids"]["job1"], world["ada"], name="../../evil.pdf")
-    assert r.status_code == 201
+    assert r.status_code == 202
     assert not any("evil" in f for f in stored_resumes())
 
 
 def test_job_details_show_my_application_only_to_the_applicant(client, world):
     jid = world["ids"]["job1"]
     assert client.get(f"/jobs/{jid}", headers=world["ada"]).json()["my_application"] is None
-    applied = apply(client, jid, world["ada"]).json()
+    application_id = applied(client, jid, world["ada"])
     mine = client.get(f"/jobs/{jid}", headers=world["ada"]).json()["my_application"]
-    assert mine["id"] == applied["id"] and mine["status"] == "Pending"
+    assert mine["id"] == application_id and mine["status"] == "Pending"
     assert client.get(f"/jobs/{jid}", headers=world["bob"]).json()["my_application"] is None
     assert client.get(f"/jobs/{jid}", headers=world["acme"]).json()["my_application"] is None
 
@@ -158,8 +171,8 @@ def test_my_applications_lists_only_mine_newest_first(client, world):
 
 
 def test_my_applications_filter_by_status_and_page(client, world):
-    a1 = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
-    a2 = apply(client, world["ids"]["job2"], world["ada"]).json()["id"]
+    a1 = applied(client, world["ids"]["job1"], world["ada"])
+    a2 = applied(client, world["ids"]["job2"], world["ada"])
     client.patch(f"/applications/{a1}/status", headers=world["acme"], json={"status": "Reviewed"})
     client.patch(f"/applications/{a2}/status", headers=world["acme"], json={"status": "Declined"})
 
@@ -200,7 +213,7 @@ def test_company_lists_applicants_for_its_job(client, world):
 
 
 def test_applicants_filter_by_status(client, world):
-    a = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    a = applied(client, world["ids"]["job1"], world["ada"])
     apply(client, world["ids"]["job1"], world["bob"])
     client.patch(f"/applications/{a}/status", headers=world["acme"], json={"status": "Reviewed"})
     url = f"/jobs/{world['ids']['job1']}/applications"
@@ -231,7 +244,7 @@ def test_applicant_detail_has_full_profile_without_date_of_birth(client, world):
         "date_of_birth": "2001-04-02", "phone": "(408) 555-0123", "city": "San Jose", "cgpa": 3.9,
         "career_objective": "Data engineering.", "skills": ["Python"],
         "experience": [{"title": "Intern", "company": "Everlaw", "start_date": "2025-06-01"}]})
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     r = client.get(f"/applications/{app_id}", headers=world["acme"])
     assert r.status_code == 200
     body = r.json()
@@ -243,7 +256,7 @@ def test_applicant_detail_has_full_profile_without_date_of_birth(client, world):
 
 
 def test_applicant_detail_privacy(client, world):
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     assert client.get(f"/applications/{app_id}", headers=world["globex"]).status_code == 404   # other company
     assert client.get(f"/applications/{app_id}", headers=world["ada"]).status_code == 403      # students use /mine
     assert client.get(f"/applications/{app_id}").status_code == 401
@@ -252,7 +265,7 @@ def test_applicant_detail_privacy(client, world):
 
 # ===================================================================== status changes
 def test_company_can_set_any_of_the_three_statuses(client, world):
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     for new_status in ["Reviewed", "Declined", "Pending", "Reviewed"]:
         r = client.patch(f"/applications/{app_id}/status", headers=world["acme"], json={"status": new_status})
         assert r.status_code == 200 and r.json()["status"] == new_status
@@ -265,13 +278,13 @@ def test_company_can_set_any_of_the_three_statuses(client, world):
     {"status": "Reviewed", "student_id": 5}, {"status": 1},
 ], ids=["accepted", "lowercase", "blank", "null", "missing", "extra-field", "number"])
 def test_invalid_status_rejected(client, world, payload):
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     assert client.patch(f"/applications/{app_id}/status", headers=world["acme"], json=payload).status_code == 422
     assert client.get("/applications/mine", headers=world["ada"]).json()["items"][0]["status"] == "Pending"
 
 
 def test_only_the_owning_company_can_change_status(client, world):
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     body = {"status": "Declined"}
     assert client.patch(f"/applications/{app_id}/status", headers=world["globex"], json=body).status_code == 404
     assert client.patch(f"/applications/{app_id}/status", headers=world["ada"], json=body).status_code == 403
@@ -282,7 +295,7 @@ def test_only_the_owning_company_can_change_status(client, world):
 
 # ===================================================================== resume privacy
 def test_student_and_owning_company_can_read_the_resume(client, world):
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     for who in ("ada", "acme"):
         r = client.get(f"/applications/{app_id}/resume", headers=world[who])
         assert r.status_code == 200, who
@@ -293,7 +306,7 @@ def test_student_and_owning_company_can_read_the_resume(client, world):
 
 
 def test_everyone_else_gets_404_for_a_resume(client, world):
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     url = f"/applications/{app_id}/resume"
     assert client.get(url, headers=world["bob"]).status_code == 404       # another student
     assert client.get(url, headers=world["globex"]).status_code == 404    # a company that doesn't own the job
@@ -313,7 +326,7 @@ def test_resume_files_are_not_served_as_public_media(client, world):
 
 
 def test_missing_file_is_404(client, world):
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     # delete every stored resume file from the database, as if someone removed it by hand
     mongo.get_database()["resumes.files"].delete_many({})
     mongo.get_database()["resumes.chunks"].delete_many({})
@@ -325,7 +338,7 @@ def test_bad_resume_reference_cannot_expose_other_files(client, db, world):
     """Even if a wrong value somehow got into the application document, the endpoint must not serve
     anything but a resume: no error page, no profile picture, no other file."""
     picture_id = mongo.bucket(db, "profile_pics").put(b"\x89PNG\r\n\x1a\nsecret picture", filename="x.png")
-    app_id = apply(client, world["ids"]["job1"], world["ada"]).json()["id"]
+    app_id = applied(client, world["ids"]["job1"], world["ada"])
     for bad in (None, "not-an-object-id", 12345, ObjectId(), picture_id):     # picture_id: a real file, but not a resume
         db.applications.update_one({"_id": app_id}, {"$set": {"resume_file_id": bad}})
         r = client.get(f"/applications/{app_id}/resume", headers=world["ada"])

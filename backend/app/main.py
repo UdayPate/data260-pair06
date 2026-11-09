@@ -15,10 +15,12 @@ from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
 
 from . import mongo
+from .logs import configure_logging
 from .config import FRONTEND_PORT, PAIR_STR
 from .routers import applications, assistant, auth, companies, directory, events, jobs, media, meta, preferences, students
 
 logger = logging.getLogger("handshake")
+configure_logging()
 
 
 @asynccontextmanager

@@ -1,4 +1,4 @@
-# The whole Handshake stack for Pair 06: MongoDB, Kafka, six services, the gateway and the website.
+# The whole Handshake stack for Pair 06: MongoDB, Kafka, six services, three Kafka workers, the gateway and the website.
 #
 #   docker compose build            build the eight images (p06-<name>:1.0.0)
 #   docker compose up -d            start everything (waits for each dependency to be healthy)
@@ -11,6 +11,13 @@
 
 name: p06-handshake
 
+x-worker-health: &worker-health            # a worker has no web address: it touches a file every second, Docker checks the file is fresh
+  test: ["CMD", "python", "-c", "import os, sys, time; p = '/tmp/p06-worker-heartbeat'; sys.exit(0 if os.path.exists(p) and time.time() - os.path.getmtime(p) < 30 else 1)"]
+  interval: 15s
+  timeout: 5s
+  retries: 5
+  start_period: 60s
+
 x-service: &service
   restart: unless-stopped
   networks: [p06-net]
@@ -22,6 +29,14 @@ x-service: &service
     MONGO_DB_NAME: p06_handshake
     JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the .env file (copy .env.example to .env)}
     CORS_ORIGINS: http://localhost:9061,http://127.0.0.1:9061
+
+x-kafka-env: &kafka-env                     # for everything that publishes to or reads from Kafka
+  <<: *service-env
+  KAFKA_BOOTSTRAP: p06-kafka:9092
+
+x-mongo-and-kafka: &mongo-and-kafka         # start only after both are healthy
+  p06-mongo: {condition: service_healthy}
+  p06-kafka: {condition: service_healthy}
 
 services:
   # ---------------------------------------------------------------- databases and messaging
@@ -42,7 +57,7 @@ services:
       retries: 10
       start_period: 20s
 
-  p06-kafka:                       # one Kafka broker in KRaft mode (no ZooKeeper); topics and workers are added in the Kafka step
+  p06-kafka:                       # one Kafka broker in KRaft mode (no ZooKeeper); the p06.* topics are created by the first service or worker that needs them
     image: apache/kafka:3.9.0
     container_name: p06-kafka
     restart: unless-stopped
@@ -92,6 +107,8 @@ services:
     build: {context: ./backend, dockerfile: docker/Dockerfile.job}
     container_name: p06-job
     ports: ["127.0.0.1:9064:9064"]
+    environment: *kafka-env
+    depends_on: *mongo-and-kafka
 
   p06-application:
     <<: *service
@@ -99,6 +116,8 @@ services:
     build: {context: ./backend, dockerfile: docker/Dockerfile.application}
     container_name: p06-application
     ports: ["127.0.0.1:9065:9065"]
+    environment: *kafka-env
+    depends_on: *mongo-and-kafka
 
   p06-event:
     <<: *service
@@ -106,6 +125,8 @@ services:
     build: {context: ./backend, dockerfile: docker/Dockerfile.event}
     container_name: p06-event
     ports: ["127.0.0.1:9066:9066"]
+    environment: *kafka-env
+    depends_on: *mongo-and-kafka
 
   p06-assistant:                   # reaches MongoDB, the other services (/health/dependencies), Kafka, and Ollama on your machine
     <<: *service
@@ -126,6 +147,34 @@ services:
       p06-job: {condition: service_healthy}
       p06-application: {condition: service_healthy}
       p06-event: {condition: service_healthy}
+
+  # ---------------------------------------------------------------- the Kafka workers (same images as the services, a different command)
+  p06-application-worker:          # saves applications (application.created), notifies students about status changes
+    <<: *service
+    image: p06-application:${TAG:-1.0.0}
+    container_name: p06-application-worker
+    command: ["python", "-m", "services.application.worker"]
+    environment: *kafka-env
+    depends_on: *mongo-and-kafka
+    healthcheck: *worker-health
+
+  p06-event-worker:                # confirms event registrations (event.registration_created)
+    <<: *service
+    image: p06-event:${TAG:-1.0.0}
+    container_name: p06-event-worker
+    command: ["python", "-m", "services.event.worker"]
+    environment: *kafka-env
+    depends_on: *mongo-and-kafka
+    healthcheck: *worker-health
+
+  p06-job-worker:                  # tells students whose preferences match a new job (job.created)
+    <<: *service
+    image: p06-job:${TAG:-1.0.0}
+    container_name: p06-job-worker
+    command: ["python", "-m", "services.job.worker"]
+    environment: *kafka-env
+    depends_on: *mongo-and-kafka
+    healthcheck: *worker-health
 
   # ---------------------------------------------------------------- the front door
   p06-gateway:                     # routes each URL path to the service that owns it (gateway/nginx.conf)

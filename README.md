@@ -6,7 +6,7 @@ A Handshake-style career platform for **students** and **companies**, built with
 - **Lab 1** (done, git tag `lab1`): the platform on MySQL, the assistant agent loop, the confirmation gate, injection
   defense and reliability measurements. Evidence is in `docs/lab1/`.
 - **Lab 2** (in progress): the backend is split into six services and containerized, the database moved from MySQL to
-  MongoDB (done), and Kafka and Kubernetes follow. The Lab 2 assignment is `docs/lab2/Handshake_Lab2.pdf`; work and evidence go in `docs/lab2/`.
+  MongoDB (done), Kafka (done: asynchronous applications and notifications), and Kubernetes follows. The Lab 2 assignment is `docs/lab2/Handshake_Lab2.pdf`; work and evidence go in `docs/lab2/`.
   This README describes what exists now; each Lab 2 step adds its section below.
 
 ## Pair parameters (all derived from PAIR = 06)
@@ -149,7 +149,7 @@ docker stop p06-student; docker rm p06-student
 ## Lab 2: run the whole stack with Docker Compose
 
 `docker-compose.yml` (repo root) starts everything: MongoDB, one Kafka broker (KRaft, no ZooKeeper), the six services, the gateway
-and the website, all on one network (`p06-net`), with the data kept in two named volumes (`p06-mongo-data`, `p06-kafka-data`).
+the three Kafka workers and the website, all on one network (`p06-net`), with the data kept in two named volumes (`p06-mongo-data`, `p06-kafka-data`).
 Every container, image, network and volume is named `p06-...`. Each service waits (`depends_on ... service_healthy`) until
 MongoDB is healthy, the gateway waits for the six services, and the website waits for the gateway.
 
@@ -157,6 +157,7 @@ MongoDB is healthy, the gateway waits for the six services, and the website wait
 |---|---|---|
 | Website | http://localhost:9061 | `p06-frontend` |
 | API gateway (what the website calls) | http://localhost:9060 | `p06-gateway` |
+| Kafka workers: application / event / job (no address: they read Kafka) | - | `p06-application-worker`, `p06-event-worker`, `p06-job-worker` |
 | Student / Company / Job / Application / Event / AI Assistant | 127.0.0.1:9062 ... 9067 (this machine only) | `p06-student` ... `p06-assistant` |
 | Kafka (for tools on your machine) | localhost:9068 (inside Docker: `p06-kafka:9092`) | `p06-kafka` |
 | MongoDB | 127.0.0.1:9069 (inside Docker: `p06-mongo:27017`) | `p06-mongo` |
@@ -199,6 +200,29 @@ curl.exe -s http://127.0.0.1:9067/health/dependencies                     # the 
 `/health` says "the process is alive" (used by Docker's HEALTHCHECK). `/health/ready` also pings MongoDB and answers 503 when it cannot
 (used later as the Kubernetes readiness probe). `/health/dependencies` (assistant only) lists what the assistant can reach:
 `required` = MongoDB and the five platform services, `optional` = Kafka and Ollama.
+
+**5. Kafka: what happens when you apply** (full contract: `docs/lab2/KAFKA_CONTRACT.md`)
+
+`POST /jobs/{id}/apply` checks the request, stores the PDF in MongoDB and puts an `application.created` event on Kafka, then answers
+**202 Accepted** (not 201). The **Application worker** reads the event and saves the application a moment later (normally within
+milliseconds); the website shows "received" and refreshes itself until the application appears. Three more events follow the same
+pattern but the API has already saved its data: a company changing a status (`application.status_changed`), a student registering
+for an event (`event.registration_created`) and a company posting a job (`job.created`). Their workers write **notifications**
+(stored in MongoDB's `notifications` collection) for the student, the registered student and the students whose saved preferences fit
+the new job. Every message carries an `event_id`, a `trace_id` (also in the Kafka headers) and a timestamp.
+```powershell
+# the topics
+docker exec p06-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server p06-kafka:9092 --list
+# watch a topic, with headers and keys (apply for a job in the website first)
+docker exec p06-kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server p06-kafka:9092 --topic p06.application.created --from-beginning --timeout-ms 5000 --property print.headers=true --property print.key=true
+# has the worker read AND committed everything? (LAG 0)
+docker exec p06-kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server p06-kafka:9092 --describe --group p06-application-worker
+docker compose logs --tail 20 p06-application-worker              # one line per message, with its trace_id
+# the dead-letter topic (messages that failed for good) should be empty
+docker exec p06-kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server p06-kafka:9092 --topic p06.dlq --from-beginning --timeout-ms 5000
+```
+Without Kafka (`uvicorn app.main:app` on a laptop, and all the unit tests) `KAFKA_BOOTSTRAP` is not set and the same handler runs
+inline, inside the API, so the website still works; the answer is still 202.
 
 **Notes**
 * **Ollama** runs on your machine, not in Docker. The assistant container reaches it at `http://host.docker.internal:11434`. Ollama listens only

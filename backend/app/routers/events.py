@@ -22,6 +22,9 @@ from pymongo.errors import DuplicateKeyError
 
 from .. import documents, mongo
 from ..core.deps import Identity, get_identity, require_company, require_student
+from ..core.trace import get_trace_id
+from ..events import topics
+from ..events.publisher import Publisher, get_publisher, publish_quietly
 from ..mongo import Doc, get_db
 from ..schemas.events import (EventCreate, EventDetail, EventPage, EventUpdate, RegisteredStudent,
                               RegistrationOut, RegistrationsPage)
@@ -135,7 +138,8 @@ def my_registered_events(
 
 @router.post("/{event_id}/register", response_model=RegistrationOut, status_code=status.HTTP_201_CREATED,
              summary="Register for an event (student only, if eligible)")
-def register(event_id: int, student: Doc = Depends(require_student), db: Database = Depends(get_db)):
+def register(event_id: int, student: Doc = Depends(require_student), db: Database = Depends(get_db),
+             publisher: Publisher = Depends(get_publisher), trace_id: str = Depends(get_trace_id)):
     event = mongo.get(db, "events", event_id)
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
@@ -151,6 +155,10 @@ def register(event_id: int, student: Doc = Depends(require_student), db: Databas
         raise HTTPException(status.HTTP_409_CONFLICT, "You are already registered for this event")
     with_companies(db, [event])
     log_activity(db, "student", student.id, "event_registered", "event", event.id)
+    publish_quietly(publisher, topics.EVENT_REGISTRATION_CREATED, f"{student.id}:{event.id}", {   # a worker confirms it
+        "registration_id": registration.id, "student_id": student.id, "event_id": event.id,
+        "event_name": event.name, "event_datetime": event.event_datetime.isoformat(),
+        "company_id": event.company_id}, trace_id)
     summary = to_event_summary(event, registration_counts(db, [event.id]), student=student,
                                registered_ids={event.id})
     return RegistrationOut(event=summary, registered_at=registration.registered_at)

@@ -119,6 +119,9 @@ const company = { id: 5, name: "Acme", location: "San Jose", state: "CA", indust
 const detail = (over = {}) => ({ ...job(), company, description: "Work on data pipelines every day.",
                                   contact_email: "jobs@acme.com", posted_days_ago: 7, my_application: null, ...over });
 const pdf = (name = "cv.pdf", type = "application/pdf") => new File(["%PDF-1.4 hello"], name, { type });
+// What POST /jobs/{id}/apply answers now: 202 Accepted (a background worker saves the application).
+const ACCEPTED = { accepted: true, event_id: "7d1a5d0e-0d6e-4d3c-9d7e-2d6b3d1f0a11", trace_id: "trace-1", job_id: 1,
+                   message: "Your application was received. It will appear in My applications in a moment." };
 
 describe("Job details and applying", () => {
   it("shows the job and the company", async () => {
@@ -136,7 +139,7 @@ describe("Job details and applying", () => {
     login();
     mock.onGet("/jobs/1").replyOnce(200, detail())
       .onGet("/jobs/1").reply(200, detail({ my_application: { id: 9, status: "Pending", applied_at: "2026-10-08T10:00:00" } }));
-    mock.onPost("/jobs/1/apply").reply(201, { id: 9, status: "Pending" });
+    mock.onPost("/jobs/1/apply").reply(202, ACCEPTED);
     renderApp("/jobs/1");
 
     await user.upload(await screen.findByLabelText(/resume/i), pdf());
@@ -148,6 +151,25 @@ describe("Job details and applying", () => {
     const body = mock.history.post.find((r) => r.url === "/jobs/1/apply").data;
     expect(body).toBeInstanceOf(FormData);
     expect(body.get("resume").name).toBe("cv.pdf");
+  });
+
+  it("shows 'received' while the worker is saving the application, then the status", async () => {
+    const user = userEvent.setup();
+    login();
+    mock.onGet("/jobs/1").replyOnce(200, detail())                                   // the page loads
+      .onGet("/jobs/1").replyOnce(200, detail())                                     // right after applying: not saved yet
+      .onGet("/jobs/1").reply(200, detail({ my_application: { id: 9, status: "Pending", applied_at: "2026-10-08T10:00:00" } }));
+    mock.onPost("/jobs/1/apply").reply(202, ACCEPTED);
+    renderApp("/jobs/1");
+
+    await user.upload(await screen.findByLabelText(/resume/i), pdf());
+    await user.click(screen.getByRole("button", { name: "Apply" }));
+
+    expect(await screen.findByText(/we received your application/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Apply" })).not.toBeInTheDocument();   // no second click while it is being saved
+    expect(await screen.findByText("Pending", {}, { timeout: 5000 })).toBeInTheDocument();   // the page asked again by itself
+    expect(screen.queryByText(/we received your application/i)).not.toBeInTheDocument();
+    expect(mock.history.post.filter((r) => r.url === "/jobs/1/apply")).toHaveLength(1);
   });
 
   it("refuses a non-PDF or a missing file without calling the server", async () => {

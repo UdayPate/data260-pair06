@@ -1695,3 +1695,155 @@ The throw-away .env (test values only) was deleted. No p06 container, volume or 
 Known limits: seeding runs from the Python environment (there is no seed container yet; the Kubernetes step will add a Job if needed);
 Kafka has no topics yet; the "Ollama listens only on 127.0.0.1" note in the README is a precaution: it was reachable here without changing it.
 ### end of Lab 2, PHASE 3
+
+
+
+----------------------------------------------------------------------------------------------
+PHASE 4: Kafka producers, workers and the contract (2026-11-08 / 09)
+----------------------------------------------------------------------------------------------
+What was built: backend/app/events/ (topics.py, envelope.py, errors.py, publisher.py, handlers.py, consumer.py), core/trace.py,
+services/notifications.py, app/logs.py; three worker entry points (services/application|event|job/worker.py); producers in the
+Application API (apply, status change), the Event API (register) and the Job API (post a job); docker-compose.yml with the three
+workers (same images as the services, command  python -m services.<service>.worker, a heartbeat-file health check); confluent-kafka
+2.6.1 in the application, event and job requirements; the website's ApplyBox (it now handles 202); tests/test_kafka.py;
+docs/lab2/KAFKA_CONTRACT.md and updates to docs/lab2/MONGO_SCHEMA.md (notifications, two new application fields).
+Behaviour change (agreed in decision 4): POST /jobs/{id}/apply now answers 202 Accepted with {accepted, event_id, trace_id, job_id,
+message}; the Application worker saves the application. Status change, event registration and job posting keep their answers
+(200 / 201 / 201): the API saves its data first, then publishes an event; the workers write notifications.
+Topics: p06.application.created, p06.application.updated (no producer yet), p06.application.status_changed,
+p06.event.registration_created, p06.job.created, and the dead-letter topic p06.dlq (3 partitions each, 1 for the dlq).
+
+--- 4.1  A mistake of mine, and the repair
+To validate docker-compose.yml I wrote a throw-away .env with  printf ... > .env  without checking whether one existed. The user already
+had their own .env (made in phase 3), and it was overwritten. It was noticed when  docker compose up -d  showed the MongoDB container
+recreated while the data volume was kept (so the old password still applied to the data). Repair: MONGO_USER and MONGO_PASSWORD were
+written back (the user had pasted that line into the chat in phase 3), and JWT_SECRET was replaced by a NEW random value (the old one
+could not be recovered; the only effect is that everybody has to sign in again). The Compose stack the user had running was recreated by
+that command; its data volumes were not touched. From then on every script read the credentials from .env without printing them, and no
+other file named .env was written. (The data was re-seeded at the end, see 4.8.)
+
+--- 4.2  Is there a Kafka client that works on both machines?
+(venv) pip install confluent-kafka==2.6.1 ; python -c "import confluent_kafka as c; print(c.version(), c.libversion())"
+confluent-kafka ('2.6.1', 33947904) librdkafka ('2.6.1', 33948159)             (Windows, Python 3.13)
+$ docker run --rm python:3.12-slim pip download confluent-kafka==2.6.1 --no-deps -d /tmp/x      ->  downloaded (Linux, Python 3.12)
+
+--- 4.3  Tests
+After the producers were added, the 5 test files that apply, post jobs or register were run BEFORE the tests were updated:
+(venv) python -m pytest tests/test_applications.py tests/test_activity.py tests/test_jobs.py tests/test_events.py tests/test_agent.py -q
+23 failed, 218 passed in 172.28s (0:02:52)
+Expected: they asserted 201 and read the new application from the apply answer. They were updated (202; the id is read back after the
+worker, inline in the tests, has written the application) and test_apply... gained checks on the 202 body and source_event_id.
+New file tests/test_kafka.py (the message format, the handlers, the worker loop with a fake consumer and producer, the publishers,
+the API events; no broker needed):
+(venv) python -m pytest tests/test_kafka.py -q
+59 passed in 4.43s
+Mutation checks (do the tests notice if the two key guarantees are broken?):
+  * the duplicate check and the unique-key catch removed from handle_application_created:     4 failed, 55 passed
+      (test_the_same_event_twice_leaves_exactly_one_application, test_a_double_click_makes_one_application_and_removes_the_extra_pdf,
+       test_a_worker_killed_before_the_commit_loses_nothing_and_does_not_duplicate, test_the_same_message_twice_is_processed_once_and_both_are_committed)
+  * the offset committed BEFORE the handler runs:                                              6 failed, 53 passed
+      (test_the_offset_is_committed_only_after_the_database_write and 5 more)
+  * both files restored:  59 passed in 4.26s
+Website: (frontend) npx vitest run src/test/jobs.test.jsx   ->  17 passed (the new test: 202 -> "We received your application" -> the page asks
+again by itself -> the status appears).
+Docker Compose first said:  yaml: unknown anchor 'kafka-env' referenced  (an anchor must be defined before it is used; the Job service
+comes before the Application service). The two shared blocks were moved to the top of the file; then  docker compose config --quiet  -> valid.
+Later a logging fix (see 4.7) and a requirements check were added:
+(venv) python -m pytest tests/test_services.py tests/test_kafka.py -q       ->  98 passed in 14.64s
+Final full runs:
+(venv) python -m pytest -q          ->  533 passed in 268.11s (0:04:28)            (474 before + 59 new)
+(frontend) npm test                 ->  Test Files 17 passed (17), Tests 211 passed (211), Duration 16.23s     (210 before + 1 new)
+
+--- 4.4  The stack with Kafka and the three workers
+$ docker compose build               ->  all eight images rebuilt (EXIT=0)
+$ docker compose up -d               ->  (35 s)
+$ docker compose ps --format "table {{.Name}}\t{{.Status}}"
+p06-application          Up 17 seconds (healthy)
+p06-application-worker   Up 18 seconds (healthy)
+p06-assistant            Up 11 seconds (healthy)
+p06-company              Up 18 seconds (healthy)
+p06-event                Up 17 seconds (healthy)
+p06-event-worker         Up 18 seconds (healthy)
+p06-frontend             Up Less than a second (health: starting)
+p06-gateway              Up 5 seconds (healthy)
+p06-job                  Up 18 seconds (healthy)
+p06-job-worker           Up 18 seconds (healthy)
+p06-kafka                Up 23 minutes (healthy)
+p06-mongo                Up 24 seconds (healthy)
+p06-student              Up 17 seconds (healthy)
+(the p06-kafka container was the one from the user's earlier Compose run; the website was healthy a few seconds later)
+$ docker exec p06-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server p06-kafka:9092 --list | sort
+__consumer_offsets
+p06.application.created
+p06.application.status_changed
+p06.application.updated
+p06.dlq
+p06.event.registration_created
+p06.job.created
+$ ... --describe --topic p06.application.created
+Topic: p06.application.created  PartitionCount: 3  ReplicationFactor: 1   (partitions 0, 1, 2: Leader 1, Replicas 1, Isr 1)
+(the topics are created by the first service or worker that needs them; automatic topic creation by Kafka is off)
+
+--- 4.5  End to end through the gateway, real Kafka (script p4_e2e.py: reads the MongoDB login from .env, never prints it)
+Flow: company posts a job -> demo student applies -> company changes the status -> student registers for an event, each request with its
+own X-Trace-ID (p4-trace-job / -apply / -status / -reg). The check "who should be notified for the new job" is computed independently from
+the student_preferences documents in MongoDB, not by the handler's own code.
+Final run (after the images were rebuilt and the data re-seeded; an earlier run before the logging change gave 18 passed, 0 failed too):
+PASS  company posts a job (201, answered at once) id 301
+PASS  job worker notified exactly the students whose preferences match (computed independently from MongoDB) 27 notifications, expected 27, after 0.2s
+PASS  every notification carries the job's trace id 
+PASS  demo student (internship + San Jose preferences) was notified 
+PASS  apply answers 202 Accepted in 31 ms
+PASS  the 202 body names the Kafka event and the trace 
+PASS  the application appears (saved by the worker, not by the API) visible 0.0s after the 202
+PASS  the saved application knows which event and trace created it 
+PASS  the resume PDF is in GridFS 
+PASS  the worker wrote the activity log with an event-based id 
+PASS  applying again is refused (409) 
+PASS  exactly one application exists for that student and job 
+PASS  company changes the status (200, answered at once) in 997 ms
+PASS  the student got a status notification from the worker after 0.2s
+PASS  the notification carries the trace id of the company's request 
+PASS  student registers for an event (201, answered at once) event 32
+PASS  the event worker confirmed it with a notification after 0.0s
+PASS  notifications created in this run 29
+
+SUMMARY: 18 passed, 0 failed
+IDS 301 e3e45448-757d-45c5-ba67-0c41416b2e28 1501
+
+--- 4.6  What is on the wire (from the first end-to-end run: headers, key, body)
+$ kafka-console-consumer.sh --topic p06.application.created --from-beginning --max-messages 1 --property print.headers=true --property print.key=true
+event_id:6219ea97-3bbb-42c4-8038-5da217443a5a,event_type:application.created,trace_id:p4-trace-apply	1:301	{"event_id":"6219ea97-3bbb-42c4-8038-5da217443a5a","event_type":"application.created","timestamp":"2026-11-09T03:11:47.357362Z","trace_id":"p4-trace-apply","payload":{"student_id":1,"job_id":301,"resume_file_id":"6af139f3cf5dd5422831444a","applied_at":"2026-11-09T03:11:47.357323"},"producer":"p06-application","schema_version":1}
+$ ... --topic p06.application.status_changed ...
+event_id:0c748d50-76d3-41e0-b96d-08250f8f1023,event_type:application.status_changed,trace_id:p4-trace-status	1501	{"event_id":"0c748d50-76d3-41e0-b96d-08250f8f1023","event_type":"application.status_changed","timestamp":"2026-11-09T03:11:47.494397Z","trace_id":"p4-trace-status","payload":{"application_id":1501,"student_id":1,"job_id":301,"job_title":"Kafka Test Engineer","company_name":"Demo Analytics Co","old_status":"Pending","new_status":"Reviewed"},"producer":"p06-application","schema_version":1}
+Committed offsets after the flows (kafka-consumer-groups.sh --describe; LAG 0 = every message was read AND committed). Only partition 1 got a
+message because every key started with student 1 / job 301 / application 1501 (the key decides the partition):
+p06-application-worker   p06.application.status_changed     part 1  current-offset 1   log-end 1   LAG 0
+p06-application-worker   p06.application.created            part 1  current-offset 1   log-end 1   LAG 0
+p06-event-worker         p06.event.registration_created     part 1  current-offset 1   log-end 1   LAG 0
+p06-job-worker           p06.job.created                    part 1  current-offset 1   log-end 1   LAG 0
+(the other partitions: nothing in them, no offset yet)
+The dead-letter topic after the normal flows:  kafka-console-consumer.sh --topic p06.dlq --from-beginning --timeout-ms 6000   ->  Processed a total of 0 messages
+Worker log lines (docker logs; one line per message, with the trace id):
+2026-11-09 03:11:47,382 INFO handshake.worker worker=application event=processed type=application.created event_id=6219ea97-3bbb-42c4-8038-5da217443a5a trace_id=p4-trace-apply message=p06.application.created[1]@0
+2026-11-09 03:11:48,377 INFO handshake.worker worker=application event=processed type=application.status_changed event_id=0c748d50-76d3-41e0-b96d-08250f8f1023 trace_id=p4-trace-status message=p06.application.status_changed[1]@0
+2026-11-09 03:11:48,427 INFO handshake.worker worker=event event=processed type=event.registration_created event_id=226a9b36-49be-484f-9573-801c8a918458 trace_id=p4-trace-reg message=p06.event.registration_created[1]@0
+2026-11-09 03:11:47,144 INFO handshake.worker event=job.created job_id=301 notifications_created=27 trace_id=p4-trace-job
+2026-11-09 03:11:47,144 INFO handshake.worker worker=job event=processed type=job.created event_id=f78e1708-589e-416c-85be-d7a349864abd trace_id=p4-trace-job message=p06.job.created[1]@0
+
+--- 4.7  A gap found and fixed: the API's own log line did not appear
+In that first run  docker logs p06-application | grep p4-trace  printed nothing: only uvicorn's loggers were configured, so the API's
+"event=published" line was dropped. Fix: app/logs.py (configure_logging, called by every service and the single app). After rebuilding:
+2026-11-09 03:13:53,433 INFO handshake.events event=published type=application.created event_id=e3e45448-757d-45c5-ba67-0c41416b2e28 key=1:301 trace_id=p4-trace-apply
+2026-11-09 03:13:54,479 INFO handshake.events event=published type=application.status_changed event_id=9a53e05d-365c-417d-bf41-2e6fdb90e21e key=1501 trace_id=p4-trace-status
+2026-11-09 03:13:53,200 INFO handshake.events event=published type=job.created event_id=19522eed-dde6-4dbc-9a08-ca2f07ec4ebf key=301 trace_id=p4-trace-job
+2026-11-09 03:13:54,754 INFO handshake.events event=published type=event.registration_created event_id=15c8169d-d5c8-4734-afbd-6b031f8cd6fb key=1:32 trace_id=p4-trace-reg
+(one trace id per request now appears in the API log, in the Kafka headers and body, in the worker log, and in the saved documents)
+
+--- 4.8  State left behind, and what is NOT tested yet
+The database was re-seeded at the end (companies 50, students 200, jobs 300, applications 1500, events 100, event_registrations 400,
+student_preferences 151, saved_items 150). The Compose stack is left running with the new images; .env holds the restored MongoDB login
+and the new JWT secret. NOT tested here (the next phase): the three failure cases (the same event twice with the same key, a worker killed
+during processing, a poison message with bounded retries and p06.dlq) against the real broker, and the architecture diagram. The unit tests
+cover their logic with a fake broker (4.3); the real-broker demos are the evidence the assignment asks for.
+### end of Lab 2, PHASE 4

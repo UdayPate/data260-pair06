@@ -1,3 +1,5 @@
 -r base.txt
 # this service accepts file uploads (profile picture / resume PDF)
 python-multipart==0.0.12
+# this service publishes events to Kafka and runs a Kafka worker
+confluent-kafka==2.6.1

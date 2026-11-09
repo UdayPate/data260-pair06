@@ -27,6 +27,7 @@ from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
 
 from app import mongo
+from app.logs import configure_logging
 from app.config import FRONTEND_PORT, PAIR_STR, SERVICE_PORTS
 from app.routers import media
 
@@ -56,7 +57,9 @@ def cors_origins() -> list:
 def create_service_app(key: str, description: str, routers: Iterable[APIRouter],
                        serve_profile_pictures: bool = False) -> FastAPI:
     """key = "student", "company", "job", "application", "event" or "assistant"."""
+    configure_logging()
     name = f"p06-{key}"                       # the pair prefix is part of every service name
+    os.environ.setdefault("P06_SERVICE", name)  # the name Kafka messages carry as their "producer"
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):

@@ -29,13 +29,14 @@ every index, and the conventions to follow when you add yours.
 | `students` | 200 | student account + profile (skills and experience inside) | Student service | all services (login check, role views), Assistant |
 | `companies` | 50 | company account + profile | Company service | all services (job/event cards) |
 | `jobs` | 300 | job postings (skills inside) | Job service | Application, Student (heatmap), Assistant |
-| `applications` | 1,500 | one application per student and job | Application service (later: the Application worker) | Job (applicant counts), Student (heatmap), Company views |
+| `applications` | 1,500 | one application per student and job | the **Application worker** (from the Kafka event `application.created`); the Application service only changes the status | Job (applicant counts), Student (heatmap), Company views |
 | `events` | 100 | events (eligible majors inside) | Event service | Assistant |
-| `event_registrations` | 400 | one registration per student and event | Event service (later: the Event worker) | Event, Student views |
+| `event_registrations` | 400 | one registration per student and event | Event service | Event, Student views |
 | `student_preferences` | 151 | saved job and event preferences (one per student) | Student service | Assistant (`get_student_preferences`) |
 | `saved_items` | 150 | jobs and events a student saved | Assistant (`save_job_or_event`, after the student confirms) | Assistant |
 | `sessions` | 0 | one document per login; expires by itself | login/signup (Student and Company services) | every service (checks the token) |
-| `activity_logs` | 0 | what users did (audit trail) | every service | Kafka workers later |
+| `activity_logs` | 0 | what users did (audit trail) | every service and the Application worker | - |
+| `notifications` | 0 | short messages for users, written by the Kafka workers (status change, event registration, a new job that fits a student's preferences) | Application, Event and Job workers | (no endpoint shows them yet) |
 | `counters` | 9 | the next integer id per collection | `mongo.next_id` | - |
 | `resumes.files`, `resumes.chunks` | 1 | GridFS bucket `resumes`: private resume PDFs (the seed stores ONE placeholder PDF that all 1,500 seeded applications share) | Application service | Application service only |
 | `profile_pics.files`, `profile_pics.chunks` | 0 | GridFS bucket `profile_pics`: public pictures and company logos | Student and Company services | `GET /media/profile_pics/{name}` |
@@ -89,8 +90,11 @@ hourly and yearly pay and sort by pay.
 ### `applications`
 ```
 { _id: 8, student_id: 1, job_id: 39, resume_file_id: ObjectId("..."), status: "Reviewed",
-  applied_at: ISODate("2026-10-05T09:44:00Z"), updated_at: ISODate("2026-10-05T09:44:00Z") }
+  applied_at: ISODate("2026-10-05T09:44:00Z"), updated_at: ISODate("2026-10-05T09:44:00Z"),
+  source_event_id: null, trace_id: null }
 ```
+`source_event_id` and `trace_id` are set when the application was created through Kafka (the `event_id` and `trace_id` of its
+`application.created` message, see `KAFKA_CONTRACT.md`); they are `null` for the seeded applications.
 `resume_file_id` is the id of the PDF in the `resumes` GridFS bucket (metadata there: `filename`, `content_type`, `student_id`, `job_id`).
 The API never reveals it: it hands out `/applications/{id}/resume`, which checks who is asking.
 
@@ -130,7 +134,20 @@ so the API also compares `expires_at` with the clock on every request.
 Actions written today: `signup`, `login`, `logout`, `profile_updated`, `preferences_saved`, `job_created`, `job_updated`,
 `application_created` (`ref_type: "application"`, `detail: {job_id}`), `application_status_changed` (`detail: {status}`),
 `event_created`, `event_updated`, `event_registered`, `event_unregistered`, `item_saved`. A failed log write is logged and
-ignored; it never breaks the request. This collection uses MongoDB's own ObjectId as `_id`.
+ignored; it never breaks the request. Entries written by the API use MongoDB's ObjectId as `_id`. **`application_created` is
+written by the Application worker**, with `_id: "<event_id>:application_created"`, so the same Kafka event can never write it
+twice.
+
+### `notifications`
+```
+{ _id: "0b6f3d0e-6c0c-4a53-9f0a-2c7c1e4a8d11:student:12", user_role: "student", user_id: 12, kind: "application_status",
+  title: "Application update: Data Analyst", body: "Acme changed the status of your application from Pending to Reviewed.",
+  ref_type: "application", ref_id: 7, source_event_id: "0b6f3d0e-...", trace_id: "b5d4a0f1c2e34d6f9a1b3c5d7e9f0a12",
+  created_at: ISODate(...UTC), read: false }
+```
+Written by the Kafka workers. `kind` is `application_status`, `event_registration` or `new_job_match`. The `_id` is a **text** made of the
+Kafka `event_id`, the role and the user id (the one collection that does not use integer ids): the same event cannot create the
+same notification twice, which is what makes the workers idempotent.
 
 ### `counters`
 ```
@@ -160,6 +177,7 @@ Defined in one list, `INDEXES` in `backend/app/mongo.py`, and created when a ser
 | `sessions` | `expires_at` | **TTL** (`expireAfterSeconds: 0`) | MongoDB deletes expired sessions |
 | `sessions` | `(user_id, role)` | normal | find a user's sessions |
 | `activity_logs` | `(actor_role, actor_id, at desc)`; `action` | normal | a user's history; counting an action |
+| `notifications` | `(user_role, user_id, created_at desc)` | normal | a user's notifications, newest first |
 
 A violated unique index raises `pymongo.errors.DuplicateKeyError`; the API turns it into **409 Conflict**.
 

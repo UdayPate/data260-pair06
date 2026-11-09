@@ -146,6 +146,10 @@ def test_requirements_stay_minimal_and_pinned():
                       "sqlalchemy", "pymysql"):                           # extras live in the files that need them
         assert forbidden not in base
     assert "pymongo" in base
+    for name in ("application", "event", "job"):                      # these three publish to / read from Kafka
+        assert "confluent-kafka" in packages(f"{name}.txt")
+    for name in ("student", "company", "assistant"):
+        assert "confluent-kafka" not in packages(f"{name}.txt")
     assert "httpx" in packages("assistant.txt")
     for name in ("student", "company", "application"):
         assert "python-multipart" in packages(f"{name}.txt")

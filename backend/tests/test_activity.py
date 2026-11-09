@@ -120,7 +120,7 @@ def test_a_new_application_made_through_the_api_shows_up_today(client, world):
     pdf = b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n"
     r = client.post(f"/jobs/{world['jobs'][0]}/apply", headers=world["ada"],
                     files={"resume": ("cv.pdf", pdf, "application/pdf")})
-    assert r.status_code == 201, r.text
+    assert r.status_code == 202, r.text                  # accepted; the worker (inline in the tests) writes it
     assert activity(client, world["ada"]).json() == [{"date": TODAY.isoformat(), "count": 1}]
 
 

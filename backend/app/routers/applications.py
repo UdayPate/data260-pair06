@@ -1,7 +1,7 @@
 """
 Application endpoints.
 
-Student:  POST /jobs/{job_id}/apply        apply with a PDF resume
+Student:  POST /jobs/{job_id}/apply        apply with a PDF resume (202: a Kafka worker saves the application)
           GET  /applications/mine          my applications (filter by status)
 Company:  GET  /jobs/{job_id}/applications applicants for one of my postings (filter by status)
           GET  /applications/{id}          one applicant: full profile
@@ -24,11 +24,15 @@ from pymongo.errors import DuplicateKeyError
 
 from .. import documents, mongo
 from ..core.deps import Identity, get_identity, get_owned_job, require_company, require_student
+from ..core.trace import get_trace_id
 from ..core.uploads import delete_resume, read_resume, save_resume
 from ..enums import ApplicationStatus
+from ..events import topics
+from ..events.errors import PublishError
+from ..events.publisher import Publisher, get_publisher, publish_quietly
 from ..mongo import Doc, get_db
-from ..schemas.applications import (ApplicantDetail, ApplicantsPage, ApplicantSummary, MyApplication,
-                                    MyApplicationsPage, StatusUpdate)
+from ..schemas.applications import (ApplicantDetail, ApplicantsPage, ApplicantSummary, ApplicationAccepted,
+                                    MyApplication, MyApplicationsPage, StatusUpdate)
 from ..services.activity_log import log_activity
 from ..services.applications import (to_applicant_detail, to_applicant_summary, to_my_application,
                                      with_jobs, with_students)
@@ -38,14 +42,18 @@ router = APIRouter(tags=["Applications"])
 
 
 # ---------------- student ----------------
-@router.post("/jobs/{job_id}/apply", response_model=MyApplication, status_code=status.HTTP_201_CREATED,
-             summary="Apply to a job with a PDF resume (student only)")
+@router.post("/jobs/{job_id}/apply", response_model=ApplicationAccepted, status_code=status.HTTP_202_ACCEPTED,
+             summary="Apply to a job with a PDF resume (student only). Answers 202: a worker saves the application")
 def apply_to_job(
     job_id: int,
     resume: UploadFile = File(..., description="Your resume as a PDF, max 5 MB"),
     student: Doc = Depends(require_student),
     db: Database = Depends(get_db),
+    publisher: Publisher = Depends(get_publisher),
+    trace_id: str = Depends(get_trace_id),
 ):
+    """Check the request, store the PDF, and put an `application.created` event on Kafka. The Application worker writes
+    the application (idempotently) and the API answers 202 Accepted without waiting for it."""
     job = mongo.get(db, "jobs", job_id)
     if job is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Job not found")
@@ -56,15 +64,15 @@ def apply_to_job(
 
     resume_id = save_resume(db, resume, student.id, job.id)     # validates it is a real PDF, stores it in GridFS
     try:
-        application = mongo.insert(db, "applications", documents.application(
-            student_id=student.id, job_id=job.id, resume_file_id=resume_id,
-            status=ApplicationStatus.pending, applied_at=datetime.now()))
-    except DuplicateKeyError:        # two clicks at once: the unique (student, job) index caught it
-        delete_resume(db, resume_id)   # don't leave the file behind
-        raise HTTPException(status.HTTP_409_CONFLICT, "You have already applied to this job")
-    log_activity(db, "student", student.id, "application_created", "application", application.id,
-                 {"job_id": job.id})
-    return to_my_application(with_jobs(db, [application])[0])
+        envelope = publisher.publish(
+            topics.APPLICATION_CREATED, key=f"{student.id}:{job.id}", trace_id=trace_id,
+            payload={"student_id": student.id, "job_id": job.id, "resume_file_id": str(resume_id),
+                     "applied_at": datetime.now().isoformat()})
+    except PublishError:
+        delete_resume(db, resume_id)                              # nothing was queued: don't keep the file
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
+                            "Your application could not be queued right now. Please try again in a moment.")
+    return ApplicationAccepted(event_id=envelope.event_id, trace_id=envelope.trace_id, job_id=job.id)
 
 
 @router.get("/applications/mine", response_model=MyApplicationsPage, summary="My applications (student only)")
@@ -124,12 +132,19 @@ def get_applicant(application_id: int, company: Doc = Depends(require_company),
 @router.patch("/applications/{application_id}/status", response_model=ApplicantSummary,
               summary="Set an application to Pending, Reviewed or Declined (company only)")
 def update_status(application_id: int, body: StatusUpdate, company: Doc = Depends(require_company),
-                  db: Database = Depends(get_db)):
+                  db: Database = Depends(get_db), publisher: Publisher = Depends(get_publisher),
+                  trace_id: str = Depends(get_trace_id)):
     application = _company_application_or_404(db, application_id, company)
+    old_status = ApplicationStatus(application.status).value
     mongo.update(db, "applications", application.id, {"status": body.status, "updated_at": datetime.now()})
     application["status"] = body.status
     log_activity(db, "company", company.id, "application_status_changed", "application", application.id,
                  {"status": body.status.value})
+    if body.status.value != old_status:       # tell the student (a worker writes the notification)
+        publish_quietly(publisher, topics.APPLICATION_STATUS_CHANGED, str(application.id), {
+            "application_id": application.id, "student_id": application.student_id, "job_id": application.job_id,
+            "job_title": application.job.title, "company_name": application.job.company.name,
+            "old_status": old_status, "new_status": body.status.value}, trace_id)
     return to_applicant_summary(application)
 
 

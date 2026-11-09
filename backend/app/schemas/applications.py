@@ -66,3 +66,13 @@ class ApplicantsPage(BaseModel):
     page: int
     page_size: int
     total_pages: int
+
+
+class ApplicationAccepted(BaseModel):
+    """The answer to POST /jobs/{id}/apply (HTTP 202): the application was accepted and queued, a worker saves it a
+    moment later (then it shows up in GET /applications/mine and in the job's `my_application`)."""
+    accepted: bool = True
+    event_id: str
+    trace_id: str
+    job_id: int
+    message: str = "Your application was received. It will appear in My applications in a moment."

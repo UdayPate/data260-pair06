@@ -67,16 +67,18 @@ Rules for working in someone else's area:
 2. **nginx gateway on 9060** routes by path (`gateway/nginx.conf`); the website keeps calling one address.
    `/jobs/{id}/apply` and `/jobs/{id}/applications` belong to the Application service; the rest of `/jobs` to Job.
 3. **MongoDB stores resumes and profile pictures (GridFS)** so every pod is stateless; no shared volumes.
-4. **Apply is asynchronous:** the API validates and stores the PDF, publishes `p06.application.created`
-   and returns **202**; a worker inserts the application, idempotent on `event_id`. The Redux applications
-   slice (partner) must know about the 202.
+4. **Apply is asynchronous (implemented):** the API validates and stores the PDF, publishes `p06.application.created`
+   and returns **202**; the Application worker inserts the application, idempotent on its natural key (student, job).
+   The website's ApplyBox shows "received" and polls; the Redux applications slice (partner) must handle the 202.
 5. **Assistant tools stay in-process** (they use the shared data layer); the assistant service also checks
    the other services' `/health`. Partner's Part 6 harness depends on this.
 6. **Local Kubernetes is `kind`** (downloaded when Kubernetes work starts).
 7. **MongoDB keeps integer ids** (a `counters` collection), so URLs, the frontend and the assistant tools do not change.
 
 Every Kafka message carries `event_id` (UUID, for idempotency), `event_type`, `timestamp`, `payload`
-and `trace_id` (in the Kafka headers AND in the payload).
+and `trace_id` (in the Kafka headers AND in the message body). The full contract (topics, envelope, payloads, retry and
+dead-letter rules, how to add a producer or consumer) is `docs/lab2/KAFKA_CONTRACT.md`; the code is `backend/app/events/`.
+A worker commits its offset only after its database write; handlers must be idempotent.
 
 ## The contract between the platform and the assistant
 
@@ -250,7 +252,9 @@ Due: Monday 11/16/2026.
     frontend images build, report healthy and route correctly; 432 backend tests pass.
   - Phase 2 (MongoDB migration + `docs/lab2/MONGO_SCHEMA.md`): done, committed and pushed (`c299a74`).
   - Phase 3 (Docker Compose: MongoDB with a password, Kafka KRaft broker, six services, gateway, website; `/health/ready`
-    and the assistant's `/health/dependencies`): built and verified; waiting for the human to commit.
+    and the assistant's `/health/dependencies`): done, committed and pushed (`bf9d345`); 474 backend tests pass.
     Lab 1's `scripts/run_transcripts.py`, `run_part_c.py` and `collect_metrics.py` used the SQL layer and no longer run.
-  - Next: Kafka topics, producers, workers (+ `KAFKA_CONTRACT.md`), failure demos, Kubernetes manifests tested on kind.
+  - Phase 4 (Kafka: topics, producers in the Application/Event/Job APIs, three workers, `docs/lab2/KAFKA_CONTRACT.md`,
+    asynchronous apply with 202): built and verified; waiting for the human to commit.
+  - Next: the three Kafka failure demos with RUN_LOG entries and the architecture diagram, then Kubernetes manifests tested on kind.
 - The data layer is MongoDB (the Lab 1 MySQL database is untouched and still on the laptop).

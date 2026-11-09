@@ -15,8 +15,11 @@ from pymongo.database import Database
 
 from .. import documents, mongo
 from ..core.deps import Identity, get_identity, get_owned_job, require_company
+from ..core.trace import get_trace_id
 from ..core.uploads import public_url
 from ..enums import JobCategory, PayPeriod
+from ..events import topics
+from ..events.publisher import Publisher, get_publisher, publish_quietly
 from ..mongo import Doc, get_db
 from ..schemas.jobs import ApplicationRef, CompanyMini, JobCreate, JobDetail, JobPage, JobUpdate, MyJob, MyJobsPage
 from ..services.activity_log import log_activity
@@ -36,7 +39,8 @@ def _rules_or_422(**kwargs) -> None:
 # ---------------- company: create / list own / edit ----------------
 @router.post("", response_model=JobDetail, status_code=status.HTTP_201_CREATED,
              summary="Post a new job (company only)")
-def create_job(body: JobCreate, company: Doc = Depends(require_company), db: Database = Depends(get_db)):
+def create_job(body: JobCreate, company: Doc = Depends(require_company), db: Database = Depends(get_db),
+               publisher: Publisher = Depends(get_publisher), trace_id: str = Depends(get_trace_id)):
     posting_date = body.posting_date or date.today()
     _rules_or_422(posting_date=posting_date, deadline=body.deadline, salary_min=body.salary_min,
                   salary_max=body.salary_max, pay_period=body.pay_period, creating=True)
@@ -49,6 +53,9 @@ def create_job(body: JobCreate, company: Doc = Depends(require_company), db: Dat
     ))
     job["company"] = company
     log_activity(db, "company", company.id, "job_created", "job", job.id)
+    publish_quietly(publisher, topics.JOB_CREATED, str(job.id), {         # a worker notifies the students it fits
+        "job_id": job.id, "company_id": company.id, "company_name": company.name, "title": job.title,
+        "category": JobCategory(job.category).value, "city": job.city, "is_remote": bool(job.is_remote)}, trace_id)
     return to_detail(job)
 
 

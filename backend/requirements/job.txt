@@ -1,1 +1,3 @@
 -r base.txt
+# this service publishes events to Kafka and runs a Kafka worker
+confluent-kafka==2.6.1

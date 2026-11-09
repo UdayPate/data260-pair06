@@ -191,8 +191,9 @@ def test_important_actions_are_written_to_the_activity_log(client, db):
         "title": "Data Analyst", "description": "Analyze data and build dashboards.", "category": "internship",
         "city": "San Jose", "salary_min": 20, "salary_max": 30, "pay_period": "hourly", "deadline": deadline,
         "skills": ["Python"]}).json()["id"]
-    application_id = client.post(f"/jobs/{job_id}/apply", headers=student,
-                                 files={"resume": ("cv.pdf", PDF, "application/pdf")}).json()["id"]
+    accepted = client.post(f"/jobs/{job_id}/apply", headers=student, files={"resume": ("cv.pdf", PDF, "application/pdf")})
+    assert accepted.status_code == 202                       # the application is saved by the worker (inline in the tests)
+    application_id = db.applications.find_one({"job_id": job_id})["_id"]
     client.patch(f"/applications/{application_id}/status", headers=company, json={"status": "Declined"})
     client.put("/students/me/preferences", headers=student, json={"min_hourly_rate": 20})
     client.patch("/students/me", headers=student, json={"city": "San Jose"})

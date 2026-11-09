@@ -121,7 +121,9 @@ def application(**fields) -> Dict[str, Any]:
     doc = _build("application", dict(
         student_id=REQUIRED, job_id=REQUIRED,
         resume_file_id=None,                      # the resume PDF lives in GridFS (bucket "resumes")
-        status=ApplicationStatus.pending, applied_at=None, updated_at=None), fields)
+        status=ApplicationStatus.pending, applied_at=None, updated_at=None,
+        source_event_id=None, trace_id=None),     # the Kafka event that created it, and its trace (None for seeded ones)
+        fields)
     doc["applied_at"] = doc["applied_at"] or now
     doc["updated_at"] = doc["updated_at"] or doc["applied_at"]
     return doc

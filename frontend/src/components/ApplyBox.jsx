@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -8,14 +8,30 @@ import { getErrorMessage } from "../utils/errors";
 import { checkResumeFile, formatDate } from "../utils/format";
 import StatusBadge from "./StatusBadge";
 
-// The right-hand box on a job page. It shows ONE of three things:
+const POLL_MS = 1500;   // how often to ask again while the application is being saved
+const MAX_POLLS = 10;   // then stop asking (about 15 seconds)
+
+// The right-hand box on a job page. It shows ONE of four things:
 //   already applied  -> your status
+//   just applied     -> "received": the server answers 202 Accepted and a background worker saves the application
+//                       a moment later, so we ask again every 1.5 seconds until it shows up
 //   deadline passed  -> "closed"
 //   otherwise        -> resume upload + Apply button
 export default function ApplyBox({ job, onApplied }) {
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [received, setReceived] = useState(false);
+  const polls = useRef(0);
+
+  useEffect(() => {
+    if (!received || job.my_application || polls.current >= MAX_POLLS) return undefined;
+    const timer = setTimeout(() => {
+      polls.current += 1;
+      onApplied();                       // reload the job: has the worker saved the application yet?
+    }, POLL_MS);
+    return () => clearTimeout(timer);
+  }, [received, job, onApplied]);
 
   if (job.my_application) {
     return (
@@ -24,6 +40,21 @@ export default function ApplyBox({ job, onApplied }) {
           <Card.Title as="h2" className="h6">Your application</Card.Title>
           <StatusBadge status={job.my_application.status} />
           <p className="text-muted small mt-2 mb-0">Applied on {formatDate(job.my_application.applied_at)}</p>
+        </Card.Body>
+      </Card>
+    );
+  }
+
+  if (received) {
+    return polls.current >= MAX_POLLS ? (
+      <Alert variant="secondary" className="mb-0">
+        We received your application, but it is taking longer than usual to appear. Check My applications in a moment.
+      </Alert>
+    ) : (
+      <Card>
+        <Card.Body>
+          <Card.Title as="h2" className="h6">Your application</Card.Title>
+          <p className="text-muted small mb-0">We received your application and are saving it. This page updates by itself.</p>
         </Card.Body>
       </Card>
     );
@@ -44,8 +75,9 @@ export default function ApplyBox({ job, onApplied }) {
     setBusy(true);
     setError("");
     try {
-      await applyToJob(job.id, file);
-      onApplied();                       // reload the job: it now has my_application
+      await applyToJob(job.id, file);   // 202 Accepted: the application is queued, a worker saves it
+      setReceived(true);
+      onApplied();                       // reload the job: it has my_application as soon as the worker is done
     } catch (err) {
       setError(getErrorMessage(err));
       setBusy(false);
