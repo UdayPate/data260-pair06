@@ -1,0 +1,22 @@
+# `kubectl apply -k k8s/base` applies all of these into the namespace p06-handshake.
+# The Secret p06-secrets is NOT in this list on purpose (it holds passwords): create it with k8s/create_secret.py.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: p06-handshake
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: p06-handshake
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - mongo.yaml
+  - kafka.yaml
+  - student.yaml
+  - company.yaml
+  - job.yaml
+  - application.yaml
+  - event.yaml
+  - assistant.yaml
+  - workers.yaml
+  - gateway.yaml
+  - frontend.yaml

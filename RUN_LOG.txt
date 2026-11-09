@@ -2036,3 +2036,118 @@ Same remarks as 5.7 / 5.8 (the pymongo tracebacks printed during 3b come from th
 contain a line of the previous demo because docker logs --since works in whole seconds). Demo applications use students/jobs
 that had no application, so the database now holds a few extra test applications for student 200 (jobs 1 to 18 and later).
 ### end of Lab 2, PHASE 5 (addendum)
+
+======================================================================================================================================
+PHASE 6: Kubernetes manifests, tested on kind (2026-11-09)
+======================================================================================================================================
+Everything was run from WSL (kind and kubectl as Linux programs talking to Docker Desktop). Passwords were never printed: the Secret
+is made by k8s/create_secret.py from the git-ignored .env, and the seed script read the same file.
+
+--- 6.1  What was written (k8s/)
+base/ (13 files): namespace.yaml, configmap.yaml, mongo.yaml (StatefulSet + Service), kafka.yaml (StatefulSet + Service, KRaft),
+student/company/job/application/event/assistant.yaml (Service + Deployment each), workers.yaml (three Deployments), gateway.yaml,
+frontend.yaml, kustomization.yaml.   overlays/local/ (kind): NodePort 30060 for the gateway and 30061 for the website.
+kind-config.yaml (cluster p06-handshake, host ports 9060 and 9061 mapped in), create_secret.py, load_images.py, secret.example.yaml
+(placeholders), README.md.   Resources: replicas student 2, job 2, application 2, gateway 2, frontend 2, company 1, event 1, assistant 1, the
+three workers 1 each, MongoDB 1, Kafka 1. Requests/limits on every container (services 50m/96Mi to 500m/384Mi, Kafka 200m/512Mi to 1 CPU/1Gi,
+MongoDB 100m/256Mi to 1 CPU/768Mi, nginx pods 25m/32Mi to 250m/128Mi). Liveness/readiness/startup probes as described in k8s/README.md.
+$ kubectl kustomize k8s/base   -> 26 objects, all in namespace p06-handshake (the Namespace itself, ConfigMap, 10 Services, 11 Deployments, 2 StatefulSets)
+$ grep for the real MONGO_PASSWORD and JWT_SECRET values in k8s/  -> 0 files each. The only password mention is the variable NAME
+  MONGO_INITDB_ROOT_PASSWORD (value comes from secretKeyRef p06-secrets).
+
+--- 6.2  Mistakes while writing, and how they showed up
+(1) The first generated YAML had wrong indentation of the env: blocks (a text-templating slip of mine). Found NOT by reading but by loading
+    every file with a YAML parser and by  kubectl kustomize  (it listed the env names of the worker: MONGO_USER, MONGO_PASSWORD, MONGO_URL,
+    JWT_SECRET, MONGO_DB_NAME, CORS_ORIGINS, KAFKA_BOOTSTRAP, which is what proved the second version right). base/kustomization.yaml was
+    also mis-indented ("expected '<document start>', but found '<block sequence start>'") and was rewritten by hand.
+(2) kind create cluster failed (first attempt, 1 min 32 s): "failed to init node with kubeadm". Cause found in the node's kubelet log:
+    "kubelet is configured to not run on a host using cgroup v1" (failCgroupV1: true). docker info says CgroupVersion 1 (Docker Desktop on
+    WSL 2) and kind 0.33's default node image is Kubernetes 1.37, whose kubelet refuses cgroup v1. Fix: pin the older node image
+    kindest/node:v1.34.0 in k8s/kind-config.yaml (comment explains why). Second attempt: cluster ready in 31 s, node Ready, v1.34.0.
+    (Alternative not taken: switching WSL to cgroup v2 would change the user's machine settings.)
+(3) kind load docker-image failed ("ctr: content digest sha256:fa5f5a34... not found", after 1 min 29 s, nothing loaded). Docker Desktop's image
+    store keeps build-attestation entries for other platforms that kind's import cannot read. Fix: docker save --platform linux/amd64 <image> -o file
+    followed by kind load image-archive file, wrapped in k8s/load_images.py. Result: 10 images loaded (8 p06-* + mongo:7 + apache/kafka:3.9.0), 1 min 9 s.
+
+--- 6.3  Bringing it up
+$ docker compose stop                                   (13 containers stopped, volumes kept: 9060/9061 are needed by kind)
+$ kind create cluster --name p06-handshake --config k8s/kind-config.yaml   -> context kind-p06-handshake
+$ python3 k8s/load_images.py                            -> loaded p06-student ... p06-frontend, mongo:7, apache/kafka:3.9.0
+$ kubectl apply -f k8s/base/namespace.yaml              -> namespace/p06-handshake created
+$ python3 k8s/create_secret.py --context kind-p06-handshake  -> secret/p06-secrets created
+  keys in the Secret: JWT_SECRET, MONGO_PASSWORD, MONGO_USER (only their names and lengths were printed)
+$ kubectl apply -k k8s/overlays/local                   -> configmap, 10 services, 11 deployments, 2 statefulsets created
+Waiting: 10 s: 11 of 18 pods not ready; 40 s: 1; 60 s: 0.  All 18 pods 1/1 Running, RESTARTS 0 for every pod.
+Pods: p06-application x2, p06-application-worker, p06-assistant, p06-company, p06-event, p06-event-worker, p06-frontend x2, p06-gateway x2,
+p06-job x2, p06-job-worker, p06-kafka-0, p06-mongo-0, p06-student x2.
+PVCs: data-p06-kafka-0 and data-p06-mongo-0, 2Gi, Bound, StorageClass standard.
+Services: p06-gateway NodePort 9060:30060, p06-frontend NodePort 9061:30061, the rest ClusterIP (application 9065, assistant 9067, company 9063,
+event 9066, job 9064, kafka 9092, mongo 27017, student 9062). Each Service lists its pod addresses as endpoints (2 for the ones with 2 replicas).
+Note: the application worker's log begins with a librdkafka line "Connect to ipv4#10.96.161.39:9092 failed: Connection refused"; it started
+before Kafka was ready, retried, and logged event=started at 06:27:58. No restart was needed.
+
+--- 6.4  The database
+$ kubectl -n p06-handshake port-forward svc/p06-mongo 9069:27017      (background)
+$ python -m seed.generate_seed --reset   with MONGO_URL pointing at localhost:9069 (credentials read from .env)
+Seeded database p06_handshake with SEED=6, CITY_SET=['San Jose', 'Sunnyvale', 'Mountain View']
+  companies 50, students 200, jobs 300, applications 1500, events 100, event_registrations 400, student_preferences 151, saved_items 150,
+  student_skills 877 (inside the student documents), job_skills 1073 (inside the job documents)
+
+--- 6.5  End to end through the same addresses as Compose
+$ curl localhost:9060/health   -> {"status":"ok","service":"p06-gateway","pair":"06"}
+$ curl localhost:9061/         -> HTTP 200 (the website's index.html)
+$ POST /auth/login (demo.student@sjsu.edu, role student)  -> token (219 characters)
+$ GET /jobs with the token     -> total 121, first items (286, 'QA Engineer'), (248, 'Sales Development Represen...')
+  (my first try without the token answered {"detail": ...} = 401, which is correct: searching jobs needs a login.)
+$ GET /auth/me six times       -> six 200 responses with x-p06-service: p06-student (the gateway reached the student Service)
+$ POST /jobs/290..293/apply    -> 409 each (the demo student had already applied)   POST /jobs/294/apply -> 202
+  {"accepted":true,"event_id":"197d0d20-4905-4031-9090-474bb728ecb8","trace_id":"4fe5ce287ad3aace21ff26c755c156e2","job_id":294,"message":"Your application was received. ..."}
+$ kubectl logs deploy/p06-application-worker  ->  event=processed type=application.created event_id=197d0d20-... trace_id=4fe5ce28... message=p06.application.created[..]
+$ GET /applications/mine       -> total 12 (the new application is there)
+$ kubectl exec deploy/p06-assistant -- python ... GET http://127.0.0.1:9067/health/dependencies
+  {"ok":true,"required":{"mongodb":"ok","student":"ok","company":"ok","job":"ok","application":"ok","event":"ok"},"optional":{"kafka":"ok","ollama":"ok"}}
+  (the assistant reached the other five services by their Service names; Ollama on the host answered because it was running on this machine)
+$ kubectl exec p06-kafka-0 -- kafka-topics.sh --list  ->  __consumer_offsets, p06.application.created, p06.application.status_changed,
+  p06.application.updated, p06.dlq, p06.event.registration_created, p06.job.created   (created by the services and workers themselves)
+
+--- 6.6  Self-healing, scaling, and data that survives a restart
+Delete one p06-job pod while sending 20 authenticated GET /jobs (one every 0.5 s):  200 x 20, no failed request. Fifteen seconds later the
+Deployment had a new pod (p06-job-5d7f9668bd-bbhqh, 25 s old) next to the old one: still 2/2.
+(An earlier attempt of this test used no login and printed 401 six times; it only proved that the gateway answered, so it was repeated with a token.)
+kubectl scale deploy/p06-job --replicas=4  ->  READY 4/4 after about 25 s, the Service listed 4 endpoints;  scaled back to 2.
+kubectl rollout restart statefulset/p06-mongo  ->  rollout complete; after 15 s login works and /applications/mine still shows 12 applications
+(the data is on the volume, not in the pod).
+
+--- 6.7  What was NOT done or NOT tested
+* The three Kafka failure demos were run on Docker Compose (PHASE 5), not inside Kubernetes. kafka_demos.py needs a Kafka address reachable
+  from the laptop (localhost:9068) and uses docker exec/pause; the Kubernetes broker advertises only p06-kafka:9092 (cluster-internal), so
+  running them there needs a small change (run the producer inside the cluster or add an external listener). Kafka itself is deployed and
+  used in the cluster: producers and workers exchanged real messages there (6.5).
+* No AWS/EKS: the manifests were tested only on kind. The EKS overlay (images from ECR, LoadBalancer Services, website image built with the
+  load balancer address, StorageClass/EBS driver, an Ollama address) is described in k8s/README.md for the partner.
+* No load test, no autoscaler (HorizontalPodAutoscaler), no metrics-server, no network policies; resource numbers are reasonable estimates,
+  not measurements (the 18 pods ran well inside Docker Desktop's 7.9 GB).
+* Kubernetes 1.34 on kind (pinned), kubectl client 1.32.2; the website was only fetched (HTTP 200), not clicked through in a browser.
+
+--- 6.8  Putting the machine back
+Port-forward process stopped, the kind cluster deleted (kind delete cluster --name p06-handshake), docker compose start. See 6.9 for the check.
+### end of Lab 2, PHASE 6
+
+--- 6.9  Putting the machine back, and a correction to 6.3 and 6.8
+What happened: after the kind cluster was deleted I ran  docker compose start  and Docker answered 'service "p06-kafka" has no container to
+start'. docker ps -a showed no p06-* container at all (the volumes p06-mongo-data and p06-kafka-data and all the images were still there), and
+docker events showed nothing about them (only the kind node). I did not know why at that moment.
+Explanation from the user: they had run  docker compose down  themselves before phase 6 started (they did not know it would be used
+with "stop"). That is why the containers were already gone. So:
+* 6.3 says "docker compose stop (13 containers stopped, volumes kept)". That is NOT what happened: the output of that command was never
+  seen (it was cut off by the kind error that followed in the same command line), and there was nothing left to stop. The ports 9060/9061 were
+  free because of the user's earlier  down, not because of my  stop.
+* 6.8 says "docker compose start". What was actually run is  docker compose up -d  (it recreates the containers from the images and re-attaches
+  the existing volumes; down without -v had kept the data). The line "Port-forward process stopped" is true (the process was stopped by its id,
+  25124); a second  pgrep  count of 1 printed afterwards was the pgrep command itself, not a leftover.
+$ docker compose up -d            -> all 13 containers recreated, every one healthy (checked with docker compose ps after 30 s)
+$ curl localhost:9060/health       -> {"status":"ok","service":"p06-gateway","pair":"06"}
+$ POST /auth/login (demo student)  -> token (219 characters);  GET /applications/mine -> total 12 (the Compose database kept its data)
+$ kafka-topics.sh --list in p06-kafka -> __consumer_offsets, the five p06.* topics, p06.dlq (the Kafka volume kept its topics)
+The Kubernetes test used its own MongoDB and Kafka volumes inside the kind cluster; nothing in the Compose volumes was written by it.
+### end of Lab 2, PHASE 6 (addendum)

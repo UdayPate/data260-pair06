@@ -1,0 +1,15 @@
+# Settings that are NOT secret. Pods read them as environment variables.
+# The passwords and the JWT secret are NOT here: they are in the Secret p06-secrets (see k8s/README.md).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: p06-config
+data:
+  MONGO_DB_NAME: p06_handshake
+  # Where the BROWSER may call the API from (the website's address). Change it for the cloud deployment.
+  CORS_ORIGINS: http://localhost:9061,http://127.0.0.1:9061
+  # Service discovery: "p06-kafka" is the name of the Kubernetes Service in front of the Kafka pod.
+  KAFKA_BOOTSTRAP: p06-kafka:9092
+  # The AI assistant calls Ollama, which runs outside the cluster (on your machine).
+  OLLAMA_URL: http://host.docker.internal:11434
+  OLLAMA_MODEL: qwen3:8b

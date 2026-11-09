@@ -1,0 +1,16 @@
+# The local Kubernetes cluster (kind = "Kubernetes in Docker"): one node that is a Docker container.
+#   kind create cluster --name p06-handshake --config k8s/kind-config.yaml
+# The two port mappings make the gateway and the website reachable on this machine at the same addresses as with
+# Docker Compose: http://localhost:9060 (API) and http://localhost:9061 (website). 30060 and 30061 are the NodePorts
+# set in k8s/overlays/local.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: p06-handshake
+nodes:
+  - role: control-plane
+    # Pinned to Kubernetes 1.34 on purpose: this machine's Docker (Docker Desktop on WSL 2) uses cgroup v1, and the kubelet of
+    # newer Kubernetes versions (1.35 and later, including kind's newest default image) refuses to start on cgroup v1.
+    image: kindest/node:v1.34.0
+    extraPortMappings:
+      - {containerPort: 30060, hostPort: 9060, listenAddress: "127.0.0.1", protocol: TCP}
+      - {containerPort: 30061, hostPort: 9061, listenAddress: "127.0.0.1", protocol: TCP}

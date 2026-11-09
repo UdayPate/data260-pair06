@@ -1,0 +1,8 @@
+# The kind (local) version of the deployment: the base plus two NodePort Services so the browser on this machine can
+# reach the gateway and the website. `kubectl apply -k k8s/overlays/local`
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+patches:
+  - path: nodeports.yaml

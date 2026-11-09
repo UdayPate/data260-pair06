@@ -257,6 +257,9 @@ Due: Monday 11/16/2026.
   - Phase 4 (Kafka: topics, producers in the Application/Event/Job APIs, three workers, `docs/lab2/KAFKA_CONTRACT.md`,
     asynchronous apply with 202): done, committed (`efe6c06`).
   - Phase 5 (producer for `application.updated` = `PUT /applications/{id}/resume`; three failure demos run on the real broker with
-    `backend/scripts/kafka_demos.py`; `docs/lab2/ARCHITECTURE.md`; RUN_LOG PHASE 5): built and verified (543 backend tests); waiting for the human to commit.
-  - Next: Kubernetes manifests tested on kind (phase 6).
+    `backend/scripts/kafka_demos.py`; `docs/lab2/ARCHITECTURE.md`; RUN_LOG PHASE 5): done, committed and pushed (`55b5358`; 543 backend tests).
+  - Phase 6 (Kubernetes manifests in `k8s/`, namespace `p06-handshake`, tested on kind with Kubernetes 1.34 pinned because Docker Desktop
+    uses cgroup v1; Secret made by `k8s/create_secret.py`, images loaded by `k8s/load_images.py`; RUN_LOG PHASE 6): built and verified
+    on kind (18 pods Running); waiting for the human to commit. Not done: the three Kafka failure demos inside Kubernetes (they ran on Compose).
+  - Next: ask the human what is left (failure demos on Kubernetes, report pieces, handover notes for the partner's EKS work).
 - The data layer is MongoDB (the Lab 1 MySQL database is untouched and still on the laptop).

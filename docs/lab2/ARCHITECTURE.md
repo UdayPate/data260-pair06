@@ -87,3 +87,26 @@ before their offset is committed (see `KAFKA_CONTRACT.md`, sections 3, 4 and 7).
 | `p06.event.registration_created` | p06-event (`POST /events/{id}/register`) | p06-event-worker |
 | `p06.job.created` | p06-job (`POST /jobs`) | p06-job-worker |
 | `p06.dlq` | the three workers | a person |
+
+## 4. The same system in Kubernetes (namespace `p06-handshake`, manifests in `k8s/`)
+
+```mermaid
+flowchart LR
+    user["Browser"] -->|"localhost:9061 (kind) / LoadBalancer (AWS)"| fe["Service p06-frontend<br/>2 pods"]
+    user -->|"localhost:9060 (kind) / LoadBalancer (AWS)"| gw["Service p06-gateway<br/>2 pods (nginx)"]
+    gw -->|"DNS name p06-student"| stu["Service p06-student<br/>2 pods"]
+    gw -->|"p06-company"| com["Service p06-company<br/>1 pod"]
+    gw -->|"p06-job"| job["Service p06-job<br/>2 pods"]
+    gw -->|"p06-application"| app["Service p06-application<br/>2 pods"]
+    gw -->|"p06-event"| evt["Service p06-event<br/>1 pod"]
+    gw -->|"p06-assistant"| ai["Service p06-assistant<br/>1 pod"]
+    stu & com & job & app & evt & ai -->|"p06-mongo:27017"| mongo[("StatefulSet p06-mongo<br/>volume 2 GiB")]
+    app & job & evt & ai -->|"p06-kafka:9092"| kafka[("StatefulSet p06-kafka<br/>KRaft, volume 2 GiB")]
+    kafka --> wa["Deployment p06-application-worker"] & we["p06-event-worker"] & wj["p06-job-worker"]
+    wa & we & wj --> mongo
+    secret["Secret p06-secrets<br/>(not in git)"] -.-> mongo & stu & com & job & app & evt & ai & wa & we & wj
+    cm["ConfigMap p06-config"] -.-> stu & job & app & evt & ai & wa & we & wj
+```
+
+Each box is a Kubernetes Service (a stable DNS name and address that spreads requests over the ready pods behind it) or the workload
+behind it. The three workers have no Service because nothing calls them: they read from Kafka.

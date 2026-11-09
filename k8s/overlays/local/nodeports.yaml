@@ -1,0 +1,19 @@
+# Opens the gateway on node port 30060 and the website on 30061 (kind-config.yaml maps them to localhost:9060 / 9061).
+# In the cloud (EKS) the same two Services become type LoadBalancer instead.
+apiVersion: v1
+kind: Service
+metadata:
+  name: p06-gateway
+spec:
+  type: NodePort
+  ports:
+    - {name: http, port: 9060, targetPort: 9060, nodePort: 30060}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: p06-frontend
+spec:
+  type: NodePort
+  ports:
+    - {name: http, port: 9061, targetPort: 9061, nodePort: 30061}

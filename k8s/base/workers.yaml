@@ -1,0 +1,147 @@
+# The three Kafka workers. Same images as the services, a different command. They have no web address,
+# so there is no Service; the liveness probe checks that the worker touched its heartbeat file in the last 30 s.
+# More than one replica of a worker is fine (up to 3, the number of partitions): Kafka shares the partitions.
+---
+# p06-application-worker: saves applications (application.created), notifies students about status changes
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p06-application-worker
+  labels: {app: p06-application-worker}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: p06-application-worker}
+  template:
+    metadata:
+      labels: {app: p06-application-worker}
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: worker
+          image: p06-application:1.0.0
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "services.application.worker"]
+          env:
+            - name: MONGO_USER
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: MONGO_USER}}
+            - name: MONGO_PASSWORD
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: MONGO_PASSWORD}}
+            - name: MONGO_URL      # $(NAME) is replaced by Kubernetes with the variables defined above it
+              value: mongodb://$(MONGO_USER):$(MONGO_PASSWORD)@p06-mongo:27017/?authSource=admin
+            - name: JWT_SECRET
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: JWT_SECRET}}
+            - name: MONGO_DB_NAME
+              valueFrom: {configMapKeyRef: {name: p06-config, key: MONGO_DB_NAME}}
+            - name: CORS_ORIGINS
+              valueFrom: {configMapKeyRef: {name: p06-config, key: CORS_ORIGINS}}
+            - name: KAFKA_BOOTSTRAP
+              valueFrom: {configMapKeyRef: {name: p06-config, key: KAFKA_BOOTSTRAP}}
+          livenessProbe:
+            exec: {command: ["python", "-c", "import os, sys, time; p = '/tmp/p06-worker-heartbeat'; sys.exit(0 if os.path.exists(p) and time.time() - os.path.getmtime(p) < 30 else 1)"]}
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests: {cpu: 50m, memory: 96Mi}
+            limits: {cpu: 500m, memory: 384Mi}
+---
+# p06-event-worker: confirms event registrations (event.registration_created)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p06-event-worker
+  labels: {app: p06-event-worker}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: p06-event-worker}
+  template:
+    metadata:
+      labels: {app: p06-event-worker}
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: worker
+          image: p06-event:1.0.0
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "services.event.worker"]
+          env:
+            - name: MONGO_USER
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: MONGO_USER}}
+            - name: MONGO_PASSWORD
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: MONGO_PASSWORD}}
+            - name: MONGO_URL      # $(NAME) is replaced by Kubernetes with the variables defined above it
+              value: mongodb://$(MONGO_USER):$(MONGO_PASSWORD)@p06-mongo:27017/?authSource=admin
+            - name: JWT_SECRET
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: JWT_SECRET}}
+            - name: MONGO_DB_NAME
+              valueFrom: {configMapKeyRef: {name: p06-config, key: MONGO_DB_NAME}}
+            - name: CORS_ORIGINS
+              valueFrom: {configMapKeyRef: {name: p06-config, key: CORS_ORIGINS}}
+            - name: KAFKA_BOOTSTRAP
+              valueFrom: {configMapKeyRef: {name: p06-config, key: KAFKA_BOOTSTRAP}}
+          livenessProbe:
+            exec: {command: ["python", "-c", "import os, sys, time; p = '/tmp/p06-worker-heartbeat'; sys.exit(0 if os.path.exists(p) and time.time() - os.path.getmtime(p) < 30 else 1)"]}
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests: {cpu: 50m, memory: 96Mi}
+            limits: {cpu: 500m, memory: 384Mi}
+---
+# p06-job-worker: tells students whose preferences match a new job (job.created)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p06-job-worker
+  labels: {app: p06-job-worker}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: p06-job-worker}
+  template:
+    metadata:
+      labels: {app: p06-job-worker}
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: worker
+          image: p06-job:1.0.0
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "services.job.worker"]
+          env:
+            - name: MONGO_USER
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: MONGO_USER}}
+            - name: MONGO_PASSWORD
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: MONGO_PASSWORD}}
+            - name: MONGO_URL      # $(NAME) is replaced by Kubernetes with the variables defined above it
+              value: mongodb://$(MONGO_USER):$(MONGO_PASSWORD)@p06-mongo:27017/?authSource=admin
+            - name: JWT_SECRET
+              valueFrom: {secretKeyRef: {name: p06-secrets, key: JWT_SECRET}}
+            - name: MONGO_DB_NAME
+              valueFrom: {configMapKeyRef: {name: p06-config, key: MONGO_DB_NAME}}
+            - name: CORS_ORIGINS
+              valueFrom: {configMapKeyRef: {name: p06-config, key: CORS_ORIGINS}}
+            - name: KAFKA_BOOTSTRAP
+              valueFrom: {configMapKeyRef: {name: p06-config, key: KAFKA_BOOTSTRAP}}
+          livenessProbe:
+            exec: {command: ["python", "-c", "import os, sys, time; p = '/tmp/p06-worker-heartbeat'; sys.exit(0 if os.path.exists(p) and time.time() - os.path.getmtime(p) < 30 else 1)"]}
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests: {cpu: 50m, memory: 96Mi}
+            limits: {cpu: 500m, memory: 384Mi}

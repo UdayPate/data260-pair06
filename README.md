@@ -243,6 +243,27 @@ inline, inside the API, so the website still works; the answer is still 202.
 * **Images for AWS:** the images are named `p06-<service>:<TAG>` (TAG defaults to 1.0.0) so they are easy to retag for ECR,
   for example `docker tag p06-job:1.0.0 <account>.dkr.ecr.<region>.amazonaws.com/p06-job:1.0.0`.
 
+## Lab 2: Kubernetes (kind on your machine)
+
+The same eight images run in Kubernetes, in the namespace **`p06-handshake`**: MongoDB and Kafka as StatefulSets with volumes, the six
+services and three Kafka workers as Deployments, the gateway and the website as Deployments with NodePort Services (on kind). The
+manifests are in `k8s/` (no passwords in them: the Secret is created from your git-ignored `.env`). The full guide, what each file is, how the
+pods find each other, and notes for the AWS deployment are in **`k8s/README.md`**. The short version (Windows PowerShell, repo root, Docker
+Desktop running, `kind` installed with `winget install Kubernetes.kind`, Compose stopped because both use ports 9060 and 9061):
+
+```powershell
+docker compose stop
+kind create cluster --config k8s/kind-config.yaml
+python k8s/load_images.py
+kubectl apply -f k8s/base/namespace.yaml
+python k8s/create_secret.py
+kubectl apply -k k8s/overlays/local
+kubectl -n p06-handshake get pods                 # about one minute until all 18 are 1/1 Running
+# seed the database once: see k8s/README.md, step 5
+curl.exe http://localhost:9060/health             # the gateway; the website is http://localhost:9061
+kind delete cluster --name p06-handshake; docker compose start       # when you are done
+```
+
 ## Features
 
 **Student:** sign up / sign in / sign out; profile (picture, contact details, education, experience, skills, career

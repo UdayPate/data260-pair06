@@ -1,0 +1,42 @@
+# The front door: nginx routes each URL path to the service that owns it (gateway/nginx.conf, baked into the image).
+# The host names in that file (p06-student, p06-job, ...) are exactly the Service names above.
+apiVersion: v1
+kind: Service
+metadata:
+  name: p06-gateway
+  labels: {app: p06-gateway}
+spec:
+  selector: {app: p06-gateway}
+  ports:
+    - {name: http, port: 9060, targetPort: 9060}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p06-gateway
+  labels: {app: p06-gateway}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: p06-gateway}
+  template:
+    metadata:
+      labels: {app: p06-gateway}
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: gateway
+          image: p06-gateway:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - {name: http, containerPort: 9060}
+          readinessProbe:
+            httpGet: {path: /health, port: 9060}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: 9060}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: {cpu: 25m, memory: 32Mi}
+            limits: {cpu: 250m, memory: 128Mi}

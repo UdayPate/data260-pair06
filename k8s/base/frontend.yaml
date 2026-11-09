@@ -1,0 +1,42 @@
+# The React website, served by nginx on port 9061. The address of the API (VITE_API_URL) is baked into the image
+# when it is built, so the browser calls the gateway at the address chosen at build time.
+apiVersion: v1
+kind: Service
+metadata:
+  name: p06-frontend
+  labels: {app: p06-frontend}
+spec:
+  selector: {app: p06-frontend}
+  ports:
+    - {name: http, port: 9061, targetPort: 9061}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p06-frontend
+  labels: {app: p06-frontend}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: p06-frontend}
+  template:
+    metadata:
+      labels: {app: p06-frontend}
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: frontend
+          image: p06-frontend:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - {name: http, containerPort: 9061}
+          readinessProbe:
+            httpGet: {path: /, port: 9061}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /, port: 9061}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: {cpu: 25m, memory: 32Mi}
+            limits: {cpu: 250m, memory: 128Mi}
