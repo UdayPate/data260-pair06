@@ -380,6 +380,25 @@ privacy, invented ids, authorization) plus a before/after-repair comparison. Out
 (every record) and `docs/lab2/agent_harness_summary.md` (the tables). The harness supplements the real Ollama
 transcripts and does not replace them.
 
+### Lab 2: token tracking, compaction and tracing (Part 6)
+
+- **Tokens:** after every model call the loop adds Ollama's own counts (`prompt_eval_count`, `eval_count`) to the conversation
+  (`assistant/usage.py`). The chat window shows "Tokens used" and the context window percent, and warns above 70 percent.
+  `POST /assistant/chat` now also returns `trace_id` and `usage` (extra fields; the three Lab 1 fields are unchanged).
+- **Compaction:** at 85 percent the stored history is replaced by a summary built by code from the tool results (preferences, jobs,
+  companies, events, applications on file, what was saved, the current request): `assistant/compaction.py`. Type `/compact` to do it
+  yourself; the reply gives the sizes before and after.
+- **Tracing:** every request has a `trace_id` (the gateway's `X-Request-ID`, or your own `X-Trace-ID` header). It is in the log lines
+  (`event=assistant_chat trace_id=...`), in the Kafka event a `/memory learn` or `/memory consolidate` publishes (headers and body), and
+  in the worker's log and records. One document per piece of work is kept in the `traces` collection with the time of each stage
+  (model, database, tool, queue wait). Type `/trace` to see your last request. See `assistant/tracing.py`.
+- **Evidence scripts** (from `backend/`, real Ollama; they take minutes on a CPU):
+
+```powershell
+python -m scripts.compaction_demo      # token counts before/after compaction and recall -> docs/lab2/compaction_demo.md
+python -m scripts.trace_analysis       # 50 requests: which stage dominates?               -> docs/lab2/trace_analysis.md
+```
+
 ## Testing
 
 - Backend: `python -m pytest -q` runs the full API suite on an in-memory MongoDB (authentication and sessions, profiles,
