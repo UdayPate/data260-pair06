@@ -20,14 +20,17 @@ model ONCE with the specific error. If the model fails again, the loop stops wit
 """
 import json
 import re
+import time
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Any, Callable, Dict, List, Optional
 
+from .. import mongo
+from . import guardrails
 from .confirm import confirm_action
 from .model_client import ModelClient, ModelError, OllamaClient, ToolRequest
-from .tools import (GATED_TOOLS, TOOL_FUNCTIONS, TOOL_SCHEMAS, ToolContext, execute_tool, find_save_target,
-                    check_arguments, ArgumentError)
+from .tools import (GATED_TOOLS, TOOL_FUNCTIONS, TOOL_SCHEMAS, UNTRUSTED_START, ToolContext, execute_tool,
+                    find_save_target, check_arguments, ArgumentError)
 
 MAX_ITERATIONS = 6          # hard ceiling on model calls per student message
 MAX_HISTORY_MESSAGES = 40   # older messages are dropped so the prompt never grows without limit
@@ -109,6 +112,7 @@ class ToolRecord:
     name: str
     arguments: dict
     result: str
+    retried: bool = False   # True when the tool crashed once and the second try produced this result
 
 
 @dataclass
@@ -128,10 +132,23 @@ class AssistantResult:
     stopped_at_ceiling: bool = False
     failures: List[Failure] = field(default_factory=list)
     repairs_used: int = 0
+    timed_out: bool = False                                          # the request deadline (guardrail 7) fired
+    guardrail_events: List[str] = field(default_factory=list)        # one line per guardrail that acted this turn
 
 
 def _log(line: str, log: Optional[Callable[[str], None]]) -> None:
-    (log or print)(line)
+    """Every log line passes through the secret filter (guardrail 6)."""
+    (log or print)(guardrails.redact_secrets(line)[0])
+
+
+def run_read_tool(name: str, arguments: dict, ctx: ToolContext, events: List[str]) -> "tuple[str, bool]":
+    """Run a read-only tool. If it CRASHED (not a bad argument), try exactly once more (guardrail 7).
+    Returns (result, retried). The save tool never comes through here: a repeated write needs a new confirmation."""
+    result = execute_tool(name, arguments, ctx)
+    if not guardrails.is_recoverable_error(result):
+        return result, False
+    events.append(f"G7 retry: {name} failed once, tried again")
+    return execute_tool(name, arguments, ctx), True
 
 
 def _short(arguments: dict) -> str:
@@ -259,35 +276,87 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
                   client: Optional[ModelClient] = None,
                   ask: Optional[Callable[[str], str]] = None, auto_approve: bool = False,
                   log: Optional[Callable[[str], None]] = None,
-                  max_iterations: int = MAX_ITERATIONS, repair: bool = True) -> AssistantResult:
+                  max_iterations: int = MAX_ITERATIONS, repair: bool = True,
+                  timeout_seconds: float = guardrails.REQUEST_TIMEOUT_SECONDS) -> AssistantResult:
     """Answer one student message. `conversation` is updated in place.
 
-    ask           how to ask the student to confirm a save. With a terminal, pass input.
-                  Left as None (the website), the question becomes the reply and the
-                  student's next message is the answer.
-    auto_approve  skip the confirmation question (automated tests only).
-    repair        True: re-prompt the model once with the specific error (the normal setting).
-                  False: the first failure ends the turn. Used only to measure "before repair".
+    ask             how to ask the student to confirm a save. With a terminal, pass input.
+                    Left as None (the website), the question becomes the reply and the
+                    student's next message is the answer.
+    auto_approve    skip the confirmation question (automated tests only).
+    repair          True: re-prompt the model once with the specific error (the normal setting).
+                    False: the first failure ends the turn. Used only to measure "before repair".
+    timeout_seconds guardrail 7: the whole message (all model and tool steps) must finish within this time.
     """
     client = client or OllamaClient()
     records: List[ToolRecord] = []
     failures: List[Failure] = []
+    events: List[str] = []                      # which guardrails acted this turn (shown in the harness output)
     repairs_used = 0
     awaiting_repair: Optional[Failure] = None   # the failure we just re-prompted about
     declined: set = set()                       # saves the student said no to during this turn
+    started = time.monotonic()
     system = {"role": "system", "content": build_system_prompt(ctx)}
     # Is this a follow-up ("make it higher paying")? Only then do those words mean "search again".
     history_has_tools = any(m.get("role") == "tool" for m in conversation.messages)
 
-    def done(reply: str, iterations: int, ceiling: bool = False) -> AssistantResult:
+    def other_student(email: str):
+        """Database lookup used by the privacy filter. It must never raise."""
+        try:
+            return mongo.find_one(ctx.db, "students", {"email": email})
+        except Exception:
+            return None
+
+    def finalize(reply: str) -> str:
+        """The last checks on every answer before the student sees it (guardrails 6 and 8)."""
+        reply, n = guardrails.redact_secrets(reply)
+        if n:
+            events.append(f"G6 secrets: redacted {n} secret(s) from the answer")
+        reply, n = guardrails.hide_other_students(reply, ctx.student.id, other_student)
+        if n:
+            events.append(f"G6 privacy: hid {n} email(s) of other students")
+        # An id is allowed if a tool returned it or the student typed it ("save job 12").
+        known = [m.get("content") or "" for m in conversation.messages if m.get("role") in ("tool", "user")]
+        invented = guardrails.ungrounded_ids(reply, known + [user_message])
+        if invented:
+            events.append(f"G8 reliable answers: ids {invented} are in no tool result, answer replaced")
+            return guardrails.UNGROUNDED_REPLY
+        return reply
+
+    def done(reply: str, iterations: int, ceiling: bool = False, timeout: bool = False) -> AssistantResult:
         _log(f"Tool calls this run: {len(records)}", log)
-        return AssistantResult(reply=reply, tool_calls=records, iterations=iterations,
-                               stopped_at_ceiling=ceiling, failures=failures, repairs_used=repairs_used)
+        return AssistantResult(reply=finalize(reply), tool_calls=records, iterations=iterations,
+                               stopped_at_ceiling=ceiling, failures=failures, repairs_used=repairs_used,
+                               timed_out=timeout, guardrail_events=events)
+
+    def clean_result(name: str, result: str) -> str:
+        """Check one tool result before the model or the student sees it, and note what each guardrail did."""
+        result, n = guardrails.redact_secrets(result)
+        if n:
+            events.append(f"G6 secrets: redacted {n} secret(s) from the {name} result")
+        if UNTRUSTED_START in result:
+            events.append(f"G5 untrusted: {name} result wrapped as data, not instructions")
+        if guardrails.looks_like_injection(result):
+            events.append("G5 injection: instruction-like text found in database content"
+                          + ("" if ctx.defense else " (defense is OFF)"))
+        if name in GATED_TOOLS:
+            if result.startswith("CANCELLED"):
+                events.append("G4 confirmation: the student declined, nothing saved")
+            elif result.startswith("Saved"):
+                events.append("G4 confirmation: the student approved, saved")
+        return result
+
+    # --- guardrail 3: the student is signed in and the conversation is theirs ---
+    denied = guardrails.authorize(ctx.student, conversation.student_id, None, TOOL_FUNCTIONS)
+    if denied:
+        events.append(f"G3 authorization: refused ({denied})")
+        return done(f"I cannot do that: {denied}.", 0)
 
     # --- website mode: the student's message is the answer to a pending confirmation ---
     if conversation.pending is not None:
         pending, conversation.pending = conversation.pending, None
         result = _run_gated(pending.tool_name, pending.arguments, ctx, lambda _q: user_message, False, declined)
+        result = clean_result(pending.tool_name, result)
         _log(f"[tool] {pending.tool_name}({_short(pending.arguments)}) -> confirmed by student's reply", log)
         records.append(ToolRecord(pending.tool_name, pending.arguments, result))
         conversation.messages.append({"role": "tool", "tool_name": pending.tool_name, "content": result})
@@ -298,6 +367,10 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
         conversation.messages.append({"role": "user", "content": user_message})
 
     for iteration in range(1, max_iterations + 1):
+        if time.monotonic() - started > timeout_seconds:       # guardrail 7: the whole request ran out of time
+            events.append(f"G7 timeout: more than {timeout_seconds:g} seconds used, stopped")
+            conversation.messages.append({"role": "assistant", "content": guardrails.TIMEOUT_REPLY})
+            return done(guardrails.TIMEOUT_REPLY, iteration - 1, timeout=True)
         conversation.messages[:] = conversation.messages[-MAX_HISTORY_MESSAGES:]
         try:
             reply = client.complete([system] + conversation.messages, TOOL_SCHEMAS)
@@ -328,9 +401,12 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
         # ---- tool calls: run each one ----
         batch_failures: List[Failure] = []
         for index, call in enumerate(reply.tool_calls):
+            retried = False                            # set to True only by run_read_tool below
             failure = classify_call(call)
             if failure is not None:
                 batch_failures.append(failure)
+                rule = "G1 allowlist" if failure.kind == UNKNOWN_TOOL else "G2 schema"
+                events.append(f"{rule}: rejected the call to '{call.name}' ({failure.kind})")
             if call.raw_arguments is not None:         # the model sent arguments we could not read
                 result = (f"Error: the arguments for {call.name} were not valid JSON: {call.raw_arguments!r}. "
                           "Send a JSON object.")
@@ -351,6 +427,7 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
                         _log(f"[tool] {call.name}({_short(call.arguments)}) -> waiting for the student to confirm", log)
                         question = (f"Do you want me to save {clean_args['item_type']} {clean_args['item_id']}? "
                                     "Reply yes to confirm or no to cancel.")
+                        events.append("G4 confirmation: asked the student before saving")
                         # The history now ends with the assistant's tool call, which has no result yet.
                         # It gets one (yes -> saved, no -> CANCELLED) when the student answers.
                         return done(question, iteration)
@@ -358,9 +435,10 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
                 else:
                     result = _run_gated(call.name, call.arguments, ctx, ask, auto_approve, declined)
             else:
-                result = execute_tool(call.name, call.arguments, ctx)
+                result, retried = run_read_tool(call.name, call.arguments, ctx, events)
+            result = clean_result(call.name, result)
             _log(f"[tool] {call.name}({_short(call.arguments)})", log)
-            records.append(ToolRecord(call.name, call.arguments, result))
+            records.append(ToolRecord(call.name, call.arguments, result, retried=retried))
             conversation.messages.append({"role": "tool", "tool_name": call.name, "content": result})
 
         if batch_failures:
