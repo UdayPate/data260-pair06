@@ -1,0 +1,351 @@
+{
+  "run_at": "2026-11-14 15:16:27",
+  "model": "qwen3:8b",
+  "database": "in-memory mongomock (no command timing: database time reads 0)",
+  "requests_sent": 50,
+  "requests_ok": 49,
+  "requests_failed": 1,
+  "elapsed_seconds": 9467.9,
+  "database_time_measured": false,
+  "queue_wait": "not applicable to the chat request (it is answered directly); measured in the worker part of a trace when Kafka runs",
+  "stage_summary_successful_requests": [
+    {
+      "stage": "model inference",
+      "field": "model_ms",
+      "mean_ms": 193117.6,
+      "median_ms": 157543.8,
+      "p95_ms": 297103.0,
+      "share_of_total_time_pct": 99.98
+    },
+    {
+      "stage": "database queries",
+      "field": "db_ms",
+      "mean_ms": 0.0,
+      "median_ms": 0.0,
+      "p95_ms": 0.0,
+      "share_of_total_time_pct": 0.0
+    },
+    {
+      "stage": "tool execution (not database)",
+      "field": "tool_compute_ms",
+      "mean_ms": 10.0,
+      "median_ms": 7.2,
+      "p95_ms": 31.5,
+      "share_of_total_time_pct": 0.01
+    },
+    {
+      "stage": "tool execution (including its database queries)",
+      "field": "tool_ms",
+      "mean_ms": 10.0,
+      "median_ms": 7.2,
+      "p95_ms": 31.5,
+      "share_of_total_time_pct": 0.01
+    }
+  ],
+  "slowest_stage_per_request": {
+    "model inference": 49
+  },
+  "total_ms": {
+    "mean": 193160.3,
+    "median": 157554.6,
+    "p95": 297140.7
+  },
+  "one_successful_trace": {
+    "trace_id": "analysis-01",
+    "kind": "chat",
+    "student_id": 1,
+    "at": "2026-11-14 20:43:43.721000",
+    "status": "ok",
+    "total_ms": 304491.8,
+    "stages": {
+      "model_ms": 304444.0,
+      "db_ms": 0.0,
+      "db_calls": 0,
+      "tool_ms": 12.3,
+      "tool_db_ms": 0.0,
+      "tool_compute_ms": 12.3
+    },
+    "model_calls": 2,
+    "prompt_tokens": 4276,
+    "completion_tokens": 317,
+    "context_percent": 31.7,
+    "tools": [
+      "search_jobs"
+    ],
+    "detail": null
+  },
+  "one_failed_trace": {
+    "trace_id": "analysis-failed",
+    "kind": "chat",
+    "student_id": 1,
+    "at": "2026-11-14 22:13:36.731000",
+    "status": "model_unreachable",
+    "total_ms": 2828.6,
+    "stages": {
+      "model_ms": 2826.2,
+      "db_ms": 0.0,
+      "db_calls": 0,
+      "tool_ms": 0.0,
+      "tool_db_ms": 0.0,
+      "tool_compute_ms": 0.0
+    },
+    "model_calls": 0,
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "context_percent": 0.0,
+    "tools": [],
+    "detail": null
+  },
+  "requests": [
+    {
+      "trace_id": "analysis-01",
+      "message": "Find a data internship",
+      "seconds": 304.5
+    },
+    {
+      "trace_id": "analysis-02",
+      "message": "Find internships in Sunnyvale",
+      "seconds": 152.8
+    },
+    {
+      "trace_id": "analysis-03",
+      "message": "Which upcoming events are open to Computer Science students?",
+      "seconds": 74.8
+    },
+    {
+      "trace_id": "analysis-04",
+      "message": "What are my job preferences?",
+      "seconds": 39.0
+    },
+    {
+      "trace_id": "analysis-05",
+      "message": "Find remote analyst jobs",
+      "seconds": 149.7
+    },
+    {
+      "trace_id": "analysis-06",
+      "message": "Show jobs that match my skills Python and SQL",
+      "seconds": 229.2
+    },
+    {
+      "trace_id": "analysis-07",
+      "message": "Find an internship in Mountain View paying at least 25 dollars an hour",
+      "seconds": 153.0
+    },
+    {
+      "trace_id": "analysis-08",
+      "message": "Are there any career fairs next month?",
+      "seconds": 2308.2
+    },
+    {
+      "trace_id": "analysis-09",
+      "message": "Find a cloud internship",
+      "seconds": 153.3
+    },
+    {
+      "trace_id": "analysis-10",
+      "message": "Find a backend engineer internship in San Jose",
+      "seconds": 54.5
+    },
+    {
+      "trace_id": "analysis-11",
+      "message": "Find a data internship",
+      "seconds": 168.7
+    },
+    {
+      "trace_id": "analysis-12",
+      "message": "Find internships in Sunnyvale",
+      "seconds": 155.9
+    },
+    {
+      "trace_id": "analysis-13",
+      "message": "Which upcoming events are open to Computer Science students?",
+      "seconds": 78.1
+    },
+    {
+      "trace_id": "analysis-14",
+      "message": "What are my job preferences?",
+      "seconds": 38.7
+    },
+    {
+      "trace_id": "analysis-15",
+      "message": "Find remote analyst jobs",
+      "seconds": 157.6
+    },
+    {
+      "trace_id": "analysis-16",
+      "message": "Show jobs that match my skills Python and SQL",
+      "seconds": 249.2
+    },
+    {
+      "trace_id": "analysis-17",
+      "message": "Find an internship in Mountain View paying at least 25 dollars an hour",
+      "seconds": 179.2
+    },
+    {
+      "trace_id": "analysis-18",
+      "message": "Are there any career fairs next month?",
+      "seconds": 83.6
+    },
+    {
+      "trace_id": "analysis-19",
+      "message": "Find a cloud internship",
+      "seconds": 195.0
+    },
+    {
+      "trace_id": "analysis-20",
+      "message": "Find a backend engineer internship in San Jose",
+      "seconds": 71.5
+    },
+    {
+      "trace_id": "analysis-21",
+      "message": "Find a data internship",
+      "seconds": 192.4
+    },
+    {
+      "trace_id": "analysis-22",
+      "message": "Find internships in Sunnyvale",
+      "seconds": 181.4
+    },
+    {
+      "trace_id": "analysis-23",
+      "message": "Which upcoming events are open to Computer Science students?",
+      "seconds": 93.5
+    },
+    {
+      "trace_id": "analysis-24",
+      "message": "What are my job preferences?",
+      "seconds": 45.2
+    },
+    {
+      "trace_id": "analysis-25",
+      "message": "Find remote analyst jobs",
+      "seconds": 185.5
+    },
+    {
+      "trace_id": "analysis-failed",
+      "message": "Show jobs that match my skills Python and SQL",
+      "seconds": 2.8
+    },
+    {
+      "trace_id": "analysis-27",
+      "message": "Find an internship in Mountain View paying at least 25 dollars an hour",
+      "seconds": 193.3
+    },
+    {
+      "trace_id": "analysis-28",
+      "message": "Are there any career fairs next month?",
+      "seconds": 91.6
+    },
+    {
+      "trace_id": "analysis-29",
+      "message": "Find a cloud internship",
+      "seconds": 188.4
+    },
+    {
+      "trace_id": "analysis-30",
+      "message": "Find a backend engineer internship in San Jose",
+      "seconds": 65.8
+    },
+    {
+      "trace_id": "analysis-31",
+      "message": "Find a data internship",
+      "seconds": 196.3
+    },
+    {
+      "trace_id": "analysis-32",
+      "message": "Find internships in Sunnyvale",
+      "seconds": 200.8
+    },
+    {
+      "trace_id": "analysis-33",
+      "message": "Which upcoming events are open to Computer Science students?",
+      "seconds": 96.3
+    },
+    {
+      "trace_id": "analysis-34",
+      "message": "What are my job preferences?",
+      "seconds": 46.8
+    },
+    {
+      "trace_id": "analysis-35",
+      "message": "Find remote analyst jobs",
+      "seconds": 193.6
+    },
+    {
+      "trace_id": "analysis-36",
+      "message": "Show jobs that match my skills Python and SQL",
+      "seconds": 312.1
+    },
+    {
+      "trace_id": "analysis-37",
+      "message": "Find an internship in Mountain View paying at least 25 dollars an hour",
+      "seconds": 213.3
+    },
+    {
+      "trace_id": "analysis-38",
+      "message": "Are there any career fairs next month?",
+      "seconds": 96.5
+    },
+    {
+      "trace_id": "analysis-39",
+      "message": "Find a cloud internship",
+      "seconds": 217.2
+    },
+    {
+      "trace_id": "analysis-40",
+      "message": "Find a backend engineer internship in San Jose",
+      "seconds": 74.8
+    },
+    {
+      "trace_id": "analysis-41",
+      "message": "Find a data internship",
+      "seconds": 218.0
+    },
+    {
+      "trace_id": "analysis-42",
+      "message": "Find internships in Sunnyvale",
+      "seconds": 197.3
+    },
+    {
+      "trace_id": "analysis-43",
+      "message": "Which upcoming events are open to Computer Science students?",
+      "seconds": 96.6
+    },
+    {
+      "trace_id": "analysis-44",
+      "message": "What are my job preferences?",
+      "seconds": 46.5
+    },
+    {
+      "trace_id": "analysis-45",
+      "message": "Find remote analyst jobs",
+      "seconds": 191.6
+    },
+    {
+      "trace_id": "analysis-46",
+      "message": "Show jobs that match my skills Python and SQL",
+      "seconds": 286.1
+    },
+    {
+      "trace_id": "analysis-47",
+      "message": "Find an internship in Mountain View paying at least 25 dollars an hour",
+      "seconds": 195.1
+    },
+    {
+      "trace_id": "analysis-48",
+      "message": "Are there any career fairs next month?",
+      "seconds": 90.6
+    },
+    {
+      "trace_id": "analysis-49",
+      "message": "Find a cloud internship",
+      "seconds": 197.5
+    },
+    {
+      "trace_id": "analysis-50",
+      "message": "Find a backend engineer internship in San Jose",
+      "seconds": 64.2
+    }
+  ]
+}
