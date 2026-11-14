@@ -58,6 +58,8 @@ class ToolContext:
     student: Doc
     today: date = field(default_factory=date.today)
     defense: bool = True   # prompt-injection defense (see mark_untrusted); False only for the "before" test runs
+    rules: List[str] = field(default_factory=list)          # memory layer 1: the standing rules (assistant_rules)
+    memory_lines: List[str] = field(default_factory=list)   # memory layer 2: what is remembered about this student
 
 
 # ---------------------------------------------------------------------------
