@@ -213,6 +213,8 @@ They are created empty; the default rules are inserted by the Assistant service 
 | 2 Learned memory | `student_memory` | one line learned about ONE student: `date \| category \| description` | `_id` (int), `student_id`, `date` (ISO text `2026-11-14`), `category` (`preference`, `skill`, `interest`, `goal`, `application`, `event`, `constraint`, `note`), `description` (max 300 characters, secrets removed), `source` (`conversation`, `user`, `consolidation` or `seed`), `created_at` | `student_id + date` |
 | 3 Session | `conversations` | the current chat of one student | `_id` (**text** token: the one exception to integer ids, because the browser holds it), `student_id`, `messages` (user, assistant and tool messages, no system prompt), `pending` (a save waiting for yes or no, or null), `created_at`, `updated_at` | `student_id + updated_at`; **TTL** on `updated_at` (`expireAfterSeconds: 86400`: MongoDB deletes a chat one day after its last message) |
 
+A fourth collection supports the memory worker: **`memory_runs`** (`_id` = the Kafka `event_id`, `event_type`, `student_id`, `trace_id`, `at`, and what the run did: `learned`, `learned_ids`, `consolidation` with every decision). Inserting the `event_id` as `_id` is what makes the handler idempotent (the same event twice is recognised and skipped), and it is the audit trail for the report.
+
 Rules for these collections:
 * A student's memory is always read with the `student_id` of the logged-in student; there is no way to ask for another student's notes.
 * A conversation id that belongs to another student is never reused: the student gets a fresh conversation.

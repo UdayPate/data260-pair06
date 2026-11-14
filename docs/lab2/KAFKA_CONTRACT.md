@@ -20,6 +20,8 @@ by Kafka itself is switched off, so a misspelled topic name fails instead of sil
 | `p06.application.status_changed` | `application.status_changed` | Application API, `PATCH /applications/{id}/status` (after the status is saved) | Application worker | `<application_id>` | Writes a notification for the student. Idempotent. |
 | `p06.event.registration_created` | `event.registration_created` | Event API, `POST /events/{id}/register` (after the registration is saved) | Event worker (`p06-event-worker`) | `<student_id>:<event_id>` | Writes a confirmation notification. Idempotent. |
 | `p06.job.created` | `job.created` | Job API, `POST /jobs` (after the job is saved) | Job worker (`p06-job-worker`) | `<job_id>` | Writes a notification for every student whose saved preferences match the job. Idempotent. |
+| `p06.memory.session_ended` | `memory.session_ended` | Assistant API, the chat command `/memory learn` | Memory worker (`p06-memory-worker`, Assistant image) | `<student_id>` | Reads the stored chat, asks the model for notes about the student (only the student's words and the assistant's replies, never tool results), stores the new ones, and consolidates when the student has more than 40 notes. Idempotent (`memory_runs`). |
+| `p06.memory.consolidate_requested` | `memory.consolidate_requested` | Assistant API, the chat command `/memory consolidate` | Memory worker | `<student_id>` | Merges exact duplicates, then asks the model (one call per category) to point at paraphrases and contradicting pairs; the code merges, keeps the newer note of a pair, and enforces a limit below 40 notes. Idempotent (`memory_runs`). |
 | `p06.dlq` | *(see section 4)* | any worker | nobody (a person reads it) | the original key | The dead-letter topic: messages that failed for good. |
 
 The key decides the partition, so events with the same key are delivered **in order** to the same worker.
@@ -47,7 +49,7 @@ Headers: `event_id`, `event_type`, `trace_id` (text). Message key: see the table
 | Field | Rule |
 |---|---|
 | `event_id` | A UUID, new for every event. **The key to idempotency**: a consumer must be able to receive the same `event_id` twice and change nothing the second time. |
-| `event_type` | One of the five types above. Anything else is rejected as invalid. |
+| `event_type` | One of the seven types above. Anything else is rejected as invalid. |
 | `timestamp` | When the event was created, ISO 8601, UTC, ends in `Z`. |
 | `trace_id` | 1 to 64 characters from `A-Z a-z 0-9 . _ -`. It is the same value in the **Kafka header** `trace_id` and in the **message body**; a message whose header and body disagree is rejected. It comes from the request that caused the event (header `X-Trace-ID`, else the `X-Request-ID` the gateway adds to every request, else a new one). Anything that follows from an event (a log line, a notification, a follow-up event) must carry the same `trace_id`. |
 | `producer` | The service that sent it (`p06-application`, `p06-event`, `p06-job`). |
