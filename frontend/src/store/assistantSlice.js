@@ -15,6 +15,7 @@ export const initialAssistantState = () => ({
   status: "idle",          // "idle" | "sending"
   error: "",
   failedText: "",          // the message that got no answer (the "Try again" button sends it again)
+  usage: null,             // token usage from the last answer: { total_tokens, context_percent, warn, context_window, ... }
 });
 
 // arg: { text, retry }   (retry = true re-sends a failed message without adding it to the thread twice)
@@ -50,6 +51,8 @@ const assistantSlice = createSlice({
         state.status = "idle";
         state.conversationId = action.payload.conversation_id;
         state.messages.push({ role: "assistant", text: action.payload.reply, toolCalls: action.payload.tool_calls });
+        // The server counts the tokens (Part 6). A command such as /memory has no usage: keep what we had.
+        if (action.payload.usage) state.usage = action.payload.usage;
       })
       .addCase(sendAssistantMessage.rejected, (state, action) => {
         state.status = "idle";
@@ -66,3 +69,4 @@ export default assistantSlice.reducer;
 export const selectAssistant = (state) => state.assistant;
 export const selectAssistantMessages = (state) => state.assistant.messages;
 export const selectAssistantBusy = (state) => state.assistant.status === "sending";
+export const selectAssistantUsage = (state) => state.assistant.usage;

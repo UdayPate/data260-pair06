@@ -51,8 +51,8 @@ function persist(store) {
       }
       if (last.auth.user && !now.auth.user) sessionStorage.removeItem(assistantKey(last.auth.user.id));
       if (now.auth.user && now.assistant !== last.assistant) {
-        const { conversationId, messages } = now.assistant;
-        sessionStorage.setItem(assistantKey(now.auth.user.id), JSON.stringify({ conversationId, messages }));
+        const { conversationId, messages, usage } = now.assistant;
+        sessionStorage.setItem(assistantKey(now.auth.user.id), JSON.stringify({ conversationId, messages, usage }));
       }
     } catch {
       // storage is optional: the app works without it

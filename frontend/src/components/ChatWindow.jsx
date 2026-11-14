@@ -36,7 +36,7 @@ function ToolCalls({ calls }) {
 // NOT in this component: leaving the home page and coming back shows the same thread. Only the text being typed is local.
 export default function ChatWindow() {
   const dispatch = useDispatch();
-  const { messages, status, error, failedText } = useSelector(selectAssistant);
+  const { messages, status, error, failedText, usage } = useSelector(selectAssistant);
   const saved = useSelector(selectSavedItems);       // what the assistant saved during this session
   const busy = status === "sending";
   const [text, setText] = useState("");
@@ -98,6 +98,23 @@ export default function ChatWindow() {
           )}
           <div ref={endRef} />
         </div>
+
+        {usage && (
+          <div className="small text-muted mt-2" data-testid="token-usage">
+            Tokens used: {usage.total_tokens.toLocaleString()} · Context window:{" "}
+            {usage.context_estimated ? "about " : ""}{usage.context_percent}% full
+            ({usage.context_tokens.toLocaleString()} of {usage.context_window.toLocaleString()} tokens)
+          </div>
+        )}
+        {usage?.warn && (
+          <Alert variant="warning" className="d-flex justify-content-between align-items-center mt-2 mb-0" data-testid="context-warning">
+            <span>
+              This conversation uses {usage.context_percent}% of the model&apos;s memory. Compact it to keep a summary and free space
+              (it also happens automatically at 85%).
+            </span>
+            <Button size="sm" variant="outline-warning" disabled={busy} onClick={() => send("/compact")}>Compact</Button>
+          </Alert>
+        )}
 
         {saved.length > 0 && (
           <div className="small text-muted mt-2" data-testid="saved-items">

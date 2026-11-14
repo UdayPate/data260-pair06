@@ -1,12 +1,12 @@
 // The Redux store (src/store): actions, reducers, selectors, and the two behaviours the assignment names:
 //   * the applications slice handles the 202 of POST /jobs/{id}/apply
 //   * the student can leave the assistant and come back without losing the conversation thread
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { STORAGE_KEY } from "../services/api";
 import { fetchMyApplications, selectSubmission, submitApplication } from "../store/applicationsSlice";
-import { conversationReset, selectAssistant, sendAssistantMessage } from "../store/assistantSlice";
+import { conversationReset, selectAssistant, selectAssistantUsage, sendAssistantMessage } from "../store/assistantSlice";
 import { restoreSession, selectIsAuthenticated, selectUser, sessionCleared, sessionStarted } from "../store/authSlice";
 import { fetchEvent, registerEvent, selectEventQuery, selectRegistration } from "../store/eventsSlice";
 import { makeStore } from "../store";
@@ -248,5 +248,60 @@ describe("leaving the assistant and coming back", () => {
     await user.type(screen.getByLabelText("Message to the assistant"), "and another{Enter}");
     await screen.findAllByTestId("chat-assistant");
     expect(JSON.parse(mock.history.post.at(-1).data).conversation_id).toBe("conv-3");   // it is still the same conversation
+  });
+});
+
+// ---------------------------------------------------------------- token usage in the assistant slice and the chat window
+const usageInfo = (percent, extra = {}) => ({
+  model_calls: 2, prompt_tokens: 9000, completion_tokens: 300, total_tokens: 9300, context_tokens: Math.round((percent / 100) * 8192),
+  context_window: 8192, context_percent: percent, context_estimated: false, warn: percent > 70, compact_recommended: percent >= 85,
+  compactions: 0, ...extra,
+});
+const chatWithUsage = (reply, usage, id = "conv-u") => [200, { reply, conversation_id: id, tool_calls: [], trace_id: "t-1", usage }];
+
+describe("token usage", () => {
+  it("the slice keeps the usage of the last answer, and a command without usage does not erase it", async () => {
+    const store = makeStore();
+    mock.onPost("/assistant/chat").replyOnce(...chatWithUsage("hi", usageInfo(40)));
+    await store.dispatch(sendAssistantMessage({ text: "hello" }));
+    expect(selectAssistantUsage(store.getState())).toMatchObject({ context_percent: 40, warn: false });
+    mock.onPost("/assistant/chat").replyOnce(200, { reply: "no notes yet", conversation_id: "conv-u", tool_calls: [], usage: null });
+    await store.dispatch(sendAssistantMessage({ text: "/memory" }));
+    expect(selectAssistantUsage(store.getState()).context_percent).toBe(40);
+    store.dispatch(conversationReset());
+    expect(selectAssistantUsage(store.getState())).toBeNull();
+  });
+
+  it("the chat window shows the tokens and the context percent, with no warning at 70 percent or below", async () => {
+    const user = userEvent.setup();
+    storeSession(STUDENT);
+    mockMe(STUDENT);
+    mockDashboard("student");
+    mock.onPost("/assistant/chat").reply(...chatWithUsage("hello", usageInfo(60)));
+    renderApp("/");
+    await user.type(await screen.findByLabelText("Message to the assistant"), "hi{Enter}");
+    const line = await screen.findByTestId("token-usage");
+    expect(line).toHaveTextContent("Tokens used: 9,300");
+    expect(line).toHaveTextContent("60% full");
+    expect(screen.queryByTestId("context-warning")).not.toBeInTheDocument();
+  });
+
+  it("warns above 70 percent, and the Compact button sends /compact and shows the smaller usage", async () => {
+    const user = userEvent.setup();
+    storeSession(STUDENT);
+    mockMe(STUDENT);
+    mockDashboard("student");
+    mock.onPost("/assistant/chat").replyOnce(...chatWithUsage("long answer", usageInfo(78)));
+    renderApp("/");
+    await user.type(await screen.findByLabelText("Message to the assistant"), "hi{Enter}");
+    const warning = await screen.findByTestId("context-warning");
+    expect(warning).toHaveTextContent("78%");
+
+    mock.onPost("/assistant/chat").replyOnce(...chatWithUsage("Compacted: 14 messages became 2.", usageInfo(21, { compactions: 1, context_estimated: true })));
+    await user.click(within(warning).getByRole("button", { name: "Compact" }));
+    expect(await screen.findByText(/Compacted: 14 messages became 2/)).toBeInTheDocument();
+    expect(JSON.parse(mock.history.post.at(-1).data).message).toBe("/compact");
+    expect(await screen.findByTestId("token-usage")).toHaveTextContent("about 21% full");        // an estimate until the next answer
+    expect(screen.queryByTestId("context-warning")).not.toBeInTheDocument();
   });
 });
