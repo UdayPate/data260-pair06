@@ -29,3 +29,6 @@ Thumbs.db
 
 # Local databases
 *.db
+
+# JMeter test data (regenerated from the seeded database by backend/scripts/jmeter_data.py)
+jmeter/data/
