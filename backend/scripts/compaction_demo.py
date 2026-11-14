@@ -96,13 +96,16 @@ def main() -> int:
 
     # ---- step 1: build a long history with the real tools (estimated token counts)
     builder = GrowingHistoryModel(overhead)
-    searches = ["data", "analyst", "machine", "backend", "cloud", "intelligence", "software"]
+    searches = ["data", "analyst", "machine", "backend", "cloud", "intelligence", "software", "research", "science", "platform",
+                "engineer", "learning", "intern", "projects"]
     for word in searches:
         builder.pending_search = word
         run_turn(f"show me {word} internships", conversation, ctx, builder, f"build history: {word}", turns)
         context = conversation.usage.exact_percent()
         print(f"  built: {len(conversation.messages)} messages, context about {context:.0f}% (estimated)")
-        if context > WARN_AT_PERCENT + 4:
+        # The estimate runs about 15 percent above the model's real count (first run: estimated 74, real 64), so build until the
+        # estimate is well past the warning line; the REAL number measured in step 2 is the one that is reported.
+        if context > WARN_AT_PERCENT + 28:
             break
     estimated_before = conversation.usage.as_dict()
     history_messages_before = len(conversation.messages)
