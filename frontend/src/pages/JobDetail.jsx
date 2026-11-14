@@ -7,15 +7,15 @@ import ApplyBox from "../components/ApplyBox";
 import ErrorAlert from "../components/ErrorAlert";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
-import { useAsync } from "../hooks/useAsync";
-import { getJob } from "../services/jobService";
+import { useQuery } from "../store/hooks";
+import { fetchJob, selectJobQuery } from "../store/jobsSlice";
 import { categoryLabel, formatDate } from "../utils/format";
 import Avatar from "../components/Avatar";
 
 export default function JobDetail() {
   const { id } = useParams();
   const { user } = useAuth();
-  const { data: job, loading, error, reload } = useAsync(() => getJob(id), [id]);
+  const { data: job, loading, error, reload } = useQuery(selectJobQuery(id), fetchJob, id);
 
   if (loading && !job) return <Loading label="Loading job…" />;
   if (error) return <ErrorAlert message={error} onRetry={reload} />;

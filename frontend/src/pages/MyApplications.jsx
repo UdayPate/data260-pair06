@@ -11,8 +11,8 @@ import ResumePreview from "../components/ResumePreview";
 import PageHeader from "../components/PageHeader";
 import Pagination from "../components/Pagination";
 import StatusBadge from "../components/StatusBadge";
-import { useAsync } from "../hooks/useAsync";
-import { getMyApplications } from "../services/jobService";
+import { fetchMyApplications, selectMyApplications } from "../store/applicationsSlice";
+import { useQuery } from "../store/hooks";
 import { categoryLabel, formatDate } from "../utils/format";
 
 const TABS = ["All", "Pending", "Reviewed", "Declined"];
@@ -21,10 +21,9 @@ export default function MyApplications() {
   const [tab, setTab] = useState("All");
   const [page, setPage] = useState(1);
   const [viewing, setViewing] = useState(null);   // the application whose resume is open
-  const { data, loading, error, reload } = useAsync(
-    () => getMyApplications({ page, page_size: 10, ...(tab !== "All" ? { status: tab } : {}) }),
-    [tab, page]
-  );
+  const { data, loading, error, reload } = useQuery(selectMyApplications, fetchMyApplications, {
+    page, page_size: 10, ...(tab !== "All" ? { status: tab } : {}),
+  });
 
   return (
     <>

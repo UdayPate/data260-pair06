@@ -1,9 +1,11 @@
 import { render } from "@testing-library/react";
 import MockAdapter from "axios-mock-adapter";
+import { Provider } from "react-redux";
 import { MemoryRouter } from "react-router-dom";
 import App from "../App";
 import { AuthProvider } from "../context/AuthContext";
 import api, { STORAGE_KEY } from "../services/api";
+import { makeStore } from "../store";
 
 // A fake server: tests tell it what to answer, e.g. mock.onGet("/auth/me").reply(200, {...}).
 // It plugs into the same Axios instance the app uses, so the real interceptors, services,
@@ -45,12 +47,15 @@ export function mockDashboard(role, numbers = {}) {
   }
 }
 
-export function renderApp(route = "/") {
+// Every render gets a FRESH store (made after the test stored its session), so tests never share state.
+export function renderApp(route = "/", store = makeStore()) {
   return render(
-    <MemoryRouter initialEntries={[route]} future={ROUTER_FLAGS}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </MemoryRouter>
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[route]} future={ROUTER_FLAGS}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </MemoryRouter>
+    </Provider>
   );
 }

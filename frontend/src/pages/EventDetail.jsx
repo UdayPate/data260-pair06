@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
@@ -9,28 +8,24 @@ import { Link, useParams } from "react-router-dom";
 import ErrorAlert from "../components/ErrorAlert";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
-import { useAsync } from "../hooks/useAsync";
-import { cancelRegistration, getEvent, registerForEvent } from "../services/eventService";
-import { getErrorMessage } from "../utils/errors";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  cancelEventRegistration, fetchEvent, registerEvent, selectEventQuery, selectRegistration,
+} from "../store/eventsSlice";
+import { useQuery } from "../store/hooks";
 import { formatDateTime } from "../utils/format";
 import Avatar from "../components/Avatar";
 
 // The register / cancel box (students only).
 function RegisterBox({ event, onChanged }) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const dispatch = useDispatch();
+  const registration = useSelector(selectRegistration(event.id));   // { status, action, error } from the events slice
+  const busy = registration.status === "working";
+  const error = registration.status === "failed" ? registration.error : "";
 
-  async function run(action) {
-    setBusy(true);
-    setError("");
-    try {
-      await action(event.id);
-      onChanged();
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setBusy(false);
-    }
+  async function run(thunk) {
+    const result = await dispatch(thunk(event.id));
+    if (thunk.fulfilled.match(result)) onChanged();      // reload the event: it now says registered (or not)
   }
 
   return (
@@ -42,14 +37,14 @@ function RegisterBox({ event, onChanged }) {
             <Badge bg="success" className="mb-2">You are registered</Badge>
             {!event.is_past && (
               <div>
-                <Button variant="outline-danger" size="sm" disabled={busy} onClick={() => run(cancelRegistration)}>
+                <Button variant="outline-danger" size="sm" disabled={busy} onClick={() => run(cancelEventRegistration)}>
                   {busy ? "Working…" : "Cancel registration"}
                 </Button>
               </div>
             )}
           </>
         ) : event.can_register ? (
-          <Button disabled={busy} className="w-100" onClick={() => run(registerForEvent)}>
+          <Button disabled={busy} className="w-100" onClick={() => run(registerEvent)}>
             {busy ? "Registering…" : "Register"}
           </Button>
         ) : (
@@ -64,7 +59,7 @@ function RegisterBox({ event, onChanged }) {
 export default function EventDetail() {
   const { id } = useParams();
   const { user } = useAuth();
-  const { data: event, loading, error, reload } = useAsync(() => getEvent(id), [id]);
+  const { data: event, loading, error, reload } = useQuery(selectEventQuery(id), fetchEvent, id);
 
   if (loading && !event) return <Loading label="Loading event…" />;
   if (error) return <ErrorAlert message={error} onRetry={reload} />;

@@ -11,8 +11,9 @@ import Loading from "../components/Loading";
 import PageHeader from "../components/PageHeader";
 import Pagination from "../components/Pagination";
 import { useAsync } from "../hooks/useAsync";
-import { searchEvents } from "../services/eventService";
 import { getOptions } from "../services/metaService";
+import { fetchEvents, selectEventSearch } from "../store/eventsSlice";
+import { useQuery } from "../store/hooks";
 
 const EMPTY = { q: "", city: [], date_from: "", date_to: "", major: "", include_past: false };
 
@@ -34,7 +35,7 @@ export default function EventSearch() {
   const [applied, setApplied] = useState(EMPTY);
   const [page, setPage] = useState(1);
   const options = useAsync(getOptions, []);
-  const results = useAsync(() => searchEvents(buildEventParams(applied, page)), [JSON.stringify(applied), page]);
+  const results = useQuery(selectEventSearch, fetchEvents, buildEventParams(applied, page));
   const set = (field) => (e) => setDraft({ ...draft, [field]: e.target.value });
   const dateProblem = draft.date_from && draft.date_to && draft.date_from > draft.date_to;
   const filtered = JSON.stringify(applied) !== JSON.stringify(EMPTY);

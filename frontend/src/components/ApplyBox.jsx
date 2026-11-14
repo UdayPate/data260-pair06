@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
-import { applyToJob } from "../services/jobService";
-import { getErrorMessage } from "../utils/errors";
+import { selectSubmission, submitApplication } from "../store/applicationsSlice";
 import { checkResumeFile, formatDate } from "../utils/format";
 import StatusBadge from "./StatusBadge";
 
@@ -14,14 +14,19 @@ const MAX_POLLS = 10;   // then stop asking (about 15 seconds)
 // The right-hand box on a job page. It shows ONE of four things:
 //   already applied  -> your status
 //   just applied     -> "received": the server answers 202 Accepted and a background worker saves the application
-//                       a moment later, so we ask again every 1.5 seconds until it shows up
+//                       a moment later, so we ask again every 1.5 seconds until it shows up.
+//                       The progress (sending / received / failed) is kept in the Redux applications slice, so it
+//                       survives leaving this page and coming back.
 //   deadline passed  -> "closed"
 //   otherwise        -> resume upload + Apply button
 export default function ApplyBox({ job, onApplied }) {
   const [file, setFile] = useState(null);
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [received, setReceived] = useState(false);
+  const [fileError, setFileError] = useState("");                  // a problem with the chosen file (checked here, never sent)
+  const dispatch = useDispatch();
+  const submission = useSelector(selectSubmission(job.id));       // { status, error } from the applications slice
+  const busy = submission.status === "sending";
+  const received = submission.status === "received";
+  const error = fileError || (submission.status === "failed" ? submission.error : "");
   const polls = useRef(0);
 
   useEffect(() => {
@@ -71,17 +76,11 @@ export default function ApplyBox({ job, onApplied }) {
   async function submit(e) {
     e.preventDefault();
     const problem = checkResumeFile(file);
-    if (problem) return setError(problem);
-    setBusy(true);
-    setError("");
-    try {
-      await applyToJob(job.id, file);   // 202 Accepted: the application is queued, a worker saves it
-      setReceived(true);
-      onApplied();                       // reload the job: it has my_application as soon as the worker is done
-    } catch (err) {
-      setError(getErrorMessage(err));
-      setBusy(false);
-    }
+    if (problem) return setFileError(problem);
+    setFileError("");
+    // 202 Accepted: the application is queued, a worker saves it
+    const result = await dispatch(submitApplication({ jobId: job.id, file }));
+    if (submitApplication.fulfilled.match(result)) onApplied();   // reload the job: it has my_application as soon as the worker is done
   }
 
   return (
@@ -96,7 +95,7 @@ export default function ApplyBox({ job, onApplied }) {
               accept="application/pdf,.pdf"
               onChange={(e) => {
                 setFile(e.target.files[0] ?? null);
-                setError("");
+                setFileError("");
               }}
             />
           </Form.Group>

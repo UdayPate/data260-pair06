@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
-import { sendMessage } from "../services/assistantService";
-import { getErrorMessage } from "../utils/errors";
+import { conversationReset, selectAssistant, sendAssistantMessage } from "../store/assistantSlice";
+import { selectSavedItems } from "../store/savedSlice";
 
 const SUGGESTIONS = [
   "Find internships in my preferred cities",
@@ -31,46 +32,29 @@ function ToolCalls({ calls }) {
   );
 }
 
-// The chat box on the student's home page. It talks to the assistant only through
-// services/assistantService.js, so whoever builds the real assistant changes nothing here.
+// The chat box on the student's home page. The conversation lives in the Redux assistant slice (store/assistantSlice.js),
+// NOT in this component: leaving the home page and coming back shows the same thread. Only the text being typed is local.
 export default function ChatWindow() {
-  const [messages, setMessages] = useState([]);       // [{ role: "user" | "assistant", text, toolCalls }]
-  const [conversationId, setConversationId] = useState(null);
+  const dispatch = useDispatch();
+  const { messages, status, error, failedText } = useSelector(selectAssistant);
+  const saved = useSelector(selectSavedItems);       // what the assistant saved during this session
+  const busy = status === "sending";
   const [text, setText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [failedText, setFailedText] = useState("");   // the message that did not get an answer
   const endRef = useRef(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView?.({ block: "end" });
   }, [messages, busy]);
 
-  async function send(message, { retry = false } = {}) {
+  function send(message, { retry = false } = {}) {
     const clean = message.trim();
     if (!clean || busy) return;
-    setBusy(true);
-    setError("");
-    setFailedText("");
-    if (!retry) setMessages((m) => [...m, { role: "user", text: clean }]);
     setText("");
-    try {
-      const reply = await sendMessage(clean, conversationId);
-      setConversationId(reply.conversation_id);
-      setMessages((m) => [...m, { role: "assistant", text: reply.reply, toolCalls: reply.tool_calls }]);
-    } catch (err) {
-      setError(getErrorMessage(err, "The assistant could not answer. Please try again."));
-      setFailedText(clean);
-    } finally {
-      setBusy(false);
-    }
+    dispatch(sendAssistantMessage({ text: clean, retry }));   // the slice adds the message, calls the server, adds the answer
   }
 
   function newConversation() {
-    setMessages([]);
-    setConversationId(null);
-    setError("");
-    setFailedText("");
+    dispatch(conversationReset());
     setText("");
   }
 
@@ -114,6 +98,12 @@ export default function ChatWindow() {
           )}
           <div ref={endRef} />
         </div>
+
+        {saved.length > 0 && (
+          <div className="small text-muted mt-2" data-testid="saved-items">
+            Saved by the assistant: {saved.map((s) => `${s.itemType} ${s.itemId}`).join(", ")}
+          </div>
+        )}
 
         {error && (
           <Alert variant="danger" className="d-flex justify-content-between align-items-center mt-3 mb-0" role="alert">

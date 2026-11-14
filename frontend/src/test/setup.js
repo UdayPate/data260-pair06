@@ -9,4 +9,5 @@ afterEach(() => {
   cleanup();
   mock.reset();
   localStorage.clear();
+  sessionStorage.clear();   // the assistant thread is also kept here (store/index.js), so it must not leak between tests
 });

@@ -1,10 +1,12 @@
 import { screen } from "@testing-library/react";
+import { Provider } from "react-redux";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ProtectedRoute, PublicOnlyRoute } from "../components/ProtectedRoute";
 import { AuthProvider } from "../context/AuthContext";
 import { STORAGE_KEY } from "../services/api";
+import { makeStore } from "../store";
 import { COMPANY, ROUTER_FLAGS, STUDENT, mock, mockDashboard, mockMe, renderApp, storeSession } from "./helpers";
 
 describe("sessions and protected pages", () => {
@@ -62,16 +64,18 @@ describe("sessions and protected pages", () => {
 describe("ProtectedRoute roles", () => {
   function renderRoutes(route) {
     return render(
-      <MemoryRouter initialEntries={[route]} future={ROUTER_FLAGS}>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<div>HOME PAGE</div>} />
-            <Route path="/login" element={<PublicOnlyRoute><div>LOGIN PAGE</div></PublicOnlyRoute>} />
-            <Route path="/company-only" element={<ProtectedRoute role="company"><div>COMPANY AREA</div></ProtectedRoute>} />
-            <Route path="/student-only" element={<ProtectedRoute role="student"><div>STUDENT AREA</div></ProtectedRoute>} />
-          </Routes>
-        </AuthProvider>
-      </MemoryRouter>
+      <Provider store={makeStore()}>   {/* the login state lives in the Redux store now */}
+        <MemoryRouter initialEntries={[route]} future={ROUTER_FLAGS}>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<div>HOME PAGE</div>} />
+              <Route path="/login" element={<PublicOnlyRoute><div>LOGIN PAGE</div></PublicOnlyRoute>} />
+              <Route path="/company-only" element={<ProtectedRoute role="company"><div>COMPANY AREA</div></ProtectedRoute>} />
+              <Route path="/student-only" element={<ProtectedRoute role="student"><div>STUDENT AREA</div></ProtectedRoute>} />
+            </Routes>
+          </AuthProvider>
+        </MemoryRouter>
+      </Provider>
     );
   }
 

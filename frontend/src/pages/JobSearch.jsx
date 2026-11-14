@@ -11,8 +11,9 @@ import Loading from "../components/Loading";
 import PageHeader from "../components/PageHeader";
 import Pagination from "../components/Pagination";
 import { useAsync } from "../hooks/useAsync";
-import { searchJobs } from "../services/jobService";
 import { getOptions } from "../services/metaService";
+import { useQuery } from "../store/hooks";
+import { fetchJobs, selectJobSearch } from "../store/jobsSlice";
 import { categoryLabel } from "../utils/format";
 
 const EMPTY_FILTERS = {
@@ -55,7 +56,7 @@ export default function JobSearch() {
   const [applied, setApplied] = useState(EMPTY_FILTERS); // what the results were fetched with
   const [page, setPage] = useState(1);
   const options = useAsync(getOptions, []);
-  const results = useAsync(() => searchJobs(buildParams(applied, page)), [JSON.stringify(applied), page]);
+  const results = useQuery(selectJobSearch, fetchJobs, buildParams(applied, page));   // the results live in the Redux store
 
   const set = (field) => (e) => setDraft({ ...draft, [field]: e.target.value });
 

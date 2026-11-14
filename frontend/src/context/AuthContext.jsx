@@ -1,18 +1,14 @@
 // "Who is logged in?", available to every component through useAuth().
 //
-// The session ({ token, user: { id, role, name } }) is kept in localStorage so a page
-// refresh doesn't log you out. On start-up, if a session is stored, we ask the server
-// (GET /auth/me) whether the token is still good before showing any protected screen.
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+// Lab 2: the state now lives in the Redux store (store/authSlice.js) instead of in this component. useAuth() keeps the
+// same answer shape as before, so no page had to change: it reads the auth slice with selectors and its functions
+// dispatch actions. The session is also kept in localStorage (store/index.js) so a page refresh doesn't log you out.
+// On start-up, if a session is stored, we ask the server (GET /auth/me) whether the token is still good.
+import { useCallback, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setUnauthorizedHandler } from "../services/api";
 import * as authService from "../services/authService";
-import { STORAGE_KEY, readStoredSession, setUnauthorizedHandler } from "../services/api";
-
-const AuthContext = createContext(null);
-
-function saveSession(session) {
-  if (session) localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-  else localStorage.removeItem(STORAGE_KEY);
-}
+import { restoreSession, selectAuth, sessionCleared, sessionStarted, userNameUpdated } from "../store/authSlice";
 
 // The server's answer to login/signup -> what we keep.
 const toSession = (reply) => ({
@@ -20,54 +16,36 @@ const toSession = (reply) => ({
   user: { id: reply.user_id, role: reply.role, name: reply.name },
 });
 
+// Wrap the app in this (inside the Redux <Provider>). It does the two start-up jobs; it renders nothing itself.
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(() => readStoredSession());
-  const [checking, setChecking] = useState(() => Boolean(readStoredSession()));
-  const [sessionExpired, setSessionExpired] = useState(false);
-
-  const clearSession = useCallback((expired = false) => {
-    saveSession(null);
-    setSession(null);
-    setSessionExpired(expired);
-  }, []);
+  const dispatch = useDispatch();
 
   // Any 401 from the API on a normal request means the token is no longer valid.
   useEffect(() => {
-    setUnauthorizedHandler(() => clearSession(true));
+    setUnauthorizedHandler(() => dispatch(sessionCleared(true)));
     return () => setUnauthorizedHandler(null);
-  }, [clearSession]);
+  }, [dispatch]);
 
   // On start-up: is the stored token still valid?
   useEffect(() => {
-    const stored = readStoredSession();
-    if (!stored) return undefined;
-    let active = true;
-    authService
-      .getMe()
-      .then((me) => {
-        if (!active) return;
-        const refreshed = { token: stored.token, user: { id: me.id, role: me.role, name: me.name } };
-        saveSession(refreshed);
-        setSession(refreshed);
-      })
-      .catch((error) => {
-        // Only a 401 means "this token is no longer valid". If the server is just unreachable
-        // we keep the session, and the screens show their own "cannot reach the server" message.
-        if (active && error.response?.status === 401) clearSession(true);
-      })
-      .finally(() => active && setChecking(false));
-    return () => {
-      active = false;
-    };
-  }, [clearSession]);
+    dispatch(restoreSession());
+  }, [dispatch]);
 
-  const startSession = useCallback((reply) => {
-    const next = toSession(reply);
-    saveSession(next);
-    setSession(next);
-    setSessionExpired(false);
-    return next.user;
-  }, []);
+  return children;
+}
+
+export function useAuth() {
+  const dispatch = useDispatch();
+  const { user, token, checking, sessionExpired } = useSelector(selectAuth);
+
+  const startSession = useCallback(
+    (reply) => {
+      const next = toSession(reply);
+      dispatch(sessionStarted(next));
+      return next.user;
+    },
+    [dispatch]
+  );
 
   const login = useCallback(async (credentials) => startSession(await authService.login(credentials)), [startSession]);
 
@@ -83,32 +61,16 @@ export function AuthProvider({ children }) {
     } catch {
       // Even if the server can't be reached we still sign out on this device.
     }
-    clearSession(false);
-  }, [clearSession]);
+    dispatch(sessionCleared(false));
+  }, [dispatch]);
 
-  // After the profile is saved the name may have changed; keep the top bar in step.
-  const updateUserName = useCallback((name) => {
-    setSession((current) => {
-      if (!current || current.user.name === name) return current;
-      const next = { ...current, user: { ...current.user, name } };
-      saveSession(next);
-      return next;
-    });
-  }, []);
+  const updateUserName = useCallback((name) => dispatch(userNameUpdated(name)), [dispatch]);
 
-  const value = useMemo(
+  return useMemo(
     () => ({
-      user: session?.user ?? null, isAuthenticated: Boolean(session), checking, sessionExpired,
+      user, isAuthenticated: Boolean(token), checking, sessionExpired,
       login, signup, logout, updateUserName,
     }),
-    [session, checking, sessionExpired, login, signup, logout, updateUserName]
+    [user, token, checking, sessionExpired, login, signup, logout, updateUserName]
   );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const value = useContext(AuthContext);
-  if (!value) throw new Error("useAuth must be used inside <AuthProvider>");
-  return value;
 }

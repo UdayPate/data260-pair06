@@ -7,14 +7,14 @@ import EventCard from "../components/EventCard";
 import Loading from "../components/Loading";
 import PageHeader from "../components/PageHeader";
 import Pagination from "../components/Pagination";
-import { useAsync } from "../hooks/useAsync";
-import { getRegisteredEvents } from "../services/eventService";
+import { fetchRegisteredEvents, selectRegisteredEvents } from "../store/eventsSlice";
+import { useQuery } from "../store/hooks";
 
 export default function MyEvents() {
   const [includePast, setIncludePast] = useState(false);
   const [page, setPage] = useState(1);
-  const { data, loading, error, reload } = useAsync(
-    () => getRegisteredEvents({ page, page_size: 10, include_past: includePast }), [page, includePast]);
+  const { data, loading, error, reload } = useQuery(
+    selectRegisteredEvents, fetchRegisteredEvents, { page, page_size: 10, include_past: includePast });
 
   return (
     <>
