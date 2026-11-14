@@ -176,6 +176,19 @@ services:
     depends_on: *mongo-and-kafka
     healthcheck: *worker-health
 
+  p06-memory-worker:               # learns notes from finished chats and consolidates memory (memory.* events); calls Ollama
+    <<: *service
+    image: p06-assistant:${TAG:-1.0.0}
+    container_name: p06-memory-worker
+    command: ["python", "-m", "services.assistant.worker"]
+    environment:
+      <<: *kafka-env
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:8b}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on: *mongo-and-kafka
+    healthcheck: *worker-health
+
   # ---------------------------------------------------------------- the front door
   p06-gateway:                     # routes each URL path to the service that owns it (gateway/nginx.conf)
     image: p06-gateway:${TAG:-1.0.0}

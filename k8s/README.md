@@ -23,7 +23,7 @@ k8s/
 | StatefulSet + Service | `p06-kafka` (9092) | 1 | Kafka 3.9 in KRaft mode (no ZooKeeper), 2 GiB volume |
 | Deployment + Service | `p06-student` 9062, `p06-job` 9064, `p06-application` 9065 | 2 each | |
 | Deployment + Service | `p06-company` 9063, `p06-event` 9066, `p06-assistant` 9067 | 1 each | |
-| Deployment (no Service) | `p06-application-worker`, `p06-event-worker`, `p06-job-worker` | 1 each | the Kafka consumers; can go up to 3 (the partitions) |
+| Deployment (no Service) | `p06-application-worker`, `p06-event-worker`, `p06-job-worker`, `p06-memory-worker` | 1 each | the Kafka consumers; can go up to 3 (the partitions). The memory worker uses the Assistant image and calls Ollama |
 | Deployment + Service | `p06-gateway` 9060, `p06-frontend` 9061 | 2 each | the front door and the website |
 
 **How the pods find each other (service discovery).** Every Service name is a DNS name inside the namespace. The gateway's
