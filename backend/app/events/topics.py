@@ -10,12 +10,14 @@ APPLICATION_UPDATED = "application.updated"
 APPLICATION_STATUS_CHANGED = "application.status_changed"
 EVENT_REGISTRATION_CREATED = "event.registration_created"
 JOB_CREATED = "job.created"
+MEMORY_SESSION_ENDED = "memory.session_ended"                   # Lab 2 Part 3: learn notes from a finished chat
+MEMORY_CONSOLIDATE_REQUESTED = "memory.consolidate_requested"   # Lab 2 Part 3: merge duplicates, resolve contradictions
 
 PARTITIONS = 3                      # one broker, but three partitions let up to three workers share a topic
 DLQ_TOPIC = PREFIX + "dlq"          # the dead-letter topic: messages that failed for good end up here
 
 EVENT_TYPES = [APPLICATION_CREATED, APPLICATION_UPDATED, APPLICATION_STATUS_CHANGED,
-               EVENT_REGISTRATION_CREATED, JOB_CREATED]
+               EVENT_REGISTRATION_CREATED, JOB_CREATED, MEMORY_SESSION_ENDED, MEMORY_CONSOLIDATE_REQUESTED]
 
 
 def topic_for(event_type: str) -> str:

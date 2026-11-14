@@ -171,12 +171,29 @@ def handle_job_created(db: Database, env: Envelope) -> str:
     return PROCESSED
 
 
+# ---------------------------------------------------------------- memory.* (the assistant's memory worker)
+# The imports are inside the functions on purpose: the memory code needs the model client (httpx), which only the
+# Assistant image contains. The Application, Event and Job workers import this file too and must not fail on it.
+def handle_memory_session_ended(db: Database, env: Envelope) -> str:
+    """A chat ended: learn notes from it (and consolidate when the student has many). See assistant/memory_consolidation.py."""
+    from ..assistant import memory_consolidation
+    return memory_consolidation.handle_session_ended(db, env)
+
+
+def handle_memory_consolidate(db: Database, env: Envelope) -> str:
+    """Merge duplicates and resolve contradictions in one student's memory."""
+    from ..assistant import memory_consolidation
+    return memory_consolidation.handle_consolidate(db, env)
+
+
 HANDLERS: Dict[str, Callable[[Database, Envelope], str]] = {
     topics.APPLICATION_CREATED: handle_application_created,
     topics.APPLICATION_UPDATED: handle_application_updated,
     topics.APPLICATION_STATUS_CHANGED: handle_application_status_changed,
     topics.EVENT_REGISTRATION_CREATED: handle_registration_created,
     topics.JOB_CREATED: handle_job_created,
+    topics.MEMORY_SESSION_ENDED: handle_memory_session_ended,
+    topics.MEMORY_CONSOLIDATE_REQUESTED: handle_memory_consolidate,
 }
 
 

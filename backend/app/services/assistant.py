@@ -46,9 +46,9 @@ def _open_conversation(db: Database, student_id: int, conversation_id: Optional[
 
 
 def run_assistant(db: Database, student: Doc, message: str,
-                  conversation_id: Optional[str] = None) -> ChatResponse:
+                  conversation_id: Optional[str] = None, trace_id: Optional[str] = None) -> ChatResponse:
     if commands.is_command(message):
-        reply = commands.run_command(db, student, message)
+        reply = commands.run_command(db, student, message, conversation_id, trace_id)
         return ChatResponse(reply=reply, conversation_id=conversation_id or new_conversation_id(), tool_calls=[])
 
     conversation = _open_conversation(db, student.id, conversation_id)

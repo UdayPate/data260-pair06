@@ -27,7 +27,8 @@ COMPANY = {"name": "Acme Corp", "email": "hr@acme.com", "password": "Secret123",
 def test_topics_have_the_pair_prefix_and_a_dead_letter_topic():
     assert topics.topic_for("application.created") == "p06.application.created"
     assert set(topics.TOPICS) == {"p06.application.created", "p06.application.updated", "p06.application.status_changed",
-                                  "p06.event.registration_created", "p06.job.created", "p06.dlq"}
+                                  "p06.event.registration_created", "p06.job.created",
+                                  "p06.memory.session_ended", "p06.memory.consolidate_requested", "p06.dlq"}
     assert topics.DLQ_TOPIC == "p06.dlq" and all(name.startswith("p06.") for name in topics.TOPICS)
 
 

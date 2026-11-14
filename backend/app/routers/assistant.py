@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends
 from pymongo.database import Database
 
 from ..core.deps import require_student
+from ..core.trace import get_trace_id
 from ..mongo import Doc, get_db
 from ..schemas.assistant import ChatRequest, ChatResponse
 from ..services.assistant import run_assistant
@@ -19,5 +20,6 @@ router = APIRouter(prefix="/assistant", tags=["AI assistant"])
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a message to the AI assistant (student only)")
-def chat(body: ChatRequest, student: Doc = Depends(require_student), db: Database = Depends(get_db)):
-    return run_assistant(db, student, body.message, body.conversation_id)
+def chat(body: ChatRequest, student: Doc = Depends(require_student), db: Database = Depends(get_db),
+         trace_id: str = Depends(get_trace_id)):
+    return run_assistant(db, student, body.message, body.conversation_id, trace_id)

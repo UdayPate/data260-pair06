@@ -63,10 +63,11 @@ class OllamaClient(ModelClient):
     """Talks to a local Ollama server through its /api/chat endpoint (no API key needed)."""
 
     def __init__(self, model: str = OLLAMA_MODEL, base_url: str = OLLAMA_URL,
-                 timeout: float = OLLAMA_TIMEOUT_SECONDS):
+                 timeout: float = OLLAMA_TIMEOUT_SECONDS, json_format: bool = False):
         self.model = model
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        self.json_format = json_format      # True: Ollama must answer with valid JSON (the memory worker uses this)
 
     def complete(self, messages: List[dict], tools: List[dict]) -> ModelReply:
         body = {
@@ -81,6 +82,8 @@ class OllamaClient(ModelClient):
                 "num_ctx": 8192,     # room for the system prompt, tool schemas and history
             },
         }
+        if self.json_format:
+            body["format"] = "json"
         try:
             response = httpx.post(f"{self.base_url}/api/chat", json=body, timeout=self.timeout)
             response.raise_for_status()
