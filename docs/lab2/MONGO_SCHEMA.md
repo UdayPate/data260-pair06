@@ -46,9 +46,7 @@ The Lab 1 MySQL tables map like this: `students`, `student_skills`, `student_exp
 `saved_items` -> the collection of the same name. `sessions`, `activity_logs` and `counters` are new, and files moved from the
 `uploads/` folder into GridFS.
 
-Collections for the assistant memory layers (`assistant_rules`, `student_memory`, conversations) are **not defined here**: the
-assistant-memory work owns their design. Follow the conventions above, add their indexes to `INDEXES` in `backend/app/mongo.py`,
-and add a section to this file.
+The assistant's three memory layers (`assistant_rules`, `student_memory`, `conversations`) are described in section 7 (partner).
 
 ## 3. Collections in detail
 
@@ -203,3 +201,20 @@ event_registrations 400, student_preferences 151, saved_items 150, student skill
 today's date); nothing else does.
 
 Quick look with the MongoDB shell: `docker exec p06-mongo mongosh p06_handshake --eval "db.getCollectionNames()"`.
+
+## 7. The assistant's memory layers (partner)
+
+Three collections, one per layer (code: `backend/app/assistant/memory.py` and `conversation_store.py`; the builders are in `documents.py`).
+They are created empty; the default rules are inserted by the Assistant service on the first chat message.
+
+| Layer | Collection | One document is | Fields | Indexes |
+|---|---|---|---|---|
+| 1 Instructions | `assistant_rules` | one rule the assistant always follows | `_id` (int), `rule_key` (text, unique), `text`, `active` (bool), `position` (order in the prompt) | `rule_key` unique |
+| 2 Learned memory | `student_memory` | one line learned about ONE student: `date \| category \| description` | `_id` (int), `student_id`, `date` (ISO text `2026-11-14`), `category` (`preference`, `skill`, `interest`, `goal`, `application`, `event`, `constraint`, `note`), `description` (max 300 characters, secrets removed), `source` (`conversation`, `user`, `consolidation` or `seed`), `created_at` | `student_id + date` |
+| 3 Session | `conversations` | the current chat of one student | `_id` (**text** token: the one exception to integer ids, because the browser holds it), `student_id`, `messages` (user, assistant and tool messages, no system prompt), `pending` (a save waiting for yes or no, or null), `created_at`, `updated_at` | `student_id + updated_at`; **TTL** on `updated_at` (`expireAfterSeconds: 86400`: MongoDB deletes a chat one day after its last message) |
+
+Rules for these collections:
+* A student's memory is always read with the `student_id` of the logged-in student; there is no way to ask for another student's notes.
+* A conversation id that belongs to another student is never reused: the student gets a fresh conversation.
+* Field names inside stored messages are cleaned (`.` becomes `_`, a leading `$` becomes `_`) because the model chooses tool-argument names and MongoDB does not allow those characters.
+* Memory text goes into the prompt between `<<<STUDENT_MEMORY ...>>>` markers as data, never as instructions.

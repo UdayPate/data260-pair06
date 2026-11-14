@@ -138,6 +138,20 @@ def saved_item(**fields) -> Dict[str, Any]:
                                      saved_at=datetime.now()), fields)
 
 
+def assistant_rule(**fields) -> Dict[str, Any]:
+    """Layer 1 of the assistant's memory (collection assistant_rules): a rule it always follows."""
+    return _build("assistant_rule", dict(rule_key=REQUIRED, text=REQUIRED, active=True, position=0), fields)
+
+
+def memory_entry(**fields) -> Dict[str, Any]:
+    """Layer 2 (collection student_memory): one line the assistant learned about a student.
+    `date` is an ISO date text "2026-11-14"; `source` says where it came from (conversation, user, consolidation, seed)."""
+    doc = _build("memory_entry", dict(student_id=REQUIRED, date=REQUIRED, category=REQUIRED, description=REQUIRED,
+                                      source="conversation", created_at=None), fields)
+    doc["created_at"] = doc["created_at"] or datetime.now()
+    return doc
+
+
 def preferences(**fields) -> Dict[str, Any]:
     return _build("preferences", dict(
         student_id=REQUIRED, preferred_categories=[], preferred_cities=[], preferred_roles=[],

@@ -230,6 +230,11 @@ INDEXES = [
     ("activity_logs", [("actor_role", 1), ("actor_id", 1), ("at", -1)], {}),
     ("activity_logs", [("action", 1)], {}),
     ("notifications", [("user_role", 1), ("user_id", 1), ("created_at", -1)], {}),
+    # The assistant's memory layers (Lab 2, Part 3)
+    ("assistant_rules", [("rule_key", 1)], {"unique": True}),
+    ("student_memory", [("student_id", 1), ("date", 1)], {}),
+    ("conversations", [("student_id", 1), ("updated_at", -1)], {}),
+    ("conversations", [("updated_at", 1)], {"expireAfterSeconds": 86400}),     # a chat silent for a day is discarded
 ]
 
 
