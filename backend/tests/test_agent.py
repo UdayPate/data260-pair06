@@ -2,7 +2,7 @@
 The agent loop, the five tools and the confirmation gate, tested with a SCRIPTED fake model
 (no Ollama needed). Run from backend/:   python -m pytest tests/test_agent.py -q
 """
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 
 import pytest
 
@@ -15,6 +15,9 @@ from app.enums import JobCategory, PayPeriod
 from tests.factories import make_company, make_event, make_job, make_preferences, make_student
 
 TODAY = date(2026, 10, 15)
+# The events service decides "upcoming" with the REAL clock, so the event date must be relative to it
+# (a fixed date goes stale and the test starts failing).
+EVENT_DAY = date.today() + timedelta(days=30)
 
 
 class ScriptedClient(ModelClient):
@@ -50,7 +53,7 @@ def world(db):
                  posting_date=TODAY - timedelta(days=3), deadline=TODAY + timedelta(days=20), skills=["SQL"]),
     ]
     event = make_event(db, company.id, name="CS Career Fair", description="Meet employers.",
-                       event_datetime=datetime(2026, 11, 10, 14, 0), location="Hall A", city="San Jose",
+                       event_datetime=datetime.combine(EVENT_DAY, time(14, 0)), location="Hall A", city="San Jose",
                        eligible_majors=["Computer Science"])
     return db, student, jobs, event
 
@@ -112,7 +115,8 @@ def test_get_job_details_and_missing_id(world):
 
 def test_search_events_filters_by_date_and_eligibility(world):
     ctx = ctx_for(world)
-    out = execute_tool("search_events", {"date_from": "2026-11-01", "date_to": "2026-11-30", "eligible_for_me": True}, ctx)
+    window = {"date_from": (EVENT_DAY - timedelta(days=1)).isoformat(), "date_to": (EVENT_DAY + timedelta(days=1)).isoformat()}
+    out = execute_tool("search_events", {**window, "eligible_for_me": True}, ctx)
     assert "CS Career Fair" in out and "open to: Computer Science" in out
     assert "NOT eligible" not in out and "student (" not in out      # a major was searched: no extra "you" clause
     plain = execute_tool("search_events", {}, ctx)                    # no major searched: show the student's eligibility
