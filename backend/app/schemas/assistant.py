@@ -42,3 +42,8 @@ class ChatResponse(BaseModel):
     reply: str
     conversation_id: str
     tool_calls: List[ToolCall] = Field(default_factory=list)
+    # Lab 2 (Part 6), additive: the website works without them.
+    trace_id: Optional[str] = Field(None, description="Follows this request through the logs and any Kafka event it caused")
+    usage: Optional[Dict[str, Any]] = Field(
+        None, description="Tokens used and how full the context window is: context_percent, warn (above 70), "
+                          "prompt_tokens, completion_tokens, context_window, compactions")

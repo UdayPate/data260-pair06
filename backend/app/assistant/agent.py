@@ -26,7 +26,9 @@ from datetime import date, timedelta
 from typing import Any, Callable, Dict, List, Optional
 
 from .. import mongo
+from .. import db_timing
 from . import guardrails, memory
+from .usage import Usage
 from .confirm import confirm_action
 from .model_client import ModelClient, ModelError, OllamaClient, ToolRequest
 from .tools import (GATED_TOOLS, TOOL_FUNCTIONS, TOOL_SCHEMAS, UNTRUSTED_START, ToolContext, execute_tool,
@@ -112,6 +114,8 @@ class Conversation:
     student_id: int
     messages: List[dict] = field(default_factory=list)   # user / assistant / tool messages (no system prompt)
     pending: Optional[PendingAction] = None
+    usage: Usage = field(default_factory=Usage)           # tokens over the whole conversation (see usage.py)
+    compactions: int = 0                                  # how many times the history was replaced by a summary
 
 
 @dataclass
@@ -141,6 +145,9 @@ class AssistantResult:
     repairs_used: int = 0
     timed_out: bool = False                                          # the request deadline (guardrail 7) fired
     guardrail_events: List[str] = field(default_factory=list)        # one line per guardrail that acted this turn
+    usage: Usage = field(default_factory=Usage)                      # tokens used by THIS request only
+    stages: Dict[str, float] = field(default_factory=dict)           # milliseconds in each stage: model_ms, tool_ms, tool_db_ms
+    error: Optional[str] = None                                      # why the request did not finish normally (None = fine)
 
 
 def _log(line: str, log: Optional[Callable[[str], None]]) -> None:
@@ -303,9 +310,13 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
     awaiting_repair: Optional[Failure] = None   # the failure we just re-prompted about
     declined: set = set()                       # saves the student said no to during this turn
     started = time.monotonic()
+    request_usage = Usage()                     # tokens used by THIS request (the conversation keeps a running total)
+    stages = {"model_ms": 0.0, "tool_ms": 0.0}   # milliseconds per stage; the database part comes from db_timing.py
+    error_kind: Optional[str] = None            # why the request ended badly (None = it did not)
     system = {"role": "system", "content": build_system_prompt(ctx)}
     # Is this a follow-up ("make it higher paying")? Only then do those words mean "search again".
-    history_has_tools = any(m.get("role") == "tool" for m in conversation.messages)
+    # (A compacted conversation has no tool messages left, but its summary holds the earlier search results.)
+    history_has_tools = conversation.compactions > 0 or any(m.get("role") == "tool" for m in conversation.messages)
 
     def other_student(email: str):
         """Database lookup used by the privacy filter. It must never raise."""
@@ -334,7 +345,16 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
         _log(f"Tool calls this run: {len(records)}", log)
         return AssistantResult(reply=finalize(reply), tool_calls=records, iterations=iterations,
                                stopped_at_ceiling=ceiling, failures=failures, repairs_used=repairs_used,
+                               usage=request_usage, stages=stages, error=error_kind,
                                timed_out=timeout, guardrail_events=events)
+
+    def timed_tool(fn, *args):
+        """Run a tool and add how long it took to the 'tool' stage. MongoDB time inside it is counted by db_timing."""
+        began = time.perf_counter()
+        with db_timing.tool_scope():
+            out = fn(*args)
+        stages["tool_ms"] += (time.perf_counter() - began) * 1000
+        return out
 
     def clean_result(name: str, result: str) -> str:
         """Check one tool result before the model or the student sees it, and note what each guardrail did."""
@@ -357,12 +377,13 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
     denied = guardrails.authorize(ctx.student, conversation.student_id, None, TOOL_FUNCTIONS)
     if denied:
         events.append(f"G3 authorization: refused ({denied})")
+        error_kind = "not_authorized"
         return done(f"I cannot do that: {denied}.", 0)
 
     # --- website mode: the student's message is the answer to a pending confirmation ---
     if conversation.pending is not None:
         pending, conversation.pending = conversation.pending, None
-        result = _run_gated(pending.tool_name, pending.arguments, ctx, lambda _q: user_message, False, declined)
+        result = timed_tool(_run_gated, pending.tool_name, pending.arguments, ctx, lambda _q: user_message, False, declined)
         result = clean_result(pending.tool_name, result)
         _log(f"[tool] {pending.tool_name}({_short(pending.arguments)}) -> confirmed by student's reply", log)
         records.append(ToolRecord(pending.tool_name, pending.arguments, result))
@@ -376,14 +397,21 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
     for iteration in range(1, max_iterations + 1):
         if time.monotonic() - started > timeout_seconds:       # guardrail 7: the whole request ran out of time
             events.append(f"G7 timeout: more than {timeout_seconds:g} seconds used, stopped")
+            error_kind = "timeout"
             conversation.messages.append({"role": "assistant", "content": guardrails.TIMEOUT_REPLY})
             return done(guardrails.TIMEOUT_REPLY, iteration - 1, timeout=True)
         conversation.messages[:] = conversation.messages[-MAX_HISTORY_MESSAGES:]
+        call_began = time.perf_counter()
         try:
             reply = client.complete([system] + conversation.messages, TOOL_SCHEMAS)
         except ModelError as exc:
+            stages["model_ms"] += (time.perf_counter() - call_began) * 1000
             _log(f"[model] {exc}", log)
+            error_kind = "model_unreachable"
             return done(MODEL_DOWN_REPLY, iteration)
+        stages["model_ms"] += (time.perf_counter() - call_began) * 1000
+        request_usage.add(reply)                  # token tracking: after EVERY model call
+        conversation.usage.add(reply)
 
         conversation.messages.append(_assistant_message(reply.content, reply.tool_calls))
 
@@ -440,9 +468,9 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
                         return done(question, iteration)
                     result = problem_text
                 else:
-                    result = _run_gated(call.name, call.arguments, ctx, ask, auto_approve, declined)
+                    result = timed_tool(_run_gated, call.name, call.arguments, ctx, ask, auto_approve, declined)
             else:
-                result, retried = run_read_tool(call.name, call.arguments, ctx, events)
+                result, retried = timed_tool(run_read_tool, call.name, call.arguments, ctx, events)
             result = clean_result(call.name, result)
             _log(f"[tool] {call.name}({_short(call.arguments)})", log)
             records.append(ToolRecord(call.name, call.arguments, result, retried=retried))
@@ -460,10 +488,12 @@ def run_assistant(user_message: str, conversation: Conversation, ctx: ToolContex
                 continue
             # Repair already used (or switched off): stop cleanly instead of looping on a broken model.
             reply_text = _failed_reply(first)
+            error_kind = "bad_tool_use"
             conversation.messages.append({"role": "assistant", "content": reply_text})
             return done(reply_text, iteration)
         if awaiting_repair is not None:
             awaiting_repair.repaired = True            # the corrected call was well formed
 
     conversation.messages.append({"role": "assistant", "content": CEILING_REPLY})
+    error_kind = "iteration_ceiling"
     return done(CEILING_REPLY, max_iterations, ceiling=True)

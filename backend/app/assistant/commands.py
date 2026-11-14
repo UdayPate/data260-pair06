@@ -6,6 +6,8 @@ and cannot be tricked by anything in the database).
     /memory add <text>      add a note yourself ("/memory add I can only work 15 hours a week")
     /memory learn           ask the assistant to learn notes from THIS chat (runs in the background, in a Kafka worker)
     /memory consolidate     tidy your notes: merge duplicates, resolve contradictions (also in the background)
+    /compact                replace this chat's long history by a short summary (frees space in the model's context window)
+    /trace                  show where the time went in your last request, and its trace id
 """
 from typing import Optional
 
@@ -14,11 +16,12 @@ from pymongo.database import Database
 from ..events import topics
 from ..events.publisher import get_publisher, publish_quietly
 from ..mongo import Doc
-from . import conversation_store, memory
+from . import compaction, conversation_store, memory, tracing
 
 MAX_SHOWN = 60
 USAGE = ("Commands: /memory (show what I remember about you), /memory add <note> (remember something), "
-         "/memory learn (learn from this chat), /memory consolidate (tidy my notes about you).")
+         "/memory learn (learn from this chat), /memory consolidate (tidy my notes about you), "
+         "/compact (shorten this chat), /trace (where the time of my last answer went).")
 
 
 def is_command(message: str) -> bool:
@@ -29,6 +32,10 @@ def run_command(db: Database, student: Doc, message: str, conversation_id: Optio
                 trace_id: Optional[str] = None) -> str:
     """Run one command for the logged-in student and return the reply text."""
     name, _, rest = message.strip().partition(" ")
+    if name.lower() == "/compact":
+        return _compact(db, student, conversation_id)
+    if name.lower() == "/trace":
+        return tracing.format_trace(tracing.latest_for_student(db, student.id))
     if name.lower() != "/memory":
         return f"I do not know the command {name}. {USAGE}"
     sub, _, argument = rest.strip().partition(" ")
@@ -48,6 +55,22 @@ def run_command(db: Database, student: Doc, message: str, conversation_id: Optio
         return _queue(topics.MEMORY_CONSOLIDATE_REQUESTED, student, trace_id, {"student_id": student.id},
                       "I will tidy my notes about you")
     return USAGE
+
+
+def _compact(db: Database, student: Doc, conversation_id: Optional[str]) -> str:
+    """/compact: replace this chat's history by a summary and say how much smaller it got."""
+    conversation = conversation_store.load(db, student.id, conversation_id) if conversation_id else None
+    if conversation is None:
+        return "There is no chat to compact yet. Talk to me first."
+    report = compaction.compact(conversation, db, student)
+    if not report["compacted"]:
+        return f"I did not compact this chat: {report['skipped']}."
+    conversation_store.save(db, conversation)
+    return (f"Compacted: {report['messages_before']} messages became {report['messages_after']} (a summary of the jobs, "
+            f"companies, events, your preferences and applications, and your current request). The history went from about "
+            f"{report['estimated_history_tokens_before']} to about {report['estimated_history_tokens_after']} tokens "
+            f"(estimated). The context window was {report['context_tokens_before']} tokens full and is now about "
+            f"{report['context_tokens_after_estimated']} (an estimate until my next answer measures it).")
 
 
 def _queue(event_type: str, student: Doc, trace_id: Optional[str], payload: dict, what: str) -> str:

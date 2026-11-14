@@ -29,7 +29,7 @@ from pymongo import ReturnDocument
 from pymongo.database import Database
 from pymongo.errors import PyMongoError
 
-from . import config
+from . import config, db_timing
 
 logger = logging.getLogger("handshake")
 
@@ -41,7 +41,9 @@ def get_database() -> Database:
     """The p06_handshake database. The connection is created once and re-used."""
     global _database
     if _database is None:
-        client = pymongo.MongoClient(config.MONGO_URL, serverSelectionTimeoutMS=config.MONGO_TIMEOUT_MS)
+        # The listener lets a request report how long MongoDB took (db_timing.py); it does nothing outside a measured request.
+        client = pymongo.MongoClient(config.MONGO_URL, serverSelectionTimeoutMS=config.MONGO_TIMEOUT_MS,
+                                     event_listeners=[db_timing.LISTENER])
         _database = client[config.MONGO_DB_NAME]
     return _database
 
@@ -235,6 +237,10 @@ INDEXES = [
     ("student_memory", [("student_id", 1), ("date", 1)], {}),
     ("conversations", [("student_id", 1), ("updated_at", -1)], {}),
     ("conversations", [("updated_at", 1)], {"expireAfterSeconds": 86400}),     # a chat silent for a day is discarded
+    # Tracing (Lab 2, Part 6): one document per request, found by trace_id; kept for 30 days
+    ("traces", [("trace_id", 1)], {}),
+    ("traces", [("student_id", 1), ("at", -1)], {}),
+    ("traces", [("at", 1)], {"expireAfterSeconds": 2592000}),
 ]
 
 

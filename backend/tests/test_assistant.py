@@ -30,7 +30,9 @@ def test_chat_answers_with_the_agreed_shape(client, student_headers):
     r = client.post(URL, json={"message": "find me an internship"}, headers=student_headers)
     assert r.status_code == 200
     body = r.json()
-    assert set(body) == {"reply", "conversation_id", "tool_calls"}
+    # The three fields the website relies on (Lab 1), plus two optional ones added in Lab 2 Part 6 (trace id, token usage).
+    assert {"reply", "conversation_id", "tool_calls"} <= set(body)
+    assert set(body) == {"reply", "conversation_id", "tool_calls", "trace_id", "usage"}
     assert body["reply"] and body["conversation_id"] and body["tool_calls"] == []
 
 

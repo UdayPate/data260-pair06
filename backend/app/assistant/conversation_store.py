@@ -10,18 +10,20 @@ A conversation document:
     student_id   whose conversation it is (nobody else can open it)
     messages     the user / assistant / tool messages, without the system prompt
     pending      a save waiting for the student's yes or no, or null
+    usage        token counts (see usage.py); compactions: how many times the history was replaced by a summary
     created_at, updated_at
 
 MongoDB deletes a conversation by itself one day after its last message (TTL index on updated_at, see mongo.INDEXES):
 "discarded at session end". Compaction (Part 6) replaces `messages` with a short summary instead.
 """
-from dataclasses import asdict
+from dataclasses import asdict, fields
 from datetime import datetime
 from typing import Optional
 
 from pymongo.database import Database
 
 from .agent import Conversation, PendingAction
+from .usage import Usage
 
 
 def _safe(value):
@@ -45,8 +47,11 @@ def load(db: Database, student_id: int, conversation_id: str) -> Optional[Conver
     if raw is None or raw.get("student_id") != student_id:
         return None
     pending = PendingAction(**raw["pending"]) if raw.get("pending") else None
+    known = {f.name for f in fields(Usage)}                       # ignore any field a newer version stored
+    usage = Usage(**{k: v for k, v in (raw.get("usage") or {}).items() if k in known})
     return Conversation(conversation_id=conversation_id, student_id=student_id,
-                        messages=list(raw.get("messages") or []), pending=pending)
+                        messages=list(raw.get("messages") or []), pending=pending,
+                        usage=usage, compactions=int(raw.get("compactions") or 0))
 
 
 def save(db: Database, conversation: Conversation) -> None:
@@ -55,6 +60,7 @@ def save(db: Database, conversation: Conversation) -> None:
         {"_id": conversation.conversation_id},
         {"$set": {"student_id": conversation.student_id, "messages": _safe(conversation.messages),
                   "pending": _safe(asdict(conversation.pending)) if conversation.pending else None,
+                  "usage": asdict(conversation.usage), "compactions": conversation.compactions,
                   "updated_at": now},
          "$setOnInsert": {"created_at": now}},
         upsert=True)

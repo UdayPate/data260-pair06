@@ -31,18 +31,21 @@ import json
 import logging
 import os
 import re
+import time
+from contextlib import contextmanager
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Dict, List, Optional, Set
 
 from pymongo.database import Database
 from pymongo.errors import DuplicateKeyError
 
-from .. import mongo
+from .. import db_timing, mongo
 from ..events.errors import PermanentError
 from ..mongo import Doc
-from . import memory
+from . import memory, tracing
 from .model_client import ModelClient, ModelError, OllamaClient
+from .usage import Usage
 
 logger = logging.getLogger("handshake.memory")
 
@@ -106,6 +109,8 @@ def conversation_text(messages: List[dict]) -> str:
         content = (m.get("content") or "").strip()
         if m.get("role") not in ("user", "assistant") or not content or content.startswith("[automatic notice]"):
             continue
+        if content.startswith("[Conversation summary") or content == "Understood. I have the summary of our earlier conversation and will continue from it.":
+            continue                           # a compaction summary holds tool results, not the student's own words
         lines.append(f"{'Student' if m['role'] == 'user' else 'Assistant'}: {content}")
     return "\n".join(lines)[-6000:]
 
@@ -371,6 +376,53 @@ def _already_done(db: Database, env) -> bool:
     return db.memory_runs.count_documents({"_id": env.event_id}) > 0
 
 
+class TimedClient(ModelClient):
+    """Wraps the model client to count how long the model took and how many tokens it used (for the worker's trace)."""
+
+    def __init__(self, inner: ModelClient):
+        self.inner, self.model_ms, self.usage = inner, 0.0, Usage()
+
+    def complete(self, messages, tools):
+        began = time.perf_counter()
+        try:
+            reply = self.inner.complete(messages, tools)
+        finally:
+            self.model_ms += (time.perf_counter() - began) * 1000
+        self.usage.add(reply)
+        return reply
+
+
+def queue_wait_ms(env) -> float:
+    """How long the message waited in Kafka: from the moment it was published (envelope timestamp, UTC) to now, when the
+    worker starts on it. In the one-process 'inline' mode there is no queue and this is about zero."""
+    try:
+        sent = datetime.fromisoformat(env.timestamp.replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return 0.0
+    return max((datetime.now(timezone.utc) - sent).total_seconds() * 1000.0, 0.0)
+
+
+@contextmanager
+def _traced(db: Database, env, student_id: int):
+    """Time the worker's part of a request and store it as a trace (kind memory_worker) with the request's trace id.
+    Yields the model client to use, so the model time and tokens are counted."""
+    waited = queue_wait_ms(env)                      # measured first: it is the time BEFORE the worker started
+    client = TimedClient(get_client())
+    began = time.perf_counter()
+    status = "ok"
+    with db_timing.measure() as timer:
+        try:
+            yield client
+        except Exception:
+            status = "error"
+            raise
+        finally:
+            total = (time.perf_counter() - began) * 1000
+            tracing.record(db, trace_id=env.trace_id, kind="memory_worker", student_id=student_id, status=status,
+                           total_ms=total, detail=env.event_type, usage=client.usage.as_dict(),
+                           stages=tracing.stages_from(client.model_ms, 0.0, timer.db_ms, 0.0, timer.db_calls, waited))
+
+
 def handle_session_ended(db: Database, env) -> str:
     student_id, conversation_id = _payload_int(env.payload, "student_id"), env.payload.get("conversation_id")
     if not isinstance(conversation_id, str):
@@ -383,11 +435,11 @@ def handle_session_ended(db: Database, env) -> str:
     if raw is None or raw.get("student_id") != student_id:
         # The chat was already discarded (the one-day expiry) or is not this student's: nothing to learn, not an error.
         return _record_run(db, env, student_id, {"learned": 0, "note": "conversation not found"})
-    client = get_client()
-    added = learn(db, student_id, raw.get("messages") or [], client)
-    summary = {"learned": len(added), "learned_ids": [e.id for e in added]}
-    if mongo.count(db, "student_memory", {"student_id": student_id}) > CONSOLIDATE_ABOVE:
-        summary["consolidation"] = consolidate(db, student_id, client).as_dict()
+    with _traced(db, env, student_id) as client:
+        added = learn(db, student_id, raw.get("messages") or [], client)
+        summary = {"learned": len(added), "learned_ids": [e.id for e in added]}
+        if mongo.count(db, "student_memory", {"student_id": student_id}) > CONSOLIDATE_ABOVE:
+            summary["consolidation"] = consolidate(db, student_id, client).as_dict()
     logger.info("event=memory.session_ended student_id=%s learned=%s trace_id=%s", student_id, len(added), env.trace_id)
     return _record_run(db, env, student_id, summary)
 
@@ -398,7 +450,8 @@ def handle_consolidate(db: Database, env) -> str:
         return DUPLICATE
     if mongo.get(db, "students", student_id) is None:
         raise PermanentError(f"student {student_id} does not exist")
-    report = consolidate(db, student_id)
+    with _traced(db, env, student_id) as client:
+        report = consolidate(db, student_id, client)
     logger.info("event=memory.consolidate student_id=%s before=%s after=%s trace_id=%s",
                 student_id, report.before, report.after, env.trace_id)
     return _record_run(db, env, student_id, {"consolidation": report.as_dict()})

@@ -23,6 +23,8 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:8b")
 # This laptop runs the model on the CPU, so one model call can take a minute or more.
 OLLAMA_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "600"))
+# The context window: how many tokens the model can hold at once (prompt + answer). The UI shows how full it is.
+CONTEXT_WINDOW = int(os.getenv("OLLAMA_NUM_CTX", "8192"))
 
 
 class ModelError(Exception):
@@ -46,6 +48,8 @@ class ToolRequest:
 class ModelReply:
     content: str
     tool_calls: List[ToolRequest] = field(default_factory=list)
+    prompt_tokens: int = 0        # tokens the model READ for this call (system prompt + tools + history), as it counted them
+    completion_tokens: int = 0    # tokens the model WROTE
 
 
 class ModelClient:
@@ -79,7 +83,7 @@ class OllamaClient(ModelClient):
             "options": {
                 "temperature": 0,    # same question -> same answer, so runs can be compared
                 "seed": SEED,
-                "num_ctx": 8192,     # room for the system prompt, tool schemas and history
+                "num_ctx": CONTEXT_WINDOW,   # room for the system prompt, tool schemas and history
             },
         }
         if self.json_format:
@@ -87,7 +91,8 @@ class OllamaClient(ModelClient):
         try:
             response = httpx.post(f"{self.base_url}/api/chat", json=body, timeout=self.timeout)
             response.raise_for_status()
-            message = response.json()["message"]
+            data = response.json()
+            message = data["message"]
         except httpx.HTTPError as exc:
             raise ModelError(f"Could not reach the model at {self.base_url}: {exc}") from exc
         except (ValueError, KeyError) as exc:
@@ -95,7 +100,10 @@ class OllamaClient(ModelClient):
 
         content = _THINK_RE.sub("", message.get("content") or "").strip()
         calls = [_to_tool_request(c) for c in message.get("tool_calls") or []]
-        return ModelReply(content=content, tool_calls=calls)
+        # Ollama counts the tokens itself: prompt_eval_count (read) and eval_count (written). Missing -> 0.
+        return ModelReply(content=content, tool_calls=calls,
+                          prompt_tokens=int(data.get("prompt_eval_count") or 0),
+                          completion_tokens=int(data.get("eval_count") or 0))
 
 
 def _to_tool_request(call: dict) -> ToolRequest:
