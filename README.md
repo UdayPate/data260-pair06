@@ -361,6 +361,25 @@ that produced them.
 - Run the experiments with `python -m scripts.run_part_c gate`, `injection` or `reliability` (from `backend/`; the model
   comes from the `OLLAMA_MODEL` environment variable). The injection run inserts one poisoned job and deletes it again.
 
+### Lab 2: guardrails and the evaluation harness (Part 6)
+
+The eight guardrails are listed at the top of `backend/app/assistant/guardrails.py` with the place each one lives
+(allowlist, schema validation, authorization, confirmation, injection defense, secret and privacy filter, bounded
+execution with a request deadline and one tool retry, grounded answers).
+
+Run the harness with one command (from `backend/`, with the venv active; it needs no Ollama and no MongoDB server):
+
+```powershell
+python -m scripts.agent_harness
+```
+
+A scripted model plays the language model; the agent loop, guardrails, validation and tools are the production code, on
+an in-memory MongoDB. It runs 16 cases (read-only search, accepted and declined save, malformed arguments, unknown tool,
+no match, history follow-up, injection before and after the defense, iteration ceiling, timeout, one retry, secrets,
+privacy, invented ids, authorization) plus a before/after-repair comparison. Output: `docs/lab2/agent_harness.json`
+(every record) and `docs/lab2/agent_harness_summary.md` (the tables). The harness supplements the real Ollama
+transcripts and does not replace them.
+
 ## Testing
 
 - Backend: `python -m pytest -q` runs the full API suite on an in-memory MongoDB (authentication and sessions, profiles,
