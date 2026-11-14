@@ -1,0 +1,868 @@
+{
+  "run_at": "2026-11-14 02:44:02",
+  "model": "qwen3:8b",
+  "database": "in-memory mongomock (no MongoDB server was reachable)",
+  "handler_outcome": "processed",
+  "elapsed_seconds": 1171.2,
+  "before_count": 62,
+  "after_count": 30,
+  "checks": [
+    {
+      "check": "started with at least 60 notes",
+      "passed": true,
+      "detail": "62 notes"
+    },
+    {
+      "check": "ended below 40 notes",
+      "passed": true,
+      "detail": "30 notes"
+    },
+    {
+      "check": "no exact duplicate is left",
+      "passed": true,
+      "detail": "0 duplicate(s) left"
+    },
+    {
+      "check": "duplicate dup1 merged to at most one note",
+      "passed": true,
+      "detail": "1 of 2 copies left"
+    },
+    {
+      "check": "duplicate dup2 merged to at most one note",
+      "passed": true,
+      "detail": "1 of 2 copies left"
+    },
+    {
+      "check": "duplicate dup3 merged to at most one note",
+      "passed": true,
+      "detail": "1 of 2 copies left"
+    },
+    {
+      "check": "contradiction old1 vs new1 resolved in favour of the newer note",
+      "passed": true,
+      "detail": "old note removed, newer note kept"
+    },
+    {
+      "check": "contradiction old2 vs new2 resolved in favour of the newer note",
+      "passed": true,
+      "detail": "old note removed, newer note kept"
+    },
+    {
+      "check": "contradiction old3 vs new3 resolved in favour of the newer note",
+      "passed": false,
+      "detail": "BOTH notes are still there (unresolved)"
+    }
+  ],
+  "groups": {
+    "A": {
+      "original_notes": 6,
+      "originals_left": 0,
+      "decision_kinds_that_touched_them": [
+        "merge"
+      ]
+    },
+    "B": {
+      "original_notes": 5,
+      "originals_left": 1,
+      "decision_kinds_that_touched_them": [
+        "merge"
+      ]
+    },
+    "C": {
+      "original_notes": 5,
+      "originals_left": 0,
+      "decision_kinds_that_touched_them": [
+        "fallback_cap",
+        "merge"
+      ]
+    },
+    "D": {
+      "original_notes": 6,
+      "originals_left": 2,
+      "decision_kinds_that_touched_them": [
+        "fallback_cap"
+      ]
+    },
+    "E": {
+      "original_notes": 4,
+      "originals_left": 2,
+      "decision_kinds_that_touched_them": [
+        "fallback_cap"
+      ]
+    },
+    "S": {
+      "original_notes": 24,
+      "originals_left": 15
+    }
+  },
+  "report": {
+    "before": 62,
+    "after": 30,
+    "used_model": true,
+    "model_calls": 5,
+    "model_error": "Could not reach the model at http://localhost:11434: timed out",
+    "model_answer_readable": false,
+    "decisions": [
+      {
+        "kind": "duplicate",
+        "ids": [
+          2,
+          1
+        ],
+        "detail": "kept 2, removed copies [1]",
+        "accepted": true,
+        "reason": ""
+      },
+      {
+        "kind": "duplicate",
+        "ids": [
+          4,
+          3
+        ],
+        "detail": "kept 4, removed copies [3]",
+        "accepted": true,
+        "reason": ""
+      },
+      {
+        "kind": "duplicate",
+        "ids": [
+          6,
+          5
+        ],
+        "detail": "kept 6, removed copies [5]",
+        "accepted": true,
+        "reason": ""
+      },
+      {
+        "kind": "merge",
+        "ids": [
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "detail": "merged into: Interested in data science",
+        "accepted": true,
+        "reason": ""
+      },
+      {
+        "kind": "merge",
+        "ids": [
+          19,
+          20,
+          21,
+          23
+        ],
+        "detail": "merged into: Knows SQL and can write SQL queries",
+        "accepted": true,
+        "reason": ""
+      },
+      {
+        "kind": "contradiction",
+        "ids": [
+          8,
+          7
+        ],
+        "detail": "kept 8 (Wants on-site jobs in San Jose and no remote work); dropped the older 7 (Wants only remote jobs)",
+        "accepted": true,
+        "reason": ""
+      },
+      {
+        "kind": "contradiction",
+        "ids": [
+          6,
+          57
+        ],
+        "detail": "kept 6 (Prefers internships over full-time jobs); dropped the older 57 (Prefers small companies)",
+        "accepted": true,
+        "reason": ""
+      },
+      {
+        "kind": "merge",
+        "ids": [
+          24,
+          27,
+          28,
+          25
+        ],
+        "detail": "merged into: Prefers to work in San Jose",
+        "accepted": true,
+        "reason": ""
+      },
+      {
+        "kind": "fallback_cap",
+        "ids": [
+          47,
+          44,
+          58,
+          26,
+          42,
+          41,
+          40,
+          39,
+          55,
+          36,
+          9,
+          35,
+          32,
+          31,
+          30,
+          29
+        ],
+        "detail": "still over 39 notes: kept the newest 4 of each category, removed 16",
+        "accepted": true,
+        "reason": ""
+      }
+    ]
+  },
+  "before": [
+    {
+      "id": 13,
+      "date": "2026-08-03",
+      "category": "interest",
+      "description": "Interested in data science",
+      "source": "seed"
+    },
+    {
+      "id": 1,
+      "date": "2026-08-05",
+      "category": "skill",
+      "description": "Knows Python",
+      "source": "seed"
+    },
+    {
+      "id": 19,
+      "date": "2026-08-07",
+      "category": "skill",
+      "description": "Knows SQL",
+      "source": "seed"
+    },
+    {
+      "id": 60,
+      "date": "2026-08-08",
+      "category": "note",
+      "description": "Likes short answers",
+      "source": "seed"
+    },
+    {
+      "id": 24,
+      "date": "2026-08-09",
+      "category": "preference",
+      "description": "Prefers jobs in San Jose",
+      "source": "seed"
+    },
+    {
+      "id": 39,
+      "date": "2026-08-10",
+      "category": "skill",
+      "description": "Knows React",
+      "source": "seed"
+    },
+    {
+      "id": 7,
+      "date": "2026-08-12",
+      "category": "preference",
+      "description": "Wants only remote jobs",
+      "source": "seed"
+    },
+    {
+      "id": 35,
+      "date": "2026-08-14",
+      "category": "constraint",
+      "description": "Available 15 hours a week",
+      "source": "seed"
+    },
+    {
+      "id": 44,
+      "date": "2026-08-16",
+      "category": "goal",
+      "description": "Wants to become a data engineer",
+      "source": "seed"
+    },
+    {
+      "id": 3,
+      "date": "2026-08-18",
+      "category": "interest",
+      "description": "Interested in machine learning",
+      "source": "seed"
+    },
+    {
+      "id": 57,
+      "date": "2026-08-19",
+      "category": "preference",
+      "description": "Prefers small companies",
+      "source": "seed"
+    },
+    {
+      "id": 9,
+      "date": "2026-08-20",
+      "category": "constraint",
+      "description": "Needs a minimum pay of $25 per hour",
+      "source": "seed"
+    },
+    {
+      "id": 40,
+      "date": "2026-08-22",
+      "category": "skill",
+      "description": "Uses Git every day",
+      "source": "seed"
+    },
+    {
+      "id": 14,
+      "date": "2026-08-25",
+      "category": "interest",
+      "description": "Likes data science work",
+      "source": "seed"
+    },
+    {
+      "id": 47,
+      "date": "2026-08-28",
+      "category": "interest",
+      "description": "Interested in healthcare analytics",
+      "source": "seed"
+    },
+    {
+      "id": 20,
+      "date": "2026-08-30",
+      "category": "skill",
+      "description": "Comfortable writing SQL queries",
+      "source": "seed"
+    },
+    {
+      "id": 25,
+      "date": "2026-08-31",
+      "category": "preference",
+      "description": "Wants to work near San Jose",
+      "source": "seed"
+    },
+    {
+      "id": 5,
+      "date": "2026-09-01",
+      "category": "preference",
+      "description": "Prefers internships over full-time jobs",
+      "source": "seed"
+    },
+    {
+      "id": 11,
+      "date": "2026-09-02",
+      "category": "goal",
+      "description": "Is majoring in Computer Science",
+      "source": "seed"
+    },
+    {
+      "id": 50,
+      "date": "2026-09-03",
+      "category": "application",
+      "description": "Applied to a Data Analyst internship at Acme Data",
+      "source": "seed"
+    },
+    {
+      "id": 41,
+      "date": "2026-09-04",
+      "category": "skill",
+      "description": "Has built dashboards in Tableau",
+      "source": "seed"
+    },
+    {
+      "id": 36,
+      "date": "2026-09-06",
+      "category": "constraint",
+      "description": "Can work about 15 hours weekly",
+      "source": "seed"
+    },
+    {
+      "id": 45,
+      "date": "2026-09-08",
+      "category": "goal",
+      "description": "Wants to work at a startup",
+      "source": "seed"
+    },
+    {
+      "id": 15,
+      "date": "2026-09-09",
+      "category": "interest",
+      "description": "Wants to work in data science",
+      "source": "seed"
+    },
+    {
+      "id": 55,
+      "date": "2026-09-10",
+      "category": "constraint",
+      "description": "Cannot work on Tuesday evenings because of classes",
+      "source": "seed"
+    },
+    {
+      "id": 29,
+      "date": "2026-09-12",
+      "category": "event",
+      "description": "Attended the fall career fair",
+      "source": "seed"
+    },
+    {
+      "id": 30,
+      "date": "2026-09-12",
+      "category": "event",
+      "description": "Went to the SJSU fall career fair",
+      "source": "seed"
+    },
+    {
+      "id": 31,
+      "date": "2026-09-13",
+      "category": "event",
+      "description": "Visited the career fair in the fall",
+      "source": "seed"
+    },
+    {
+      "id": 32,
+      "date": "2026-09-13",
+      "category": "event",
+      "description": "Was at the fall career fair on campus",
+      "source": "seed"
+    },
+    {
+      "id": 33,
+      "date": "2026-09-14",
+      "category": "event",
+      "description": "Walked the fall career fair and met recruiters",
+      "source": "seed"
+    },
+    {
+      "id": 34,
+      "date": "2026-09-14",
+      "category": "event",
+      "description": "Fall career fair attendance",
+      "source": "seed"
+    },
+    {
+      "id": 21,
+      "date": "2026-09-15",
+      "category": "skill",
+      "description": "Has used SQL in class projects",
+      "source": "seed"
+    },
+    {
+      "id": 61,
+      "date": "2026-09-17",
+      "category": "note",
+      "description": "Prefers bullet points when comparing jobs",
+      "source": "seed"
+    },
+    {
+      "id": 42,
+      "date": "2026-09-19",
+      "category": "skill",
+      "description": "Can write basic Java",
+      "source": "seed"
+    },
+    {
+      "id": 26,
+      "date": "2026-09-20",
+      "category": "preference",
+      "description": "Lives in San Jose and wants a short commute",
+      "source": "seed"
+    },
+    {
+      "id": 48,
+      "date": "2026-09-22",
+      "category": "interest",
+      "description": "Interested in cloud computing",
+      "source": "seed"
+    },
+    {
+      "id": 51,
+      "date": "2026-09-24",
+      "category": "application",
+      "description": "Applied to a Software Engineer internship at Globex",
+      "source": "seed"
+    },
+    {
+      "id": 58,
+      "date": "2026-09-26",
+      "category": "preference",
+      "description": "Likes jobs that use Python daily",
+      "source": "seed"
+    },
+    {
+      "id": 37,
+      "date": "2026-09-27",
+      "category": "constraint",
+      "description": "Only free 15 hours per week during the semester",
+      "source": "seed"
+    },
+    {
+      "id": 16,
+      "date": "2026-09-28",
+      "category": "interest",
+      "description": "Data science is a favorite topic",
+      "source": "seed"
+    },
+    {
+      "id": 54,
+      "date": "2026-09-30",
+      "category": "event",
+      "description": "Went to the resume workshop on campus",
+      "source": "seed"
+    },
+    {
+      "id": 2,
+      "date": "2026-10-02",
+      "category": "skill",
+      "description": "Knows Python",
+      "source": "seed"
+    },
+    {
+      "id": 22,
+      "date": "2026-10-05",
+      "category": "skill",
+      "description": "SQL is one of their strongest skills",
+      "source": "seed"
+    },
+    {
+      "id": 53,
+      "date": "2026-10-06",
+      "category": "event",
+      "description": "Registered for the Women in Tech panel",
+      "source": "seed"
+    },
+    {
+      "id": 27,
+      "date": "2026-10-08",
+      "category": "preference",
+      "description": "San Jose is the preferred location",
+      "source": "seed"
+    },
+    {
+      "id": 43,
+      "date": "2026-10-09",
+      "category": "skill",
+      "description": "Strong with Excel pivot tables",
+      "source": "seed"
+    },
+    {
+      "id": 4,
+      "date": "2026-10-11",
+      "category": "interest",
+      "description": "Interested in machine learning",
+      "source": "seed"
+    },
+    {
+      "id": 52,
+      "date": "2026-10-13",
+      "category": "application",
+      "description": "Applied to a data internship at Initech",
+      "source": "seed"
+    },
+    {
+      "id": 17,
+      "date": "2026-10-14",
+      "category": "interest",
+      "description": "Enjoys data science projects",
+      "source": "seed"
+    },
+    {
+      "id": 46,
+      "date": "2026-10-15",
+      "category": "goal",
+      "description": "Plans to apply to graduate school in 2028",
+      "source": "seed"
+    },
+    {
+      "id": 38,
+      "date": "2026-10-18",
+      "category": "constraint",
+      "description": "Part-time availability of 15 hours per week",
+      "source": "seed"
+    },
+    {
+      "id": 8,
+      "date": "2026-10-20",
+      "category": "preference",
+      "description": "Wants on-site jobs in San Jose and no remote work",
+      "source": "seed"
+    },
+    {
+      "id": 49,
+      "date": "2026-10-21",
+      "category": "interest",
+      "description": "Likes contributing to open source",
+      "source": "seed"
+    },
+    {
+      "id": 56,
+      "date": "2026-10-23",
+      "category": "constraint",
+      "description": "Needs the application deadline to be at least a week away",
+      "source": "seed"
+    },
+    {
+      "id": 10,
+      "date": "2026-10-25",
+      "category": "constraint",
+      "description": "Needs a minimum pay of $40 per hour",
+      "source": "seed"
+    },
+    {
+      "id": 59,
+      "date": "2026-10-26",
+      "category": "preference",
+      "description": "Prefers a mentor on the team",
+      "source": "seed"
+    },
+    {
+      "id": 23,
+      "date": "2026-10-28",
+      "category": "skill",
+      "description": "Can write joins and aggregations in SQL",
+      "source": "seed"
+    },
+    {
+      "id": 28,
+      "date": "2026-10-29",
+      "category": "preference",
+      "description": "Looking for roles in the San Jose area",
+      "source": "seed"
+    },
+    {
+      "id": 6,
+      "date": "2026-10-30",
+      "category": "preference",
+      "description": "Prefers internships over full-time jobs",
+      "source": "seed"
+    },
+    {
+      "id": 62,
+      "date": "2026-10-31",
+      "category": "note",
+      "description": "Reads email in the morning",
+      "source": "seed"
+    },
+    {
+      "id": 12,
+      "date": "2026-11-01",
+      "category": "goal",
+      "description": "Switched major to Data Science",
+      "source": "seed"
+    },
+    {
+      "id": 18,
+      "date": "2026-11-03",
+      "category": "interest",
+      "description": "Curious about data science careers",
+      "source": "seed"
+    }
+  ],
+  "after": [
+    {
+      "id": 60,
+      "date": "2026-08-08",
+      "category": "note",
+      "description": "Likes short answers",
+      "source": "seed"
+    },
+    {
+      "id": 11,
+      "date": "2026-09-02",
+      "category": "goal",
+      "description": "Is majoring in Computer Science",
+      "source": "seed"
+    },
+    {
+      "id": 50,
+      "date": "2026-09-03",
+      "category": "application",
+      "description": "Applied to a Data Analyst internship at Acme Data",
+      "source": "seed"
+    },
+    {
+      "id": 45,
+      "date": "2026-09-08",
+      "category": "goal",
+      "description": "Wants to work at a startup",
+      "source": "seed"
+    },
+    {
+      "id": 33,
+      "date": "2026-09-14",
+      "category": "event",
+      "description": "Walked the fall career fair and met recruiters",
+      "source": "seed"
+    },
+    {
+      "id": 34,
+      "date": "2026-09-14",
+      "category": "event",
+      "description": "Fall career fair attendance",
+      "source": "seed"
+    },
+    {
+      "id": 61,
+      "date": "2026-09-17",
+      "category": "note",
+      "description": "Prefers bullet points when comparing jobs",
+      "source": "seed"
+    },
+    {
+      "id": 48,
+      "date": "2026-09-22",
+      "category": "interest",
+      "description": "Interested in cloud computing",
+      "source": "seed"
+    },
+    {
+      "id": 51,
+      "date": "2026-09-24",
+      "category": "application",
+      "description": "Applied to a Software Engineer internship at Globex",
+      "source": "seed"
+    },
+    {
+      "id": 37,
+      "date": "2026-09-27",
+      "category": "constraint",
+      "description": "Only free 15 hours per week during the semester",
+      "source": "seed"
+    },
+    {
+      "id": 54,
+      "date": "2026-09-30",
+      "category": "event",
+      "description": "Went to the resume workshop on campus",
+      "source": "seed"
+    },
+    {
+      "id": 2,
+      "date": "2026-10-02",
+      "category": "skill",
+      "description": "Knows Python",
+      "source": "seed"
+    },
+    {
+      "id": 22,
+      "date": "2026-10-05",
+      "category": "skill",
+      "description": "SQL is one of their strongest skills",
+      "source": "seed"
+    },
+    {
+      "id": 53,
+      "date": "2026-10-06",
+      "category": "event",
+      "description": "Registered for the Women in Tech panel",
+      "source": "seed"
+    },
+    {
+      "id": 43,
+      "date": "2026-10-09",
+      "category": "skill",
+      "description": "Strong with Excel pivot tables",
+      "source": "seed"
+    },
+    {
+      "id": 4,
+      "date": "2026-10-11",
+      "category": "interest",
+      "description": "Interested in machine learning",
+      "source": "seed"
+    },
+    {
+      "id": 52,
+      "date": "2026-10-13",
+      "category": "application",
+      "description": "Applied to a data internship at Initech",
+      "source": "seed"
+    },
+    {
+      "id": 46,
+      "date": "2026-10-15",
+      "category": "goal",
+      "description": "Plans to apply to graduate school in 2028",
+      "source": "seed"
+    },
+    {
+      "id": 38,
+      "date": "2026-10-18",
+      "category": "constraint",
+      "description": "Part-time availability of 15 hours per week",
+      "source": "seed"
+    },
+    {
+      "id": 8,
+      "date": "2026-10-20",
+      "category": "preference",
+      "description": "Wants on-site jobs in San Jose and no remote work",
+      "source": "seed"
+    },
+    {
+      "id": 49,
+      "date": "2026-10-21",
+      "category": "interest",
+      "description": "Likes contributing to open source",
+      "source": "seed"
+    },
+    {
+      "id": 56,
+      "date": "2026-10-23",
+      "category": "constraint",
+      "description": "Needs the application deadline to be at least a week away",
+      "source": "seed"
+    },
+    {
+      "id": 10,
+      "date": "2026-10-25",
+      "category": "constraint",
+      "description": "Needs a minimum pay of $40 per hour",
+      "source": "seed"
+    },
+    {
+      "id": 59,
+      "date": "2026-10-26",
+      "category": "preference",
+      "description": "Prefers a mentor on the team",
+      "source": "seed"
+    },
+    {
+      "id": 64,
+      "date": "2026-10-28",
+      "category": "skill",
+      "description": "Knows SQL and can write SQL queries",
+      "source": "consolidation"
+    },
+    {
+      "id": 65,
+      "date": "2026-10-29",
+      "category": "preference",
+      "description": "Prefers to work in San Jose",
+      "source": "consolidation"
+    },
+    {
+      "id": 6,
+      "date": "2026-10-30",
+      "category": "preference",
+      "description": "Prefers internships over full-time jobs",
+      "source": "seed"
+    },
+    {
+      "id": 62,
+      "date": "2026-10-31",
+      "category": "note",
+      "description": "Reads email in the morning",
+      "source": "seed"
+    },
+    {
+      "id": 12,
+      "date": "2026-11-01",
+      "category": "goal",
+      "description": "Switched major to Data Science",
+      "source": "seed"
+    },
+    {
+      "id": 63,
+      "date": "2026-11-03",
+      "category": "interest",
+      "description": "Interested in data science",
+      "source": "consolidation"
+    }
+  ]
+}

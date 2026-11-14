@@ -129,8 +129,8 @@ def test_a_valid_merge_replaces_the_notes_with_one_dated_like_the_newest(db, fak
     me = make_student(db)
     x, y, z = notes(db, me.id, ("interest", "Likes data science", "2026-01-01"),
                     ("interest", "Interested in data science roles", "2026-05-01"), ("skill", "Knows Go", "2026-02-01"))
-    fake_model.answers = [{"merges": [{"ids": [x.id, y.id], "category": "interest",
-                                       "description": "Interested in data science roles"}], "contradictions": [], "drop": []}]
+    fake_model.answers = [{"same": [{"ids": [x.id, y.id], "description": "Interested in data science roles"}],
+                           "contradictions": [], "drop": []}]            # one call: only the interest notes come in pairs
     report = mc.consolidate(db, me.id, fake_model)
     entries = memory.list_entries(db, me.id)
     assert sorted(e.description for e in entries) == ["Interested in data science roles", "Knows Go"]
@@ -138,42 +138,109 @@ def test_a_valid_merge_replaces_the_notes_with_one_dated_like_the_newest(db, fak
     assert merged.date == "2026-05-01" and merged.source == "consolidation" and report.after == 2
 
 
-def test_a_contradiction_keeps_the_newer_note(db, fake_model):
+def test_the_model_only_sees_one_category_at_a_time(db, fake_model):
+    """Design change after two real runs: one call about all notes confused qwen3:8b, so each category is asked separately."""
     me = make_student(db)
-    old, new = notes(db, me.id, ("preference", "Wants only remote jobs", "2026-08-01"),
-                     ("preference", "Wants on-site jobs, no remote", "2026-10-01"))
-    fake_model.answers = [{"merges": [], "drop": [], "contradictions": [{"keep": new.id, "drop": [old.id]}]}]
-    mc.consolidate(db, me.id, fake_model)
-    assert texts(db, me.id) == ["Wants on-site jobs, no remote"]
-
-
-def test_a_contradiction_that_keeps_the_OLDER_note_is_rejected_and_nothing_is_deleted(db, fake_model):
-    me = make_student(db)
-    old, new = notes(db, me.id, ("preference", "Wants only remote jobs", "2026-08-01"),
-                     ("preference", "Wants on-site jobs, no remote", "2026-10-01"))
-    fake_model.answers = [{"contradictions": [{"keep": old.id, "drop": [new.id]}]}]       # the model got it backwards
+    notes(db, me.id, ("interest", "Likes data", "2026-01-01"), ("interest", "Likes machine learning", "2026-01-02"),
+          ("skill", "Knows Go", "2026-01-03"), ("skill", "Knows Rust", "2026-01-04"), ("goal", "Wants a startup job", "2026-01-05"))
+    fake_model.answers = [{}, {}]                          # interest and skill have two notes; goal has one: no call
     report = mc.consolidate(db, me.id, fake_model)
-    rejected = [d for d in report.decisions if not d.accepted]
-    assert len(rejected) == 1 and "OLDER" in rejected[0].reason
-    assert len(memory.list_entries(db, me.id)) == 2
+    assert report.model_calls == 2 == len(fake_model.prompts)
+    first = json.dumps(fake_model.prompts[0])
+    assert "Likes data" in first and "Knows Go" not in first and "Wants a startup job" not in first
+
+
+def test_a_merge_with_an_id_from_another_category_is_rejected_the_real_qwen_mistake(db, fake_model):
+    """Real run (docs/lab2/memory_consolidation_run1_before_fix.md): qwen3:8b merged 11 unrelated notes, from several
+    categories, into one paragraph. A merge may only use the ids that were shown for that category."""
+    me = make_student(db)
+    interest = notes(db, me.id, ("interest", "Interested in data science", "2026-01-01"), ("interest", "Likes cloud", "2026-01-02"))
+    other = notes(db, me.id, ("skill", "Knows Python", "2026-01-03"), ("note", "Reads email in the morning", "2026-01-04"))
+    fake_model.answers = [{"same": [{"ids": [e.id for e in interest + other],
+                                     "description": "Interested in data science. Knows Python."}]}]
+    report = mc.consolidate(db, me.id, fake_model)
+    assert len(memory.list_entries(db, me.id)) == 4
+    assert "not one of the notes shown" in next(d.reason for d in report.decisions if not d.accepted)
+
+
+def test_a_merge_must_be_small_and_one_short_sentence(db, fake_model):
+    me = make_student(db)
+    nine = notes(db, me.id, *[("interest", f"Likes topic {i}", "2026-01-01") for i in range(9)])
+    pair = notes(db, me.id, ("skill", "Knows Go", "2026-02-01"), ("skill", "Good at Go", "2026-02-02"))
+    fake_model.answers = [{"same": [{"ids": [e.id for e in nine], "description": "Likes many topics"}]},
+                          {"same": [{"ids": [e.id for e in pair], "description": "x" * (mc.MAX_MERGED_CHARS + 1)}]}]
+    report = mc.consolidate(db, me.id, fake_model)
+    reasons = [d.reason for d in report.decisions if not d.accepted]
+    assert any("at most" in r for r in reasons) and any("longer than" in r for r in reasons)
+    assert len(memory.list_entries(db, me.id)) == 11
+
+
+@pytest.mark.parametrize("order", ["older first", "newer first"])
+def test_the_code_picks_the_newer_note_of_a_contradicting_pair_whatever_the_model_says(db, fake_model, order):
+    """Real run 2: the model listed the OLDER note as the one to keep. The model now only names the pair."""
+    me = make_student(db)
+    old, new = notes(db, me.id, ("preference", "Wants only remote jobs", "2026-08-01"),
+                     ("preference", "Wants on-site jobs, no remote", "2026-10-01"))
+    pair = [old.id, new.id] if order == "older first" else [new.id, old.id]
+    fake_model.answers = [{"same": [], "drop": [], "contradictions": [pair]}]
+    report = mc.consolidate(db, me.id, fake_model)
+    assert texts(db, me.id) == ["Wants on-site jobs, no remote"]
+    assert [d for d in report.decisions if d.kind == "contradiction"][0].ids == [new.id, old.id]       # winner first
+
+
+def test_on_the_same_date_the_later_note_wins(db, fake_model):
+    me = make_student(db)
+    first, second = notes(db, me.id, ("constraint", "Minimum pay $25 per hour", "2026-10-01"),
+                          ("constraint", "Minimum pay $40 per hour", "2026-10-01"))
+    fake_model.answers = [{"contradictions": [[first.id, second.id]]}]
+    mc.consolidate(db, me.id, fake_model)
+    assert texts(db, me.id) == ["Minimum pay $40 per hour"]
+
+
+def test_contradicting_notes_cannot_be_merged_into_one_sentence(db, fake_model):
+    """Real run 2: the model merged 'Is majoring in Computer Science' and 'Switched major to Data Science'."""
+    me = make_student(db)
+    old, new = notes(db, me.id, ("goal", "Is majoring in Computer Science", "2026-09-02"),
+                     ("goal", "Switched major to Data Science", "2026-11-01"))
+    fake_model.answers = [{"same": [{"ids": [old.id, new.id], "description": "Switched major from CS to Data Science"}],
+                           "contradictions": [[old.id, new.id]]}]
+    report = mc.consolidate(db, me.id, fake_model)
+    assert texts(db, me.id) == ["Switched major to Data Science"]
+    assert any("cannot be merged" in d.reason for d in report.decisions if not d.accepted)
+
+
+def test_a_note_removed_by_a_contradiction_cannot_also_be_merged(db, fake_model):
+    me = make_student(db)
+    a, b, c = notes(db, me.id, ("preference", "Wants remote", "2026-01-01"), ("preference", "Wants on-site", "2026-03-01"),
+                    ("preference", "Prefers working from home", "2026-02-01"))
+    fake_model.answers = [{"contradictions": [[a.id, b.id]],
+                           "same": [{"ids": [a.id, c.id], "description": "Prefers remote work"}]}]
+    report = mc.consolidate(db, me.id, fake_model)
+    assert sorted(texts(db, me.id)) == ["Prefers working from home", "Wants on-site"]
+    assert any("already removed" in d.reason for d in report.decisions if not d.accepted)
 
 
 def test_bad_decisions_are_rejected_one_by_one_and_good_ones_still_apply(db, fake_model):
     me = make_student(db)
-    a, b, c, d = notes(db, me.id, ("skill", "Knows Python", "2026-01-01"), ("goal", "Wants to be a data engineer", "2026-02-01"),
-                       ("event", "Went to the fall career fair", "2026-03-01"), ("note", "Likes coffee", "2026-04-01"))
+    a, b, c = notes(db, me.id, ("event", "Went to the fall career fair", "2026-03-01"),
+                    ("event", "Visited the career fair", "2026-03-02"), ("event", "Registered for a panel", "2026-04-01"))
     fake_model.answers = [{
-        "merges": [{"ids": [a.id, 9999], "description": "x"},                  # an id that does not exist
-                   {"ids": [a.id], "description": "x"},                        # a merge needs two notes
-                   {"ids": [a.id, b.id], "description": "  "}],                # empty description
-        "contradictions": ["nonsense"],
-        "drop": [b.id,                                                         # a goal is not a one-off: refused
-                 c.id,                                                         # an event: allowed
-                 c.id]}]                                                       # the same id again: refused
+        "same": [{"ids": [a.id, 9999], "description": "x"},                    # an id that was not shown
+                 {"ids": [a.id], "description": "x"},                          # a merge needs two notes
+                 {"ids": [a.id, b.id], "description": "  "}],                  # empty description
+        "contradictions": ["nonsense", [a.id], [a.id, b.id, c.id]],            # not pairs
+        "drop": [c.id, c.id, "x"]}]                                            # once is fine, the second time and "x" are not
     report = mc.consolidate(db, me.id, fake_model)
-    assert texts(db, me.id) == ["Knows Python", "Wants to be a data engineer", "Likes coffee"]
-    assert sum(not x.accepted for x in report.decisions) == 6 and sum(x.accepted for x in report.decisions) == 1
-    assert [x.kind for x in report.decisions if x.accepted] == ["drop"]
+    assert texts(db, me.id) == ["Went to the fall career fair", "Visited the career fair"]
+    assert sum(not d.accepted for d in report.decisions) == 8 and [d.kind for d in report.decisions if d.accepted] == ["drop"]
+
+
+def test_only_one_off_categories_may_be_dropped(db, fake_model):
+    me = make_student(db)
+    goal1, goal2 = notes(db, me.id, ("goal", "Wants to be a data engineer", "2026-01-01"), ("goal", "Wants a startup job", "2026-01-02"))
+    fake_model.answers = [{"drop": [goal1.id]}]
+    report = mc.consolidate(db, me.id, fake_model)
+    assert len(memory.list_entries(db, me.id)) == 2 and "one-off" in next(d.reason for d in report.decisions if not d.accepted)
 
 
 # ---------- step C: the safety net ----------
@@ -185,9 +252,9 @@ def many_notes(db, student_id, count):
 def test_an_unreadable_model_answer_still_ends_below_40_notes(db, fake_model):
     me = make_student(db)
     many_notes(db, me.id, 64)
-    fake_model.answers = ["I am not able to produce JSON today."]
+    fake_model.answers = ["I am not able to produce JSON today."] * 8              # one call per category
     report = mc.consolidate(db, me.id, fake_model)
-    assert report.model_answer_readable is False and report.after < 40
+    assert report.model_answer_readable is False and report.model_calls == 8 and report.after < 40
     assert report.decisions[-1].kind == "fallback_cap" and report.after == 32          # 8 categories x 4
 
 
@@ -248,12 +315,13 @@ def test_session_ended_learns_from_the_stored_chat_and_consolidates_when_memory_
     many_notes(db, me.id, 45)
     db.conversations.insert_one({"_id": "c1", "student_id": me.id, "updated_at": None,
                                  "messages": [{"role": "user", "content": "I am free on Fridays"}]})
-    fake_model.answers = [[{"category": "constraint", "description": "Is free on Fridays"}], {}]    # learn, then consolidate
+    # one call to learn, then one per category (8) to consolidate
+    fake_model.answers = [[{"category": "constraint", "description": "Is free on Fridays"}]] + [{}] * 8
     env = envelope(topics.MEMORY_SESSION_ENDED, {"student_id": me.id, "conversation_id": "c1"})
     assert dispatch(db, env) == "processed"
     run = db.memory_runs.find_one({"_id": env.event_id})
     assert run["learned"] == 1 and run["consolidation"]["before"] == 46 and run["consolidation"]["after"] < 40
-    assert dispatch(db, env) == "duplicate" and len(fake_model.prompts) == 2
+    assert dispatch(db, env) == "duplicate" and len(fake_model.prompts) == 9      # the second delivery called nothing
 
 
 def test_session_ended_for_a_chat_that_is_gone_is_not_an_error(db, fake_model):

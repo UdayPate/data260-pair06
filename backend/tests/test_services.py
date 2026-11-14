@@ -146,9 +146,11 @@ def test_requirements_stay_minimal_and_pinned():
                       "sqlalchemy", "pymysql"):                           # extras live in the files that need them
         assert forbidden not in base
     assert "pymongo" in base
-    for name in ("application", "event", "job"):                      # these three publish to / read from Kafka
+    # These four publish to / read from Kafka. The assistant joined in Lab 2 Part 3: it publishes the memory events
+    # (/memory learn, /memory consolidate) and its memory worker runs in the same image (see KAFKA_CONTRACT.md, section 5).
+    for name in ("application", "event", "job", "assistant"):
         assert "confluent-kafka" in packages(f"{name}.txt")
-    for name in ("student", "company", "assistant"):
+    for name in ("student", "company"):
         assert "confluent-kafka" not in packages(f"{name}.txt")
     assert "httpx" in packages("assistant.txt")
     for name in ("student", "company", "application"):

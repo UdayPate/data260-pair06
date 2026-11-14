@@ -13,13 +13,15 @@ written by companies, which could be an injection attack) and returns a short JS
 
 CONSOLIDATION, in three steps (the code is the judge, the model only proposes):
   A. Exact duplicates (same category and same words) are merged by code. The newest copy stays.
-  B. The model reads the remaining notes and proposes decisions as JSON, by id:
-       merges          several notes that say the same thing  ->  one note
-       contradictions  notes that cannot both be true         ->  keep the NEWER one
+  B. For each category that still has two or more notes, the model reads that small list and points at problems, by id:
+       same            several notes that say the same thing   ->  the code merges them into one note
+       contradictions  PAIRS of notes that cannot both be true ->  the code keeps the NEWER one (the model never picks)
        drop            one-off notes that no longer matter (a past event the student went to)
-     Every decision is checked by code before it is applied (ids must exist and be used once; a "contradiction" must
-     keep the newer note; only one-off categories may be dropped). A decision that fails a check is rejected and written
-     to the report, so a model mistake can never delete a note it had no right to delete.
+     Asking per category, and only for pairs, came from two real runs with qwen3:8b: one call about all 59 notes made it
+     merge unrelated notes, merge two contradictory notes into one sentence, and keep the OLDER note of a pair.
+     Every decision is checked by code before it is applied (ids must be among the notes shown; merges are small and
+     short and never contain a contradicting pair; only one-off categories may be dropped). A decision that fails a
+     check is rejected and written to the report, so a model mistake can never delete a note it had no right to delete.
   C. If the memory is still at or above TARGET_MAX notes (the model failed, was unreachable, or did too little), a
      deterministic safety net keeps only the newest CAP_PER_CATEGORY notes of each category.
 Writes happen as "add the merged notes, then delete the old ones": a crash in between leaves duplicates (merged by the
@@ -49,6 +51,8 @@ CAP_PER_CATEGORY = 4          # safety net: 8 categories x 4 = at most 32 notes
 CONSOLIDATE_ABOVE = 40        # after learning, consolidate when the student has more notes than this
 LEARN_LIMIT = 8               # at most this many new notes from one conversation
 DROPPABLE = {"event", "application", "note"}      # one-off categories the model may drop outright
+MAX_MERGE = 8                 # one merge may combine at most this many notes
+MAX_MERGED_CHARS = 200        # a merged note is one short sentence
 MODEL_TIMEOUT_SECONDS = float(os.getenv("MEMORY_MODEL_TIMEOUT_SECONDS", "240"))
 
 # Tests plug in a fake model here (None = the real Ollama client).
@@ -156,90 +160,112 @@ class Report:
     used_model: bool = False
     model_error: Optional[str] = None
     model_answer_readable: Optional[bool] = None
+    model_calls: int = 0              # one call per category that has at least two notes
 
     def as_dict(self) -> dict:
-        return {"before": self.before, "after": self.after, "used_model": self.used_model,
+        return {"before": self.before, "after": self.after, "used_model": self.used_model, "model_calls": self.model_calls,
                 "model_error": self.model_error, "model_answer_readable": self.model_answer_readable,
                 "decisions": [d.__dict__ for d in self.decisions]}
 
 
-CONSOLIDATE_PROMPT = """You tidy a student's long-term notes for a career assistant. Each note is: id | date | category | text.
-Propose changes as JSON, using only ids that appear in the list:
-  "merges": notes that say the same thing in different words -> {"ids": [..], "category": "...", "description": "one short sentence that keeps every distinct fact"}
-  "contradictions": notes that cannot both be true now -> {"keep": id, "drop": [ids]}  (keep the note with the NEWER date)
-  "drop": ids of one-off notes that no longer matter, such as a past event or application
-Rules: an id may appear in only one change. Do not merge notes about different things. Never invent facts.
-Answer with ONLY this JSON: {"merges": [], "contradictions": [], "drop": []}"""
+CATEGORY_PROMPT = """You tidy a student's long-term notes for a career assistant. Every note below is in the category "{category}". Each note is: id | date | text.
+Find:
+  "same": groups of notes that say the SAME thing in different words -> {{"ids": [..], "description": "one short sentence that keeps every distinct fact"}}
+  "contradictions": pairs of notes that cannot both be true now -> [id, id]. Only list the pair: you do NOT decide which note is right.
+  "drop": ids of one-off notes that no longer matter, such as a past event or application. {drop_rule}
+Rules: use only ids from the list. Never invent facts. Notes about different things are NOT the same.
+
+Example (different notes, to show the format):
+7 | 2026-01-02 | Knows Excel
+8 | 2026-02-03 | Good with Excel
+9 | 2026-01-05 | Wants a remote job
+10 | 2026-03-04 | Wants an on-site job
+Answer: {{"same": [{{"ids": [7, 8], "description": "Knows Excel well"}}], "contradictions": [[9, 10]], "drop": []}}
+
+Answer with ONLY JSON of this shape: {{"same": [], "contradictions": [], "drop": []}}"""
 
 
 def _is_int(value) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
 
-def _ask_model(entries: List[Doc], client: ModelClient) -> Optional[dict]:
-    listing = "\n".join(f"{e.id} | {e.date} | {e.category} | {e.description}" for e in entries)
-    reply = client.complete([{"role": "system", "content": CONSOLIDATE_PROMPT}, {"role": "user", "content": listing}], [])
+def _ask_group(category: str, group: List[Doc], client: ModelClient) -> Optional[dict]:
+    """One model call about the notes of ONE category (a small list is much easier for a small model than all notes at once)."""
+    drop_rule = "" if category in DROPPABLE else 'Leave "drop" empty for this category.'
+    listing = "\n".join(f"{e.id} | {e.date} | {e.description}" for e in group)
+    system = CATEGORY_PROMPT.format(category=category, drop_rule=drop_rule)
+    reply = client.complete([{"role": "system", "content": system}, {"role": "user", "content": listing}], [])
     proposal = parse_json(reply.content)
     return proposal if isinstance(proposal, dict) else None
 
 
-def _apply_proposal(proposal: dict, by_id: Dict[int, Doc], report: Report):
-    """Check each proposed decision and keep the valid ones. Returns (ids to delete, notes to create)."""
+def _apply_group(proposal: dict, group: List[Doc], report: Report):
+    """Check each decision the model proposed for one category and keep the valid ones.
+    Returns (ids to delete, new notes to create). The model only POINTS at notes; the code decides who wins."""
+    by_id = {e.id: e for e in group}
+    category = group[0].category
     delete: Set[int] = set()
     create: List[dict] = []
-    used: Set[int] = set()            # every id may take part in only one decision
+    merged: Set[int] = set()          # ids already used by a merge or a drop: each may be used once
 
     def reject(kind: str, ids, detail: str, reason: str):
-        report.decisions.append(Decision(kind, [i for i in ids if _is_int(i)], detail, accepted=False, reason=reason))
+        report.decisions.append(Decision(kind, [i for i in ids if _is_int(i)] if isinstance(ids, list) else [],
+                                         detail, accepted=False, reason=reason))
 
-    def usable(ids) -> Optional[str]:
+    def known(ids) -> Optional[str]:
+        """A problem with a list of ids, or None when it is fine."""
         if not isinstance(ids, list) or not ids or not all(_is_int(i) for i in ids):
             return "ids must be a non-empty list of whole numbers"
         if any(i not in by_id for i in ids):
-            return "an id is not in the memory"
-        if len(set(ids)) != len(ids) or any(i in used for i in ids):
-            return "an id was used twice"
+            return "an id is not one of the notes shown for this category"
+        if len(set(ids)) != len(ids):
+            return "an id was listed twice"
         return None
 
-    for item in proposal.get("merges") or []:
+    # 1. Contradictions: the model lists PAIRS. The code decides: the newer note wins (on the same date, the later one).
+    pairs = []
+    for pair in proposal.get("contradictions") or []:
+        problem = known(pair) or (None if len(pair) == 2 else "a contradiction is a pair of exactly two ids")
+        if problem:
+            reject("contradiction", pair, "", problem)
+            continue
+        older, newer = sorted((by_id[i] for i in pair), key=lambda e: (e.date, e.id))
+        pairs.append((older.id, newer.id))
+        delete.add(older.id)
+        report.decisions.append(Decision(
+            "contradiction", [newer.id, older.id],
+            f"kept {newer.id} ({newer.description}); dropped the older {older.id} ({older.description})"))
+
+    # 2. Merges: the same fact in different words. One category, a handful of notes, one short sentence. (A real run showed
+    #    why: qwen3:8b once merged 11 unrelated notes into one paragraph, and once merged two contradictory notes.)
+    for item in proposal.get("same") or []:
         item = item if isinstance(item, dict) else {}
         ids, text = item.get("ids"), item.get("description")
-        problem = usable(ids) or (None if isinstance(ids, list) and len(ids) >= 2 else "a merge needs at least two ids") \
-            or (None if isinstance(text, str) and memory.clean_description(text) else "the merged description is empty")
+        problem = known(ids) or (None if len(ids) >= 2 else "a merge needs at least two ids") \
+            or (None if len(ids) <= MAX_MERGE else f"a merge may combine at most {MAX_MERGE} notes") \
+            or (None if isinstance(text, str) and memory.clean_description(text) else "the merged description is empty") \
+            or (None if len(text) <= MAX_MERGED_CHARS else f"the merged description is longer than {MAX_MERGED_CHARS} characters, so it is not one fact") \
+            or ("the notes contradict each other, so they cannot be merged" if any(a in ids and b in ids for a, b in pairs) else None) \
+            or ("it includes a note that a contradiction already removed" if set(ids) & delete else None) \
+            or ("an id was already used by another decision" if set(ids) & merged else None)
         if problem:
-            reject("merge", ids if isinstance(ids, list) else [], str(text), problem)
+            reject("merge", ids, str(text), problem)
             continue
-        members = [by_id[i] for i in ids]
-        category = memory.clean_category(item.get("category") if isinstance(item.get("category"), str) else members[0].category)
-        create.append({"category": category, "description": text, "date": max(m.date for m in members)})
+        create.append({"category": category, "description": text, "date": max(by_id[i].date for i in ids)})
         delete.update(ids)
-        used.update(ids)
+        merged.update(ids)
         report.decisions.append(Decision("merge", list(ids), f"merged into: {memory.clean_description(text)}"))
 
-    for item in proposal.get("contradictions") or []:
-        item = item if isinstance(item, dict) else {}
-        keep, drop = item.get("keep"), item.get("drop")
-        problem = usable(([keep] if _is_int(keep) else []) + (drop if isinstance(drop, list) else [])) \
-            or (None if _is_int(keep) and isinstance(drop, list) and drop else "keep must be one id and drop a list")
-        if not problem and any(by_id[i].date > by_id[keep].date for i in drop):
-            problem = "the note it kept is OLDER than a note it dropped (the newer note must win)"
-        if problem:
-            reject("contradiction", ([keep] if _is_int(keep) else []) + (drop if isinstance(drop, list) else []), "", problem)
-            continue
-        delete.update(drop)
-        used.update(drop + [keep])
-        report.decisions.append(Decision("contradiction", [keep] + drop,
-                                         f"kept {keep} ({by_id[keep].description}), dropped {drop}"))
-
-    drop_ids = proposal.get("drop") or []
-    for i in drop_ids if isinstance(drop_ids, list) else []:
-        problem = usable([i]) or (None if by_id.get(i) and by_id[i].category in DROPPABLE
-                                  else "only one-off notes (event, application, note) may be dropped")
+    # 3. Drops: one-off notes that no longer matter. Only the one-off categories may lose notes this way.
+    drops = proposal.get("drop") or []
+    for i in drops if isinstance(drops, list) else []:
+        problem = known([i]) or (None if category in DROPPABLE else "only one-off categories (event, application, note) may be dropped") \
+            or ("already handled by another decision" if i in delete or i in merged else None)
         if problem:
             reject("drop", [i], "", problem)
             continue
         delete.add(i)
-        used.add(i)
+        merged.add(i)
         report.decisions.append(Decision("drop", [i], f"dropped one-off note: {by_id[i].description}"))
     return delete, create
 
@@ -263,18 +289,31 @@ def consolidate(db: Database, student_id: int, client: Optional[ModelClient] = N
             report.decisions.append(Decision("duplicate", [newest.id] + old, f"kept {newest.id}, removed copies {old}"))
     remaining = [e for e in entries if e.id not in delete]
 
-    # --- step B: the model proposes, the code checks ---
-    if len(remaining) >= 2:
+    # --- step B: the model points at problems, one category at a time; the code checks and decides ---
+    by_category: Dict[str, List[Doc]] = {}
+    for note in remaining:
+        by_category.setdefault(note.category, []).append(note)
+    readable = True
+    for category, group in by_category.items():
+        if len(group) < 2:                 # one note alone cannot be a duplicate or a contradiction
+            continue
         client = client or get_client()
         report.used_model = True
+        report.model_calls += 1
         try:
-            proposal = _ask_model(remaining, client)
+            proposal = _ask_group(category, group, client)
         except ModelError as exc:
-            proposal, report.model_error = None, str(exc)
-        report.model_answer_readable = proposal is not None
-        if proposal is not None:
-            more_delete, create = _apply_proposal(proposal, {e.id: e for e in remaining}, report)
-            delete |= more_delete
+            report.model_error, readable = str(exc), False
+            break                          # the model is not reachable: stop asking
+        if proposal is None:
+            readable = False
+            report.decisions.append(Decision("model_answer", [], f"the answer for category '{category}' was not readable JSON",
+                                             accepted=False, reason="unreadable"))
+            continue
+        more_delete, more_create = _apply_group(proposal, group, report)
+        delete |= more_delete
+        create += more_create
+    report.model_answer_readable = readable if report.used_model else None
 
     # --- step C: the safety net, if the memory is still too big ---
     survivors = [e for e in remaining if e.id not in delete]
