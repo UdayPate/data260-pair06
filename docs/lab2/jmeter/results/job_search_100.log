@@ -1,0 +1,365 @@
+2026-11-14 15:48:27,905 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-11-14 15:48:27,922 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-11-14 15:48:27,922 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-11-14 15:48:27,923 INFO o.a.j.JMeter: Setting JMeter property: threads=100
+2026-11-14 15:48:27,923 INFO o.a.j.JMeter: Setting JMeter property: ramp=10
+2026-11-14 15:48:27,923 INFO o.a.j.JMeter: Setting JMeter property: loops=3
+2026-11-14 15:48:27,923 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-11-14 15:48:27,965 INFO o.a.j.JMeter: Setting JMeter property: port=9060
+2026-11-14 15:48:27,966 INFO o.a.j.JMeter: Setting JMeter property: data=C:/Users/patel/data260-pair06/jmeter/data
+2026-11-14 15:48:27,966 INFO o.a.j.JMeter: Setting JMeter property: response_timeout=30000
+2026-11-14 15:48:27,966 INFO o.a.j.JMeter: Setting JMeter property: think=500
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: Version 5.6.3
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: java.version=17.0.21
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: os.name=Windows 11
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: os.arch=amd64
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: os.version=10.0
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: file.encoding=Cp1252
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: java.awt.headless=true
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-11-14 15:48:27,970 INFO o.a.j.JMeter: Available Processors =12
+2026-11-14 15:48:27,976 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-11-14 15:48:27,976 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-11-14 15:48:27,976 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-11-14 15:48:27,977 INFO o.a.j.JMeter: user.dir  =C:\Users\patel\data260-pair06
+2026-11-14 15:48:27,977 INFO o.a.j.JMeter: PWD       =C:\Users\patel\data260-pair06
+2026-11-14 15:48:27,977 INFO o.a.j.JMeter: IP: 192.168.1.12 Name: DESKTOP-0B8PB15 FullName: DESKTOP-0B8PB15
+2026-11-14 15:48:27,990 INFO o.a.j.s.FileServer: Default base='C:\Users\patel\data260-pair06'
+2026-11-14 15:48:27,991 INFO o.a.j.s.FileServer: Set new base='C:\Users\patel\data260-pair06\jmeter\plans'
+2026-11-14 15:48:28,132 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-11-14 15:48:28,150 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-11-14 15:48:28,152 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-11-14 15:48:28,156 INFO o.a.j.s.SaveService: Loading file: C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx
+2026-11-14 15:48:28,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-11-14 15:48:28,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-11-14 15:48:28,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-11-14 15:48:28,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-11-14 15:48:28,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-11-14 15:48:28,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-11-14 15:48:28,218 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-11-14 15:48:28,233 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-11-14 15:48:28,234 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-11-14 15:48:28,234 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-11-14 15:48:28,237 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-11-14 15:48:28,237 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-11-14 15:48:28,290 INFO o.a.j.JMeter: Running test (1794700108290)
+2026-11-14 15:48:28,302 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Users search jobs
+2026-11-14 15:48:28,303 INFO o.a.j.e.StandardJMeterEngine: Starting 100 threads for group Users search jobs.
+2026-11-14 15:48:28,303 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-11-14 15:48:28,303 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=100 ramp-up=10 delayedStart=false
+2026-11-14 15:48:28,344 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-11-14 15:48:28,344 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-11-14 15:48:28,377 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-1
+2026-11-14 15:48:28,379 INFO o.a.j.s.FileServer: Stored: C:/Users/patel/data260-pair06/jmeter/data/students.csv
+2026-11-14 15:48:28,478 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-2
+2026-11-14 15:48:28,576 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-3
+2026-11-14 15:48:28,675 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-4
+2026-11-14 15:48:28,777 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-5
+2026-11-14 15:48:28,873 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-6
+2026-11-14 15:48:28,909 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = DESKTOP-0B8PB15
+2026-11-14 15:48:28,914 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-11-14 15:48:28,915 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-11-14 15:48:28,915 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-11-14 15:48:28,915 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-11-14 15:48:28,915 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-11-14 15:48:28,976 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-7
+2026-11-14 15:48:29,075 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-8
+2026-11-14 15:48:29,172 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-9
+2026-11-14 15:48:29,275 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-10
+2026-11-14 15:48:29,374 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-11
+2026-11-14 15:48:29,473 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-12
+2026-11-14 15:48:29,569 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-13
+2026-11-14 15:48:29,669 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-14
+2026-11-14 15:48:29,768 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-15
+2026-11-14 15:48:29,868 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-16
+2026-11-14 15:48:29,967 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-17
+2026-11-14 15:48:30,059 INFO o.a.j.r.Summariser: summary +     12 in 00:00:02 =    6.8/s Avg:   163 Min:     0 Max:   232 Err:     2 (16.67%) Active: 17 Started: 17 Finished: 0
+2026-11-14 15:48:30,070 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-18
+2026-11-14 15:48:30,167 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-19
+2026-11-14 15:48:30,265 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-20
+2026-11-14 15:48:30,366 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-21
+2026-11-14 15:48:30,466 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-22
+2026-11-14 15:48:30,574 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-23
+2026-11-14 15:48:30,667 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-24
+2026-11-14 15:48:30,775 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-25
+2026-11-14 15:48:30,869 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-26
+2026-11-14 15:48:30,891 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-4
+2026-11-14 15:48:30,892 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-4
+2026-11-14 15:48:30,978 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-27
+2026-11-14 15:48:31,071 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-28
+2026-11-14 15:48:31,094 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-1
+2026-11-14 15:48:31,094 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-1
+2026-11-14 15:48:31,164 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-29
+2026-11-14 15:48:31,203 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-5
+2026-11-14 15:48:31,203 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-5
+2026-11-14 15:48:31,206 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-3
+2026-11-14 15:48:31,206 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-6
+2026-11-14 15:48:31,206 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-3
+2026-11-14 15:48:31,206 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-6
+2026-11-14 15:48:31,216 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-2
+2026-11-14 15:48:31,217 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-2
+2026-11-14 15:48:31,217 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-7
+2026-11-14 15:48:31,218 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-7
+2026-11-14 15:48:31,271 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-30
+2026-11-14 15:48:31,310 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-8
+2026-11-14 15:48:31,310 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-8
+2026-11-14 15:48:31,366 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-31
+2026-11-14 15:48:31,395 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-9
+2026-11-14 15:48:31,395 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-9
+2026-11-14 15:48:31,472 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-32
+2026-11-14 15:48:31,511 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-10
+2026-11-14 15:48:31,511 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-10
+2026-11-14 15:48:31,564 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-33
+2026-11-14 15:48:31,673 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-34
+2026-11-14 15:48:31,719 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-12
+2026-11-14 15:48:31,720 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-12
+2026-11-14 15:48:31,729 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-11
+2026-11-14 15:48:31,729 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-11
+2026-11-14 15:48:31,766 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-35
+2026-11-14 15:48:31,797 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-13
+2026-11-14 15:48:31,797 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-13
+2026-11-14 15:48:31,874 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-36
+2026-11-14 15:48:31,882 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-14
+2026-11-14 15:48:31,882 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-14
+2026-11-14 15:48:31,966 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-37
+2026-11-14 15:48:32,004 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-15
+2026-11-14 15:48:32,004 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-15
+2026-11-14 15:48:32,059 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-38
+2026-11-14 15:48:32,099 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-16
+2026-11-14 15:48:32,099 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-16
+2026-11-14 15:48:32,168 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-39
+2026-11-14 15:48:32,240 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-17
+2026-11-14 15:48:32,240 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-17
+2026-11-14 15:48:32,261 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-40
+2026-11-14 15:48:32,321 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-18
+2026-11-14 15:48:32,321 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-18
+2026-11-14 15:48:32,369 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-41
+2026-11-14 15:48:32,392 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-19
+2026-11-14 15:48:32,392 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-19
+2026-11-14 15:48:32,461 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-42
+2026-11-14 15:48:32,488 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-20
+2026-11-14 15:48:32,488 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-20
+2026-11-14 15:48:32,569 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-43
+2026-11-14 15:48:32,585 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-21
+2026-11-14 15:48:32,585 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-21
+2026-11-14 15:48:32,661 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-44
+2026-11-14 15:48:32,716 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-22
+2026-11-14 15:48:32,716 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-22
+2026-11-14 15:48:32,769 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-45
+2026-11-14 15:48:32,830 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-23
+2026-11-14 15:48:32,830 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-23
+2026-11-14 15:48:32,860 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-46
+2026-11-14 15:48:32,929 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-24
+2026-11-14 15:48:32,929 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-24
+2026-11-14 15:48:32,969 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-47
+2026-11-14 15:48:33,030 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-25
+2026-11-14 15:48:33,030 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-25
+2026-11-14 15:48:33,060 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-48
+2026-11-14 15:48:33,147 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-26
+2026-11-14 15:48:33,147 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-26
+2026-11-14 15:48:33,170 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-49
+2026-11-14 15:48:33,241 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-27
+2026-11-14 15:48:33,241 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-27
+2026-11-14 15:48:33,262 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-50
+2026-11-14 15:48:33,333 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-28
+2026-11-14 15:48:33,333 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-28
+2026-11-14 15:48:33,355 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-51
+2026-11-14 15:48:33,385 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-29
+2026-11-14 15:48:33,385 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-29
+2026-11-14 15:48:33,464 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-52
+2026-11-14 15:48:33,517 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-30
+2026-11-14 15:48:33,517 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-30
+2026-11-14 15:48:33,554 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-53
+2026-11-14 15:48:33,615 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-31
+2026-11-14 15:48:33,616 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-31
+2026-11-14 15:48:33,661 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-54
+2026-11-14 15:48:33,699 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-32
+2026-11-14 15:48:33,699 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-32
+2026-11-14 15:48:33,769 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-55
+2026-11-14 15:48:33,805 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-33
+2026-11-14 15:48:33,806 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-33
+2026-11-14 15:48:33,860 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-56
+2026-11-14 15:48:33,899 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-34
+2026-11-14 15:48:33,899 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-34
+2026-11-14 15:48:33,968 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-57
+2026-11-14 15:48:34,007 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-35
+2026-11-14 15:48:34,007 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-35
+2026-11-14 15:48:34,062 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-58
+2026-11-14 15:48:34,129 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-36
+2026-11-14 15:48:34,129 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-36
+2026-11-14 15:48:34,170 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-59
+2026-11-14 15:48:34,206 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-37
+2026-11-14 15:48:34,206 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-37
+2026-11-14 15:48:34,262 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-60
+2026-11-14 15:48:34,285 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-38
+2026-11-14 15:48:34,285 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-38
+2026-11-14 15:48:34,355 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-61
+2026-11-14 15:48:34,392 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-39
+2026-11-14 15:48:34,392 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-39
+2026-11-14 15:48:34,464 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-62
+2026-11-14 15:48:34,489 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-40
+2026-11-14 15:48:34,489 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-40
+2026-11-14 15:48:34,557 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-63
+2026-11-14 15:48:34,595 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-41
+2026-11-14 15:48:34,595 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-41
+2026-11-14 15:48:34,664 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-64
+2026-11-14 15:48:34,689 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-42
+2026-11-14 15:48:34,689 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-42
+2026-11-14 15:48:34,757 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-65
+2026-11-14 15:48:34,788 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-43
+2026-11-14 15:48:34,788 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-43
+2026-11-14 15:48:34,850 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-66
+2026-11-14 15:48:34,880 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-44
+2026-11-14 15:48:34,881 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-44
+2026-11-14 15:48:34,958 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-67
+2026-11-14 15:48:35,012 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-45
+2026-11-14 15:48:35,012 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-45
+2026-11-14 15:48:35,049 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-68
+2026-11-14 15:48:35,105 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-46
+2026-11-14 15:48:35,105 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-46
+2026-11-14 15:48:35,157 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-69
+2026-11-14 15:48:35,226 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-47
+2026-11-14 15:48:35,226 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-47
+2026-11-14 15:48:35,265 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-70
+2026-11-14 15:48:35,303 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-48
+2026-11-14 15:48:35,303 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-48
+2026-11-14 15:48:35,357 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-71
+2026-11-14 15:48:35,410 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-49
+2026-11-14 15:48:35,410 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-49
+2026-11-14 15:48:35,451 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-72
+2026-11-14 15:48:35,497 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-50
+2026-11-14 15:48:35,497 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-50
+2026-11-14 15:48:35,559 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-73
+2026-11-14 15:48:35,605 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-51
+2026-11-14 15:48:35,605 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-51
+2026-11-14 15:48:35,653 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-74
+2026-11-14 15:48:35,698 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-52
+2026-11-14 15:48:35,699 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-52
+2026-11-14 15:48:35,760 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-75
+2026-11-14 15:48:35,796 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-53
+2026-11-14 15:48:35,797 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-53
+2026-11-14 15:48:35,851 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-76
+2026-11-14 15:48:35,904 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-54
+2026-11-14 15:48:35,904 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-54
+2026-11-14 15:48:35,956 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-77
+2026-11-14 15:48:36,024 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-55
+2026-11-14 15:48:36,025 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-55
+2026-11-14 15:48:36,048 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-78
+2026-11-14 15:48:36,085 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-56
+2026-11-14 15:48:36,085 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-56
+2026-11-14 15:48:36,155 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-79
+2026-11-14 15:48:36,208 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-57
+2026-11-14 15:48:36,208 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-57
+2026-11-14 15:48:36,259 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-80
+2026-11-14 15:48:36,297 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-58
+2026-11-14 15:48:36,297 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-58
+2026-11-14 15:48:36,351 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-81
+2026-11-14 15:48:36,404 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-59
+2026-11-14 15:48:36,405 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-59
+2026-11-14 15:48:36,459 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-82
+2026-11-14 15:48:36,506 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-60
+2026-11-14 15:48:36,506 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-60
+2026-11-14 15:48:36,552 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-83
+2026-11-14 15:48:36,590 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-61
+2026-11-14 15:48:36,591 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-61
+2026-11-14 15:48:36,646 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-84
+2026-11-14 15:48:36,716 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-62
+2026-11-14 15:48:36,716 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-62
+2026-11-14 15:48:36,754 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-85
+2026-11-14 15:48:36,785 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-63
+2026-11-14 15:48:36,785 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-63
+2026-11-14 15:48:36,848 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-86
+2026-11-14 15:48:36,899 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-64
+2026-11-14 15:48:36,899 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-64
+2026-11-14 15:48:36,955 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-87
+2026-11-14 15:48:36,992 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-65
+2026-11-14 15:48:36,992 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-65
+2026-11-14 15:48:37,047 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-88
+2026-11-14 15:48:37,075 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-66
+2026-11-14 15:48:37,075 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-66
+2026-11-14 15:48:37,155 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-89
+2026-11-14 15:48:37,177 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-67
+2026-11-14 15:48:37,178 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-67
+2026-11-14 15:48:37,247 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-90
+2026-11-14 15:48:37,278 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-68
+2026-11-14 15:48:37,278 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-68
+2026-11-14 15:48:37,355 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-91
+2026-11-14 15:48:37,408 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-69
+2026-11-14 15:48:37,409 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-69
+2026-11-14 15:48:37,446 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-92
+2026-11-14 15:48:37,483 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-70
+2026-11-14 15:48:37,484 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-70
+2026-11-14 15:48:37,554 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-93
+2026-11-14 15:48:37,644 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-71
+2026-11-14 15:48:37,644 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-71
+2026-11-14 15:48:37,647 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-94
+2026-11-14 15:48:37,686 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-72
+2026-11-14 15:48:37,686 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-72
+2026-11-14 15:48:37,754 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-95
+2026-11-14 15:48:37,784 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-73
+2026-11-14 15:48:37,784 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-73
+2026-11-14 15:48:37,845 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-96
+2026-11-14 15:48:37,900 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-74
+2026-11-14 15:48:37,900 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-74
+2026-11-14 15:48:37,952 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-97
+2026-11-14 15:48:38,021 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-75
+2026-11-14 15:48:38,021 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-75
+2026-11-14 15:48:38,045 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-98
+2026-11-14 15:48:38,117 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-76
+2026-11-14 15:48:38,117 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-76
+2026-11-14 15:48:38,154 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-99
+2026-11-14 15:48:38,207 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-77
+2026-11-14 15:48:38,207 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-77
+2026-11-14 15:48:38,247 INFO o.a.j.t.JMeterThread: Thread started: Users search jobs 1-100
+2026-11-14 15:48:38,285 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-78
+2026-11-14 15:48:38,285 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-78
+2026-11-14 15:48:38,406 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-79
+2026-11-14 15:48:38,407 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-79
+2026-11-14 15:48:38,491 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-80
+2026-11-14 15:48:38,491 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-80
+2026-11-14 15:48:38,606 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-81
+2026-11-14 15:48:38,606 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-81
+2026-11-14 15:48:38,698 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-82
+2026-11-14 15:48:38,698 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-82
+2026-11-14 15:48:38,807 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-83
+2026-11-14 15:48:38,807 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-83
+2026-11-14 15:48:38,899 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-84
+2026-11-14 15:48:38,899 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-84
+2026-11-14 15:48:39,006 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-85
+2026-11-14 15:48:39,006 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-85
+2026-11-14 15:48:39,098 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-86
+2026-11-14 15:48:39,099 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-86
+2026-11-14 15:48:39,169 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-87
+2026-11-14 15:48:39,169 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-87
+2026-11-14 15:48:39,263 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-88
+2026-11-14 15:48:39,263 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-88
+2026-11-14 15:48:39,388 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-89
+2026-11-14 15:48:39,391 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-89
+2026-11-14 15:48:39,467 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-90
+2026-11-14 15:48:39,467 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-90
+2026-11-14 15:48:39,584 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-91
+2026-11-14 15:48:39,584 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-91
+2026-11-14 15:48:39,679 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-92
+2026-11-14 15:48:39,679 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-92
+2026-11-14 15:48:39,783 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-93
+2026-11-14 15:48:39,783 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-93
+2026-11-14 15:48:39,869 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-94
+2026-11-14 15:48:39,869 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-94
+2026-11-14 15:48:39,983 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-95
+2026-11-14 15:48:39,984 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-95
+2026-11-14 15:48:40,068 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-96
+2026-11-14 15:48:40,068 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-96
+2026-11-14 15:48:40,192 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-97
+2026-11-14 15:48:40,192 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-97
+2026-11-14 15:48:40,277 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-98
+2026-11-14 15:48:40,278 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-98
+2026-11-14 15:48:40,416 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-99
+2026-11-14 15:48:40,417 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-99
+2026-11-14 15:48:40,478 INFO o.a.j.t.JMeterThread: Thread is done: Users search jobs 1-100
+2026-11-14 15:48:40,478 INFO o.a.j.t.JMeterThread: Thread finished: Users search jobs 1-100
+2026-11-14 15:48:40,479 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-11-14 15:48:40,479 INFO o.a.j.s.FileServer: Close: C:/Users/patel/data260-pair06/jmeter/data/students.csv
+2026-11-14 15:48:40,480 INFO o.a.j.r.Summariser: summary +    388 in 00:00:10 =   37.2/s Avg:    52 Min:     0 Max:   330 Err:    64 (16.49%) Active: 0 Started: 100 Finished: 100
+2026-11-14 15:48:40,480 INFO o.a.j.r.Summariser: summary =    400 in 00:00:12 =   32.8/s Avg:    55 Min:     0 Max:   330 Err:    66 (16.50%)

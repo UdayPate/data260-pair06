@@ -1,0 +1,300 @@
+{
+  "apply": {
+    "100": {
+      "samples": 100,
+      "avg_ms": 372.2,
+      "min_ms": 10,
+      "max_ms": 2413,
+      "p50_ms": 13.0,
+      "p95_ms": 2157.2,
+      "p99_ms": 2387.3,
+      "throughput_rps": 10.37,
+      "error_pct": 0.0,
+      "duration_s": 9.6
+    },
+    "200": {
+      "samples": 200,
+      "avg_ms": 13.2,
+      "min_ms": 9,
+      "max_ms": 78,
+      "p50_ms": 11.0,
+      "p95_ms": 34.0,
+      "p99_ms": 53.0,
+      "throughput_rps": 10.18,
+      "error_pct": 0.0,
+      "duration_s": 19.6
+    },
+    "300": {
+      "samples": 300,
+      "avg_ms": 44.9,
+      "min_ms": 9,
+      "max_ms": 1068,
+      "p50_ms": 12.0,
+      "p95_ms": 94.2,
+      "p99_ms": 871.0,
+      "throughput_rps": 10.92,
+      "error_pct": 0.0,
+      "duration_s": 27.5
+    },
+    "400": {
+      "samples": 400,
+      "avg_ms": 17.0,
+      "min_ms": 9,
+      "max_ms": 106,
+      "p50_ms": 11.0,
+      "p95_ms": 51.2,
+      "p99_ms": 103.0,
+      "throughput_rps": 10.25,
+      "error_pct": 0.0,
+      "duration_s": 39.0
+    },
+    "500": {
+      "samples": 500,
+      "avg_ms": 12.5,
+      "min_ms": 8,
+      "max_ms": 79,
+      "p50_ms": 11.0,
+      "p95_ms": 19.1,
+      "p99_ms": 49.0,
+      "throughput_rps": 10.07,
+      "error_pct": 0.0,
+      "duration_s": 49.7
+    }
+  },
+  "assistant": {
+    "10": {
+      "samples": 10,
+      "avg_ms": 153264.7,
+      "min_ms": 56898,
+      "max_ms": 230475,
+      "p50_ms": 158731.5,
+      "p95_ms": 230146.5,
+      "p99_ms": 230409.3,
+      "throughput_rps": 0.04,
+      "error_pct": 0.0,
+      "duration_s": 233.8
+    },
+    "20": {
+      "samples": 20,
+      "avg_ms": 439621.0,
+      "min_ms": 209021,
+      "max_ms": 568111,
+      "p50_ms": 464951.0,
+      "p95_ms": 568107.2,
+      "p99_ms": 568110.2,
+      "throughput_rps": 0.04,
+      "error_pct": 25.0,
+      "duration_s": 570.3
+    },
+    "5": {
+      "samples": 5,
+      "avg_ms": 48801.4,
+      "min_ms": 33613,
+      "max_ms": 65087,
+      "p50_ms": 48277.0,
+      "p95_ms": 63924.8,
+      "p99_ms": 64854.6,
+      "throughput_rps": 0.08,
+      "error_pct": 0.0,
+      "duration_s": 66.0
+    },
+    "50": {
+      "samples": 50,
+      "avg_ms": 538578.5,
+      "min_ms": 440659,
+      "max_ms": 569692,
+      "p50_ms": 569306.0,
+      "p95_ms": 569646.2,
+      "p99_ms": 569679.8,
+      "throughput_rps": 0.09,
+      "error_pct": 62.0,
+      "duration_s": 574.6
+    }
+  },
+  "events": {
+    "100": {
+      "samples": 200,
+      "avg_ms": 267.3,
+      "min_ms": 7,
+      "max_ms": 2559,
+      "p50_ms": 12.0,
+      "p95_ms": 2174.5,
+      "p99_ms": 2553.1,
+      "throughput_rps": 19.65,
+      "error_pct": 0.0,
+      "duration_s": 10.2
+    },
+    "200": {
+      "samples": 400,
+      "avg_ms": 9.8,
+      "min_ms": 3,
+      "max_ms": 60,
+      "p50_ms": 9.0,
+      "p95_ms": 14.0,
+      "p99_ms": 17.0,
+      "throughput_rps": 19.73,
+      "error_pct": 2.0,
+      "duration_s": 20.3
+    },
+    "300": {
+      "samples": 600,
+      "avg_ms": 35.8,
+      "min_ms": 3,
+      "max_ms": 1319,
+      "p50_ms": 10.0,
+      "p95_ms": 46.1,
+      "p99_ms": 1048.5,
+      "throughput_rps": 19.91,
+      "error_pct": 1.33,
+      "duration_s": 30.1
+    },
+    "400": {
+      "samples": 800,
+      "avg_ms": 10.2,
+      "min_ms": 3,
+      "max_ms": 53,
+      "p50_ms": 9.0,
+      "p95_ms": 16.0,
+      "p99_ms": 32.0,
+      "throughput_rps": 20.0,
+      "error_pct": 1.25,
+      "duration_s": 40.0
+    },
+    "500": {
+      "samples": 1000,
+      "avg_ms": 9.8,
+      "min_ms": 2,
+      "max_ms": 57,
+      "p50_ms": 9.0,
+      "p95_ms": 13.0,
+      "p99_ms": 27.0,
+      "throughput_rps": 19.94,
+      "error_pct": 1.8,
+      "duration_s": 50.1
+    }
+  },
+  "job_search": {
+    "100": {
+      "samples": 300,
+      "avg_ms": 12.2,
+      "min_ms": 0,
+      "max_ms": 330,
+      "p50_ms": 7.0,
+      "p95_ms": 35.1,
+      "p99_ms": 115.7,
+      "throughput_rps": 27.91,
+      "error_pct": 22.0,
+      "duration_s": 10.7
+    },
+    "200": {
+      "samples": 600,
+      "avg_ms": 6.3,
+      "min_ms": 0,
+      "max_ms": 61,
+      "p50_ms": 7.0,
+      "p95_ms": 10.0,
+      "p99_ms": 26.0,
+      "throughput_rps": 28.96,
+      "error_pct": 26.83,
+      "duration_s": 20.7
+    },
+    "300": {
+      "samples": 900,
+      "avg_ms": 31.4,
+      "min_ms": 0,
+      "max_ms": 1529,
+      "p50_ms": 7.0,
+      "p95_ms": 13.0,
+      "p99_ms": 1266.0,
+      "throughput_rps": 29.29,
+      "error_pct": 26.56,
+      "duration_s": 30.7
+    },
+    "400": {
+      "samples": 1200,
+      "avg_ms": 6.0,
+      "min_ms": 0,
+      "max_ms": 50,
+      "p50_ms": 7.0,
+      "p95_ms": 11.0,
+      "p99_ms": 14.0,
+      "throughput_rps": 28.96,
+      "error_pct": 26.42,
+      "duration_s": 41.4
+    },
+    "500": {
+      "samples": 1500,
+      "avg_ms": 6.9,
+      "min_ms": 0,
+      "max_ms": 110,
+      "p50_ms": 7.0,
+      "p95_ms": 12.0,
+      "p99_ms": 36.0,
+      "throughput_rps": 29.7,
+      "error_pct": 26.07,
+      "duration_s": 50.5
+    }
+  },
+  "login": {
+    "100": {
+      "samples": 100,
+      "avg_ms": 259.2,
+      "min_ms": 188,
+      "max_ms": 940,
+      "p50_ms": 203.5,
+      "p95_ms": 615.7,
+      "p99_ms": 934.1,
+      "throughput_rps": 10.11,
+      "error_pct": 0.0,
+      "duration_s": 9.9
+    },
+    "200": {
+      "samples": 200,
+      "avg_ms": 197.5,
+      "min_ms": 184,
+      "max_ms": 255,
+      "p50_ms": 194.0,
+      "p95_ms": 235.0,
+      "p99_ms": 250.0,
+      "throughput_rps": 10.05,
+      "error_pct": 0.0,
+      "duration_s": 19.9
+    },
+    "300": {
+      "samples": 300,
+      "avg_ms": 218.9,
+      "min_ms": 181,
+      "max_ms": 1352,
+      "p50_ms": 190.0,
+      "p95_ms": 230.9,
+      "p99_ms": 1100.0,
+      "throughput_rps": 10.05,
+      "error_pct": 0.0,
+      "duration_s": 29.8
+    },
+    "400": {
+      "samples": 400,
+      "avg_ms": 189.6,
+      "min_ms": 180,
+      "max_ms": 413,
+      "p50_ms": 186.0,
+      "p95_ms": 201.0,
+      "p99_ms": 226.6,
+      "throughput_rps": 10.03,
+      "error_pct": 0.0,
+      "duration_s": 39.9
+    },
+    "500": {
+      "samples": 500,
+      "avg_ms": 190.1,
+      "min_ms": 179,
+      "max_ms": 392,
+      "p50_ms": 186.5,
+      "p95_ms": 203.1,
+      "p99_ms": 269.0,
+      "throughput_rps": 10.02,
+      "error_pct": 0.0,
+      "duration_s": 49.9
+    }
+  }
+}

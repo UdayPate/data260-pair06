@@ -1,0 +1,1767 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1794700145948,248,SETUP login,200,OK,Users search jobs 1-1,text,true,,494,288,9,9,http://localhost:9060/auth/login,248,0,25
+1794700145957,239,SETUP login,200,OK,Users search jobs 1-2,text,true,,493,299,9,9,http://localhost:9060/auth/login,239,0,16
+1794700146055,189,SETUP login,200,OK,Users search jobs 1-3,text,true,,495,301,9,9,http://localhost:9060/auth/login,189,0,0
+1794700146157,185,SETUP login,200,OK,Users search jobs 1-4,text,true,,494,300,10,10,http://localhost:9060/auth/login,185,0,1
+1794700146255,187,SETUP login,200,OK,Users search jobs 1-5,text,true,,498,304,11,11,http://localhost:9060/auth/login,187,0,1
+1794700146355,187,SETUP login,200,OK,Users search jobs 1-6,text,true,,494,300,12,12,http://localhost:9060/auth/login,187,0,1
+1794700146460,187,SETUP login,200,OK,Users search jobs 1-7,text,true,,493,299,13,13,http://localhost:9060/auth/login,187,0,1
+1794700146720,10,job search by skill,200,OK,Users search jobs 1-1,text,true,,4218,408,14,14,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700146720,11,job search by skill,200,OK,Users search jobs 1-2,text,true,,4218,408,14,14,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,11,0,0
+1794700146550,189,SETUP login,200,OK,Users search jobs 1-8,text,true,,495,301,14,14,http://localhost:9060/auth/login,189,0,1
+1794700146745,8,job search remote internships,200,OK,Users search jobs 1-3,text,true,,3837,411,15,15,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700146650,191,SETUP login,200,OK,Users search jobs 1-9,text,true,,497,303,15,15,http://localhost:9060/auth/login,190,0,1
+1794700146843,8,job search by title,200,OK,Users search jobs 1-4,text,true,,241,391,16,16,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700146750,187,SETUP login,200,OK,Users search jobs 1-10,text,true,,494,298,16,16,http://localhost:9060/auth/login,187,0,1
+1794700146943,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-5,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,16,16,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700146856,183,SETUP login,200,OK,Users search jobs 1-11,text,true,,496,301,17,17,http://localhost:9060/auth/login,183,0,0
+1794700147042,9,job search by title,200,OK,Users search jobs 1-6,text,true,,3995,391,18,18,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700146952,186,SETUP login,200,OK,Users search jobs 1-12,text,true,,496,301,18,18,http://localhost:9060/auth/login,186,0,1
+1794700147149,7,job search by skill,200,OK,Users search jobs 1-7,text,true,,4218,408,19,19,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700147048,182,SETUP login,200,OK,Users search jobs 1-13,text,true,,499,304,19,19,http://localhost:9060/auth/login,182,0,1
+1794700147231,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-2,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,19,19,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700147231,8,job search by title,200,OK,Users search jobs 1-1,text,true,,3995,391,19,19,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700147240,7,job search remote internships,200,OK,Users search jobs 1-8,text,true,,3837,411,20,20,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700147254,7,job search by title,200,OK,Users search jobs 1-3,text,true,,3995,391,20,20,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700147151,185,SETUP login,200,OK,Users search jobs 1-14,text,true,,500,305,20,20,http://localhost:9060/auth/login,185,0,1
+1794700147353,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-4,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,21,21,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700147354,7,job search by skill,200,OK,Users search jobs 1-9,text,true,,4218,408,21,21,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700147244,192,SETUP login,200,OK,Users search jobs 1-15,text,true,,496,301,21,21,http://localhost:9060/auth/login,192,0,1
+1794700147438,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-10,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,21,21,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700147445,8,job search remote internships,200,OK,Users search jobs 1-5,text,true,,3837,411,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700147346,184,SETUP login,200,OK,Users search jobs 1-16,text,true,,502,307,22,22,http://localhost:9060/auth/login,184,0,1
+1794700147551,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-6,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700147553,8,job search remote internships,200,OK,Users search jobs 1-11,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700147449,190,SETUP login,200,OK,Users search jobs 1-17,text,true,,493,298,23,23,http://localhost:9060/auth/login,190,0,1
+1794700147646,7,job search by skill,200,OK,Users search jobs 1-12,text,true,,4218,409,24,24,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700147662,7,job search by title,200,OK,Users search jobs 1-7,text,true,,3737,391,24,24,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700147548,186,SETUP login,200,OK,Users search jobs 1-18,text,true,,499,304,24,24,http://localhost:9060/auth/login,186,0,1
+1794700147739,10,job search by title,200,OK,Users search jobs 1-2,text,true,,241,391,24,24,http://localhost:9060/jobs?q=data&page=3&page_size=10,10,0,0
+1794700147739,10,job search by title,200,OK,Users search jobs 1-13,text,true,,3995,392,24,24,http://localhost:9060/jobs?q=data&page=1&page_size=10,10,0,0
+1794700147754,9,job search by skill,200,OK,Users search jobs 1-1,text,true,,4218,408,24,24,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700147754,10,job search remote internships,200,OK,Users search jobs 1-8,text,true,,3837,411,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,10,0,0
+1794700147769,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-3,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700147646,188,SETUP login,200,OK,Users search jobs 1-19,text,true,,498,303,22,22,http://localhost:9060/auth/login,188,0,1
+1794700147846,9,job search by title,200,OK,Users search jobs 1-14,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700147861,10,job search by title,200,OK,Users search jobs 1-4,text,true,,3995,391,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,10,0,0
+1794700147877,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-9,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700147754,190,SETUP login,200,OK,Users search jobs 1-20,text,true,,495,300,23,23,http://localhost:9060/auth/login,190,0,1
+1794700147940,9,job search remote internships,200,OK,Users search jobs 1-15,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700147940,10,job search by skill,200,OK,Users search jobs 1-10,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700147955,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-5,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700147846,190,SETUP login,200,OK,Users search jobs 1-21,text,true,,496,301,22,22,http://localhost:9060/auth/login,190,0,1
+1794700148033,8,job search remote internships,200,OK,Users search jobs 1-16,text,true,,3837,412,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700148063,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-6,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700148063,8,job search by title,200,OK,Users search jobs 1-11,text,true,,241,392,22,22,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700147956,190,SETUP login,200,OK,Users search jobs 1-22,text,true,,499,304,23,23,http://localhost:9060/auth/login,190,0,1
+1794700148141,7,job search remote internships,200,OK,Users search jobs 1-17,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700148156,7,job search remote internships,200,OK,Users search jobs 1-12,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700148171,8,job search remote internships,200,OK,Users search jobs 1-7,text,true,,3837,411,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700148063,188,SETUP login,200,OK,Users search jobs 1-23,text,true,,496,301,23,23,http://localhost:9060/auth/login,188,0,1
+1794700148248,8,job search remote internships,200,OK,Users search jobs 1-18,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700148263,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-13,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700148278,7,job search by skill,200,OK,Users search jobs 1-8,text,true,,4218,408,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700148156,184,SETUP login,200,OK,Users search jobs 1-24,text,true,,496,301,23,23,http://localhost:9060/auth/login,184,0,1
+1794700148340,7,job search remote internships,200,OK,Users search jobs 1-19,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700148371,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-14,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700148386,7,job search by skill,200,OK,Users search jobs 1-9,text,true,,4218,408,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700148264,183,SETUP login,200,OK,Users search jobs 1-25,text,true,,497,302,23,23,http://localhost:9060/auth/login,183,0,0
+1794700148446,8,job search by title,200,OK,Users search jobs 1-20,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700148462,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-10,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700148462,7,job search by title,200,OK,Users search jobs 1-15,text,true,,3995,392,22,22,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700148356,186,SETUP login,200,OK,Users search jobs 1-26,text,true,,497,302,22,22,http://localhost:9060/auth/login,186,0,1
+1794700148539,8,job search by skill,200,OK,Users search jobs 1-21,text,true,,4218,409,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700148555,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-16,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700148586,7,job search by skill,200,OK,Users search jobs 1-11,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700148447,183,SETUP login,200,OK,Users search jobs 1-27,text,true,,497,302,22,22,http://localhost:9060/auth/login,183,0,1
+1794700148648,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-22,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700148663,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-17,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700148679,8,job search by skill,200,OK,Users search jobs 1-12,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700148555,188,SETUP login,200,OK,Users search jobs 1-28,text,true,,496,301,22,22,http://localhost:9060/auth/login,188,0,1
+1794700148755,8,job search remote internships,200,OK,Users search jobs 1-23,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700148770,8,job search by skill,200,OK,Users search jobs 1-13,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700148770,9,job search by title,200,OK,Users search jobs 1-18,text,true,,3737,392,22,22,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700148648,184,SETUP login,200,OK,Users search jobs 1-29,text,true,,497,302,22,22,http://localhost:9060/auth/login,184,0,1
+1794700148846,8,job search remote internships,200,OK,Users search jobs 1-24,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700148861,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-19,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700148877,8,job search by title,200,OK,Users search jobs 1-14,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,8,0,0
+1794700148755,188,SETUP login,200,OK,Users search jobs 1-30,text,true,,497,302,22,22,http://localhost:9060/auth/login,188,0,1
+1794700148954,8,job search remote internships,200,OK,Users search jobs 1-25,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700148969,9,job search by skill,200,OK,Users search jobs 1-15,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700148969,10,job search by title,200,OK,Users search jobs 1-20,text,true,,3737,392,22,22,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700148847,183,SETUP login,200,OK,Users search jobs 1-31,text,true,,500,305,22,22,http://localhost:9060/auth/login,183,0,0
+1794700149045,7,job search by skill,200,OK,Users search jobs 1-26,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700149060,26,job search by title,200,OK,Users search jobs 1-21,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,26,0,0
+1794700149060,26,job search by title,200,OK,Users search jobs 1-16,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,26,0,0
+1794700148955,185,SETUP login,200,OK,Users search jobs 1-32,text,true,,497,302,23,23,http://localhost:9060/auth/login,185,0,1
+1794700149138,7,job search by skill,200,OK,Users search jobs 1-27,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700149154,7,job search by title,200,OK,Users search jobs 1-22,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700149169,7,job search by title,200,OK,Users search jobs 1-17,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700149061,182,SETUP login,200,OK,Users search jobs 1-33,text,true,,503,308,22,22,http://localhost:9060/auth/login,182,0,0
+1794700149259,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-28,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149275,8,job search by title,200,OK,Users search jobs 1-23,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700149290,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-18,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149154,186,SETUP login,200,OK,Users search jobs 1-34,text,true,,497,302,23,23,http://localhost:9060/auth/login,186,0,1
+1794700149337,8,job search remote internships,200,OK,Users search jobs 1-29,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700149367,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-24,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149367,9,job search by title,200,OK,Users search jobs 1-19,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700149259,186,SETUP login,200,OK,Users search jobs 1-35,text,true,,495,300,23,23,http://localhost:9060/auth/login,186,0,1
+1794700149445,8,job search remote internships,200,OK,Users search jobs 1-30,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700149476,9,job search by skill,200,OK,Users search jobs 1-25,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700149492,7,job search by title,200,OK,Users search jobs 1-20,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700149538,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-31,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149352,193,SETUP login,200,OK,Users search jobs 1-36,text,true,,497,302,23,23,http://localhost:9060/auth/login,193,0,1
+1794700149553,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-26,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149600,7,job search by title,200,OK,Users search jobs 1-21,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700149460,192,SETUP login,200,OK,Users search jobs 1-37,text,true,,496,301,23,23,http://localhost:9060/auth/login,192,0,1
+1794700149646,8,job search by skill,200,OK,Users search jobs 1-32,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700149661,6,job search remote internships,200,OK,Users search jobs 1-27,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700149676,7,job search by skill,200,OK,Users search jobs 1-22,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700149553,187,SETUP login,200,OK,Users search jobs 1-38,text,true,,503,308,23,23,http://localhost:9060/auth/login,187,0,1
+1794700149753,7,job search by skill,200,OK,Users search jobs 1-33,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700149769,7,job search by title,200,OK,Users search jobs 1-28,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700149784,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-23,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149646,187,SETUP login,200,OK,Users search jobs 1-39,text,true,,494,299,22,22,http://localhost:9060/auth/login,187,0,1
+1794700149847,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-34,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149847,8,job search by title,200,OK,Users search jobs 1-29,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,8,0,0
+1794700149878,9,job search by title,200,OK,Users search jobs 1-24,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700149753,188,SETUP login,200,OK,Users search jobs 1-40,text,true,,497,302,22,22,http://localhost:9060/auth/login,188,0,1
+1794700149956,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-35,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149956,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-30,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700149988,8,job search by skill,200,OK,Users search jobs 1-25,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700149847,198,SETUP login,200,OK,Users search jobs 1-41,text,true,,497,302,23,23,http://localhost:9060/auth/login,198,0,1
+1794700150048,11,job search by skill,200,OK,Users search jobs 1-31,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,11,0,0
+1794700150048,12,job search by title,200,OK,Users search jobs 1-36,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,12,0,0
+1794700150064,9,job search by title,200,OK,Users search jobs 1-26,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700149957,191,SETUP login,200,OK,Users search jobs 1-42,text,true,,493,298,23,23,http://localhost:9060/auth/login,191,0,1
+1794700150156,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-37,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700150156,10,job search by skill,200,OK,Users search jobs 1-32,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700150172,9,job search by title,200,OK,Users search jobs 1-27,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700150049,195,SETUP login,200,OK,Users search jobs 1-43,text,true,,499,304,23,23,http://localhost:9060/auth/login,195,0,0
+1794700150249,9,job search remote internships,200,OK,Users search jobs 1-38,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700150265,8,job search by title,200,OK,Users search jobs 1-33,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700150280,9,job search remote internships,200,OK,Users search jobs 1-28,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700150156,193,SETUP login,200,OK,Users search jobs 1-44,text,true,,499,303,23,23,http://localhost:9060/auth/login,193,0,1
+1794700150342,10,job search remote internships,200,OK,Users search jobs 1-39,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,10,0,0
+1794700150358,10,job search by skill,200,OK,Users search jobs 1-29,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700150358,11,job search by skill,200,OK,Users search jobs 1-34,text,true,,4218,409,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,11,0,0
+1794700150250,193,SETUP login,200,OK,Users search jobs 1-45,text,true,,499,303,23,23,http://localhost:9060/auth/login,193,0,1
+1794700150449,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-40,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700150464,9,job search remote internships,200,OK,Users search jobs 1-35,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700150464,9,job search by title,200,OK,Users search jobs 1-30,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,9,0,0
+1794700150358,197,SETUP login,200,OK,Users search jobs 1-46,text,true,,499,303,23,23,http://localhost:9060/auth/login,197,0,1
+1794700150556,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-41,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700150572,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-36,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700150572,10,job search by title,200,OK,Users search jobs 1-31,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700150449,193,SETUP login,200,OK,Users search jobs 1-47,text,true,,503,307,23,23,http://localhost:9060/auth/login,193,0,1
+1794700150649,8,job search by skill,200,OK,Users search jobs 1-42,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700150664,7,job search by title,200,OK,Users search jobs 1-37,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700150679,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-32,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700150541,193,SETUP login,200,OK,Users search jobs 1-48,text,true,,497,301,23,23,http://localhost:9060/auth/login,193,0,1
+1794700150758,6,job search remote internships,200,OK,Users search jobs 1-43,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700150773,6,job search by skill,200,OK,Users search jobs 1-38,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700150788,7,job search remote internships,200,OK,Users search jobs 1-33,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700150649,184,SETUP login,200,OK,Users search jobs 1-49,text,true,,500,304,22,22,http://localhost:9060/auth/login,184,0,1
+1794700150850,8,job search remote internships,200,OK,Users search jobs 1-44,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700150865,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-39,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700150881,7,job search remote internships,200,OK,Users search jobs 1-34,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700150743,187,SETUP login,200,OK,Users search jobs 1-50,text,true,,499,303,23,23,http://localhost:9060/auth/login,187,0,1
+1794700150960,8,job search by skill,200,OK,Users search jobs 1-40,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700150960,10,job search by title,200,OK,Users search jobs 1-45,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700150975,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-35,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700150835,188,SETUP login,200,OK,Users search jobs 1-51,text,true,,495,299,22,22,http://localhost:9060/auth/login,188,0,0
+1794700151068,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-41,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700151068,8,job search remote internships,200,OK,Users search jobs 1-46,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700151083,9,job search by title,200,OK,Users search jobs 1-36,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700150945,186,SETUP login,200,OK,Users search jobs 1-52,text,true,,497,301,22,22,http://localhost:9060/auth/login,186,0,0
+1794700151145,8,job search by title,200,OK,Users search jobs 1-47,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700151160,9,job search by title,200,OK,Users search jobs 1-42,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700151176,7,job search by skill,200,OK,Users search jobs 1-37,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700151037,188,SETUP login,200,OK,Users search jobs 1-53,text,true,,497,301,22,22,http://localhost:9060/auth/login,188,0,0
+1794700151238,8,job search remote internships,200,OK,Users search jobs 1-48,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700151268,8,job search remote internships,200,OK,Users search jobs 1-43,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700151284,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-38,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700151145,187,SETUP login,200,OK,Users search jobs 1-54,text,true,,499,303,23,23,http://localhost:9060/auth/login,187,0,1
+1794700151346,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-49,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700151361,8,job search by skill,200,OK,Users search jobs 1-44,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700151377,8,job search by title,200,OK,Users search jobs 1-39,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700151238,187,SETUP login,200,OK,Users search jobs 1-55,text,true,,500,304,22,22,http://localhost:9060/auth/login,187,0,1
+1794700151439,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-50,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700151470,10,job search by skill,200,OK,Users search jobs 1-40,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700151485,9,job search by skill,200,OK,Users search jobs 1-45,text,true,,4218,410,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700151531,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-51,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700151346,194,SETUP login,200,OK,Users search jobs 1-56,text,true,,501,305,23,23,http://localhost:9060/auth/login,194,0,1
+1794700151578,11,job search remote internships,200,OK,Users search jobs 1-46,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,11,0,0
+1794700151578,12,job search by title,200,OK,Users search jobs 1-41,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,11,0,0
+1794700151439,200,SETUP login,200,OK,Users search jobs 1-57,text,true,,502,306,23,23,http://localhost:9060/auth/login,200,0,1
+1794700151639,12,job search by skill,200,OK,Users search jobs 1-52,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,12,0,0
+1794700151654,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-47,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700151684,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-42,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700151547,194,SETUP login,200,OK,Users search jobs 1-58,text,true,,499,303,23,23,http://localhost:9060/auth/login,194,0,1
+1794700151731,61,job search by title,401,Unauthorized,Users search jobs 1-53,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[401]]]
+
+****** comparison: [[[200]]]
+
+/",251,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,61,0,0
+1794700151747,46,job search remote internships,401,Unauthorized,Users search jobs 1-48,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[401]]]
+
+****** comparison: [[[200]]]
+
+/",251,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,46,0,0
+1794700151779,21,job search by title,200,OK,Users search jobs 1-43,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,21,0,0
+1794700151841,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-54,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700151655,193,SETUP login,200,OK,Users search jobs 1-59,text,true,,497,301,23,23,http://localhost:9060/auth/login,193,0,1
+1794700151857,3,job search by title,401,Unauthorized,Users search jobs 1-49,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[401]]]
+
+****** comparison: [[[200]]]
+
+/",251,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,3,0,0
+1794700151872,55,job search by title,200,OK,Users search jobs 1-44,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,55,0,0
+1794700151747,190,SETUP login,200,OK,Users search jobs 1-60,text,true,,500,304,23,23,http://localhost:9060/auth/login,190,0,1
+1794700151935,8,job search remote internships,200,OK,Users search jobs 1-55,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700151950,8,job search by skill,200,OK,Users search jobs 1-50,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700151841,191,SETUP login,200,OK,Users search jobs 1-61,text,true,,502,306,24,24,http://localhost:9060/auth/login,191,0,1
+1794700151996,45,job search remote internships,200,OK,Users search jobs 1-45,text,true,,3837,413,24,24,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,45,0,0
+1794700152042,8,job search by skill,200,OK,Users search jobs 1-51,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700152042,9,job search by title,200,OK,Users search jobs 1-56,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,9,0,0
+1794700152105,9,job search remote internships,200,OK,Users search jobs 1-46,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700151951,187,SETUP login,200,OK,Users search jobs 1-62,text,true,,502,306,23,23,http://localhost:9060/auth/login,187,0,0
+1794700152152,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-57,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700152167,9,job search by skill,200,OK,Users search jobs 1-47,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700152167,10,job search by skill,200,OK,Users search jobs 1-52,text,true,,4218,410,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700152042,188,SETUP login,200,OK,Users search jobs 1-63,text,true,,498,302,23,23,http://localhost:9060/auth/login,188,0,1
+1794700152244,8,job search remote internships,200,OK,Users search jobs 1-58,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700152305,9,job search by skill,200,OK,Users search jobs 1-48,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700152305,9,job search by title,200,OK,Users search jobs 1-53,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700152137,188,SETUP login,200,OK,Users search jobs 1-64,text,true,,502,306,22,22,http://localhost:9060/auth/login,188,0,1
+1794700152351,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-59,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700152351,7,job search by skill,200,OK,Users search jobs 1-54,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700152366,8,job search by title,200,OK,Users search jobs 1-49,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700152244,185,SETUP login,200,OK,Users search jobs 1-65,text,true,,500,304,23,23,http://localhost:9060/auth/login,185,0,1
+1794700152443,7,job search by title,200,OK,Users search jobs 1-60,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700152457,8,job search by skill,200,OK,Users search jobs 1-55,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700152473,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-50,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700152336,187,SETUP login,200,OK,Users search jobs 1-66,text,true,,502,306,22,22,http://localhost:9060/auth/login,187,0,1
+1794700152535,8,job search remote internships,200,OK,Users search jobs 1-61,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700152551,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-56,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700152551,8,job search by skill,200,OK,Users search jobs 1-51,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700152443,188,SETUP login,200,OK,Users search jobs 1-67,text,true,,499,303,23,23,http://localhost:9060/auth/login,188,0,1
+1794700152644,8,job search by title,200,OK,Users search jobs 1-62,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700152659,7,job search by skill,200,OK,Users search jobs 1-57,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700152690,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-52,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700152536,186,SETUP login,200,OK,Users search jobs 1-68,text,true,,501,305,22,22,http://localhost:9060/auth/login,186,0,1
+1794700152736,9,job search by title,200,OK,Users search jobs 1-63,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700152768,7,job search by skill,200,OK,Users search jobs 1-58,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700152628,185,SETUP login,200,OK,Users search jobs 1-69,text,true,,497,301,23,23,http://localhost:9060/auth/login,185,0,1
+1794700152829,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-53,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700152829,7,job search remote internships,200,OK,Users search jobs 1-64,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700152860,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-54,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700152860,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-59,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700152737,186,SETUP login,200,OK,Users search jobs 1-70,text,true,,501,305,23,23,http://localhost:9060/auth/login,186,0,0
+1794700152938,34,job search by skill,200,OK,Users search jobs 1-65,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,34,0,0
+1794700152953,27,job search by title,200,OK,Users search jobs 1-60,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,27,0,0
+1794700152968,12,job search by skill,200,OK,Users search jobs 1-55,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,12,0,0
+1794700152845,186,SETUP login,200,OK,Users search jobs 1-71,text,true,,498,302,22,22,http://localhost:9060/auth/login,186,0,1
+1794700153031,8,job search by title,200,OK,Users search jobs 1-66,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,8,0,0
+1794700153047,9,job search remote internships,200,OK,Users search jobs 1-61,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700153062,8,job search by title,200,OK,Users search jobs 1-56,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700152938,188,SETUP login,200,OK,Users search jobs 1-72,text,true,,500,304,23,23,http://localhost:9060/auth/login,188,0,1
+1794700153140,8,job search by skill,200,OK,Users search jobs 1-67,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700153155,10,job search by title,200,OK,Users search jobs 1-62,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700153171,9,job search remote internships,200,OK,Users search jobs 1-57,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700153232,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-68,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700153047,195,SETUP login,200,OK,Users search jobs 1-73,text,true,,500,304,23,23,http://localhost:9060/auth/login,195,0,1
+1794700153248,7,job search by title,200,OK,Users search jobs 1-63,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700153278,9,job search remote internships,200,OK,Users search jobs 1-58,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700153325,8,job search by skill,200,OK,Users search jobs 1-69,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700153140,194,SETUP login,200,OK,Users search jobs 1-74,text,true,,503,307,23,23,http://localhost:9060/auth/login,194,0,1
+1794700153340,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-64,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700153371,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-59,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700153248,191,SETUP login,200,OK,Users search jobs 1-75,text,true,,502,306,23,23,http://localhost:9060/auth/login,191,0,0
+1794700153433,8,job search remote internships,200,OK,Users search jobs 1-70,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700153479,7,job search remote internships,200,OK,Users search jobs 1-65,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700153495,8,job search by title,200,OK,Users search jobs 1-60,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,8,0,0
+1794700153341,189,SETUP login,200,OK,Users search jobs 1-76,text,true,,497,301,23,23,http://localhost:9060/auth/login,189,0,1
+1794700153542,7,job search remote internships,200,OK,Users search jobs 1-66,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700153542,9,job search by title,200,OK,Users search jobs 1-71,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700153557,7,job search remote internships,200,OK,Users search jobs 1-61,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700153433,188,SETUP login,200,OK,Users search jobs 1-77,text,true,,500,304,22,22,http://localhost:9060/auth/login,188,0,1
+1794700153632,8,job search by title,200,OK,Users search jobs 1-72,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700153663,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-67,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700153678,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-62,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700153542,187,SETUP login,200,OK,Users search jobs 1-78,text,true,,495,301,23,23,http://localhost:9060/auth/login,187,0,1
+1794700153741,7,job search by skill,200,OK,Users search jobs 1-68,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700153756,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-63,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700153756,7,job search remote internships,200,OK,Users search jobs 1-73,text,true,,3837,413,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700153633,185,SETUP login,200,OK,Users search jobs 1-79,text,true,,494,300,23,23,http://localhost:9060/auth/login,185,0,0
+1794700153848,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-74,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700153848,8,job search by title,200,OK,Users search jobs 1-64,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700153848,9,job search by title,200,OK,Users search jobs 1-69,text,true,,3995,393,22,22,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700153741,186,SETUP login,200,OK,Users search jobs 1-80,text,true,,497,303,23,23,http://localhost:9060/auth/login,186,0,1
+1794700153941,8,job search remote internships,200,OK,Users search jobs 1-70,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700153941,9,job search by title,200,OK,Users search jobs 1-75,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700153988,8,job search by skill,200,OK,Users search jobs 1-65,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700153834,186,SETUP login,200,OK,Users search jobs 1-81,text,true,,496,301,22,22,http://localhost:9060/auth/login,186,0,0
+1794700154034,8,job search by title,200,OK,Users search jobs 1-76,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700154064,10,job search by skill,200,OK,Users search jobs 1-66,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700154064,11,job search remote internships,200,OK,Users search jobs 1-71,text,true,,3837,413,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,11,0,0
+1794700153926,189,SETUP login,200,OK,Users search jobs 1-82,text,true,,499,304,22,22,http://localhost:9060/auth/login,189,0,1
+1794700154126,8,job search by skill,200,OK,Users search jobs 1-77,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700154141,8,job search by skill,200,OK,Users search jobs 1-72,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700154172,7,job search by skill,200,OK,Users search jobs 1-67,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700154034,190,SETUP login,200,OK,Users search jobs 1-83,text,true,,499,304,23,23,http://localhost:9060/auth/login,190,0,1
+1794700154233,7,job search by title,200,OK,Users search jobs 1-78,text,true,,241,391,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700154263,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-68,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700154279,7,job search by title,200,OK,Users search jobs 1-73,text,true,,241,393,22,22,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700154141,184,SETUP login,200,OK,Users search jobs 1-84,text,true,,495,300,22,22,http://localhost:9060/auth/login,184,0,1
+1794700154327,8,job search by skill,200,OK,Users search jobs 1-79,text,true,,4218,408,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700154357,7,job search by skill,200,OK,Users search jobs 1-74,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700154372,8,job search by title,200,OK,Users search jobs 1-69,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700154233,184,SETUP login,200,OK,Users search jobs 1-85,text,true,,494,299,22,22,http://localhost:9060/auth/login,184,0,1
+1794700154432,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-80,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700154462,9,job search by title,200,OK,Users search jobs 1-75,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,9,0,0
+1794700154462,9,job search remote internships,200,OK,Users search jobs 1-70,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700154327,185,SETUP login,200,OK,Users search jobs 1-86,text,true,,499,304,22,22,http://localhost:9060/auth/login,184,0,1
+1794700154525,7,job search by title,200,OK,Users search jobs 1-81,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700154555,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-76,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700154586,8,job search by skill,200,OK,Users search jobs 1-71,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700154432,188,SETUP login,200,OK,Users search jobs 1-87,text,true,,496,301,22,22,http://localhost:9060/auth/login,188,0,1
+1794700154617,9,job search remote internships,200,OK,Users search jobs 1-82,text,true,,3837,412,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700154647,8,job search remote internships,200,OK,Users search jobs 1-77,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700154662,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-72,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700154541,195,SETUP login,200,OK,Users search jobs 1-88,text,true,,495,300,23,23,http://localhost:9060/auth/login,195,0,1
+1794700154737,9,job search by skill,200,OK,Users search jobs 1-83,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700154752,10,job search by title,200,OK,Users search jobs 1-78,text,true,,3737,391,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700154798,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-73,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700154830,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-84,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700154632,199,SETUP login,200,OK,Users search jobs 1-89,text,true,,499,304,23,23,http://localhost:9060/auth/login,199,0,1
+1794700154845,8,job search by skill,200,OK,Users search jobs 1-79,text,true,,4218,408,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700154876,7,job search by skill,200,OK,Users search jobs 1-74,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700154722,199,SETUP login,200,OK,Users search jobs 1-90,text,true,,496,301,22,22,http://localhost:9060/auth/login,199,0,1
+1794700154922,8,job search by skill,200,OK,Users search jobs 1-85,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700154938,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-80,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700154984,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-75,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155014,7,job search by title,200,OK,Users search jobs 1-86,text,true,,241,392,22,22,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700154830,192,SETUP login,200,OK,Users search jobs 1-91,text,true,,498,303,22,22,http://localhost:9060/auth/login,192,0,1
+1794700155045,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-81,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155060,7,job search by skill,200,OK,Users search jobs 1-76,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700154938,189,SETUP login,200,OK,Users search jobs 1-92,text,true,,496,301,23,23,http://localhost:9060/auth/login,189,0,1
+1794700155122,8,job search remote internships,200,OK,Users search jobs 1-87,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700155137,7,job search by skill,200,OK,Users search jobs 1-82,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700155167,8,job search remote internships,200,OK,Users search jobs 1-77,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700155029,190,SETUP login,200,OK,Users search jobs 1-93,text,true,,498,303,22,22,http://localhost:9060/auth/login,190,0,1
+1794700155245,8,job search by title,200,OK,Users search jobs 1-88,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700155260,7,job search remote internships,200,OK,Users search jobs 1-83,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700155275,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-78,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155137,190,SETUP login,200,OK,Users search jobs 1-94,text,true,,500,305,23,23,http://localhost:9060/auth/login,190,0,1
+1794700155338,9,job search by title,200,OK,Users search jobs 1-84,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700155338,10,job search by title,200,OK,Users search jobs 1-89,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700155369,8,job search by title,200,OK,Users search jobs 1-79,text,true,,3995,391,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700155229,186,SETUP login,200,OK,Users search jobs 1-95,text,true,,496,301,22,22,http://localhost:9060/auth/login,186,0,1
+1794700155431,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-90,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155446,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-85,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155446,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-80,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155338,184,SETUP login,200,OK,Users search jobs 1-96,text,true,,493,298,23,23,http://localhost:9060/auth/login,184,0,1
+1794700155535,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-91,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155535,8,job search remote internships,200,OK,Users search jobs 1-86,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700155551,7,job search by title,200,OK,Users search jobs 1-81,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700155431,188,SETUP login,200,OK,Users search jobs 1-97,text,true,,496,301,22,22,http://localhost:9060/auth/login,188,0,1
+1794700155628,7,job search by skill,200,OK,Users search jobs 1-92,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700155643,6,job search remote internships,200,OK,Users search jobs 1-87,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700155659,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-82,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155536,188,SETUP login,200,OK,Users search jobs 1-98,text,true,,502,307,23,23,http://localhost:9060/auth/login,188,0,0
+1794700155721,7,job search remote internships,200,OK,Users search jobs 1-93,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700155768,6,job search remote internships,200,OK,Users search jobs 1-88,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700155782,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-83,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155628,183,SETUP login,200,OK,Users search jobs 1-99,text,true,,494,299,22,22,http://localhost:9060/auth/login,183,0,1
+1794700155828,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-94,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155859,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-89,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155859,7,job search by title,200,OK,Users search jobs 1-84,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700155737,186,SETUP login,200,OK,Users search jobs 1-100,text,true,,503,308,23,23,http://localhost:9060/auth/login,186,0,0
+1794700155921,7,job search remote internships,200,OK,Users search jobs 1-95,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700155936,8,job search by skill,200,OK,Users search jobs 1-90,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700155952,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-85,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700155828,187,SETUP login,200,OK,Users search jobs 1-101,text,true,,498,303,23,23,http://localhost:9060/auth/login,187,0,1
+1794700156028,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-96,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156044,9,job search remote internships,200,OK,Users search jobs 1-91,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700156044,9,job search remote internships,200,OK,Users search jobs 1-86,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700155921,189,SETUP login,200,OK,Users search jobs 1-102,text,true,,496,301,22,22,http://localhost:9060/auth/login,189,0,1
+1794700156122,7,job search by skill,200,OK,Users search jobs 1-97,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700156137,10,job search by skill,200,OK,Users search jobs 1-92,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700156152,7,job search by title,200,OK,Users search jobs 1-87,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700156028,192,SETUP login,200,OK,Users search jobs 1-103,text,true,,498,303,23,23,http://localhost:9060/auth/login,192,0,1
+1794700156229,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-93,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156229,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-98,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156275,8,job search by skill,200,OK,Users search jobs 1-88,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700156137,191,SETUP login,200,OK,Users search jobs 1-104,text,true,,498,303,23,23,http://localhost:9060/auth/login,191,0,1
+1794700156322,6,job search remote internships,200,OK,Users search jobs 1-99,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700156337,7,job search remote internships,200,OK,Users search jobs 1-94,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700156368,7,job search by skill,200,OK,Users search jobs 1-89,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700156229,186,SETUP login,200,OK,Users search jobs 1-105,text,true,,498,303,23,23,http://localhost:9060/auth/login,185,0,1
+1794700156429,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-100,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156429,7,job search by title,200,OK,Users search jobs 1-95,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700156444,7,job search by skill,200,OK,Users search jobs 1-90,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700156322,187,SETUP login,200,OK,Users search jobs 1-106,text,true,,496,301,23,23,http://localhost:9060/auth/login,187,0,1
+1794700156524,7,job search by skill,200,OK,Users search jobs 1-101,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700156540,9,job search by title,200,OK,Users search jobs 1-96,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700156555,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-91,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156430,183,SETUP login,200,OK,Users search jobs 1-107,text,true,,500,305,22,22,http://localhost:9060/auth/login,183,0,0
+1794700156617,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-102,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156632,7,job search by skill,200,OK,Users search jobs 1-97,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700156647,8,job search remote internships,200,OK,Users search jobs 1-92,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700156525,186,SETUP login,200,OK,Users search jobs 1-108,text,true,,502,307,23,23,http://localhost:9060/auth/login,186,0,0
+1794700156725,8,job search by title,200,OK,Users search jobs 1-103,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700156740,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-93,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156740,8,job search by title,200,OK,Users search jobs 1-98,text,true,,3737,392,22,22,http://localhost:9060/jobs?q=data&page=2&page_size=10,8,0,0
+1794700156632,185,SETUP login,200,OK,Users search jobs 1-109,text,true,,499,304,22,22,http://localhost:9060/auth/login,185,0,1
+1794700156833,9,job search by title,200,OK,Users search jobs 1-99,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,9,0,0
+1794700156833,10,job search by title,200,OK,Users search jobs 1-104,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700156849,7,job search remote internships,200,OK,Users search jobs 1-94,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700156725,189,SETUP login,200,OK,Users search jobs 1-110,text,true,,495,300,23,23,http://localhost:9060/auth/login,189,0,1
+1794700156925,7,job search remote internships,200,OK,Users search jobs 1-105,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700156940,9,job search remote internships,200,OK,Users search jobs 1-95,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700156940,10,job search by title,200,OK,Users search jobs 1-100,text,true,,3995,392,22,22,http://localhost:9060/jobs?q=data&page=1&page_size=10,10,0,0
+1794700157016,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-106,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156833,190,SETUP login,200,OK,Users search jobs 1-111,text,true,,500,304,23,23,http://localhost:9060/auth/login,190,0,1
+1794700157032,7,job search remote internships,200,OK,Users search jobs 1-101,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700157063,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-96,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700156925,187,SETUP login,200,OK,Users search jobs 1-112,text,true,,500,304,23,23,http://localhost:9060/auth/login,187,0,1
+1794700157124,9,job search by title,200,OK,Users search jobs 1-102,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,9,0,0
+1794700157124,9,job search by skill,200,OK,Users search jobs 1-107,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700157140,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-97,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700157017,185,SETUP login,200,OK,Users search jobs 1-113,text,true,,497,301,22,22,http://localhost:9060/auth/login,185,0,0
+1794700157217,7,job search by skill,200,OK,Users search jobs 1-108,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700157248,7,job search by skill,200,OK,Users search jobs 1-103,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700157263,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-98,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700157125,183,SETUP login,200,OK,Users search jobs 1-114,text,true,,501,305,22,22,http://localhost:9060/auth/login,183,0,0
+1794700157325,9,job search by title,200,OK,Users search jobs 1-109,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700157356,9,job search by skill,200,OK,Users search jobs 1-99,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700157356,10,job search remote internships,200,OK,Users search jobs 1-104,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,10,0,0
+1794700157218,187,SETUP login,200,OK,Users search jobs 1-115,text,true,,498,302,22,22,http://localhost:9060/auth/login,187,0,0
+1794700157417,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-110,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700157433,7,job search remote internships,200,OK,Users search jobs 1-105,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700157464,7,job search by title,200,OK,Users search jobs 1-100,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700157326,186,SETUP login,200,OK,Users search jobs 1-116,text,true,,497,301,22,22,http://localhost:9060/auth/login,186,0,1
+1794700157525,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-106,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700157526,8,job search by skill,200,OK,Users search jobs 1-111,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700157541,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-101,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700157418,187,SETUP login,200,OK,Users search jobs 1-117,text,true,,500,304,23,23,http://localhost:9060/auth/login,187,0,0
+1794700157618,11,job search by title,200,OK,Users search jobs 1-112,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,11,0,0
+1794700157634,8,job search by skill,200,OK,Users search jobs 1-102,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700157648,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-107,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700157526,191,SETUP login,200,OK,Users search jobs 1-118,text,true,,498,302,23,23,http://localhost:9060/auth/login,191,0,1
+1794700157711,9,job search remote internships,200,OK,Users search jobs 1-113,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700157726,9,job search by skill,200,OK,Users search jobs 1-108,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700157758,9,job search by title,200,OK,Users search jobs 1-103,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700157619,192,SETUP login,200,OK,Users search jobs 1-119,text,true,,496,300,23,23,http://localhost:9060/auth/login,192,0,1
+1794700157819,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-114,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700157850,8,job search by skill,200,OK,Users search jobs 1-109,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700157881,8,job search by skill,200,OK,Users search jobs 1-104,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700157912,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-115,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700157727,189,SETUP login,200,OK,Users search jobs 1-120,text,true,,500,304,23,23,http://localhost:9060/auth/login,189,0,1
+1794700157927,7,job search by skill,200,OK,Users search jobs 1-110,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700157942,8,job search remote internships,200,OK,Users search jobs 1-105,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700157819,189,SETUP login,200,OK,Users search jobs 1-121,text,true,,496,300,23,23,http://localhost:9060/auth/login,189,0,1
+1794700158019,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-116,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700158035,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-111,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700158035,8,job search remote internships,200,OK,Users search jobs 1-106,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700157927,186,SETUP login,200,OK,Users search jobs 1-122,text,true,,500,304,23,23,http://localhost:9060/auth/login,186,0,1
+1794700158112,8,job search remote internships,200,OK,Users search jobs 1-117,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700158143,7,job search remote internships,200,OK,Users search jobs 1-112,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700158158,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-107,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700158035,186,SETUP login,200,OK,Users search jobs 1-123,text,true,,498,302,23,23,http://localhost:9060/auth/login,186,0,1
+1794700158219,8,job search by title,200,OK,Users search jobs 1-118,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700158234,7,job search remote internships,200,OK,Users search jobs 1-113,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700158250,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-108,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700158113,184,SETUP login,200,OK,Users search jobs 1-124,text,true,,503,307,23,23,http://localhost:9060/auth/login,184,0,0
+1794700158326,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-119,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700158326,6,job search remote internships,200,OK,Users search jobs 1-114,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700158374,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-109,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700158220,181,SETUP login,200,OK,Users search jobs 1-125,text,true,,502,306,22,22,http://localhost:9060/auth/login,181,0,0
+1794700158420,9,job search by skill,200,OK,Users search jobs 1-115,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700158420,9,job search by skill,200,OK,Users search jobs 1-120,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700158436,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-110,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700158312,183,SETUP login,200,OK,Users search jobs 1-126,text,true,,497,301,22,22,http://localhost:9060/auth/login,183,0,0
+1794700158514,7,job search by skill,200,OK,Users search jobs 1-121,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700158529,7,job search by skill,200,OK,Users search jobs 1-116,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700158544,7,job search by skill,200,OK,Users search jobs 1-111,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700158420,181,SETUP login,200,OK,Users search jobs 1-127,text,true,,497,301,22,22,http://localhost:9060/auth/login,181,0,1
+1794700158622,9,job search by skill,200,OK,Users search jobs 1-122,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700158622,9,job search by title,200,OK,Users search jobs 1-117,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,9,0,0
+1794700158654,6,job search by skill,200,OK,Users search jobs 1-112,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700158514,188,SETUP login,200,OK,Users search jobs 1-128,text,true,,500,304,23,23,http://localhost:9060/auth/login,188,0,1
+1794700158730,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-123,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700158730,8,job search remote internships,200,OK,Users search jobs 1-118,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700158746,6,job search by skill,200,OK,Users search jobs 1-113,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700158623,188,SETUP login,200,OK,Users search jobs 1-129,text,true,,499,303,23,23,http://localhost:9060/auth/login,188,0,0
+1794700158807,8,job search remote internships,200,OK,Users search jobs 1-124,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700158837,10,job search by skill,200,OK,Users search jobs 1-114,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700158837,10,job search by skill,200,OK,Users search jobs 1-119,text,true,,4218,410,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700158716,189,SETUP login,200,OK,Users search jobs 1-130,text,true,,501,305,23,23,http://localhost:9060/auth/login,189,0,1
+1794700158914,8,job search remote internships,200,OK,Users search jobs 1-125,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700158929,8,job search by title,200,OK,Users search jobs 1-115,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700158944,7,job search remote internships,200,OK,Users search jobs 1-120,text,true,,3837,413,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700158807,184,SETUP login,200,OK,Users search jobs 1-131,text,true,,496,300,22,22,http://localhost:9060/auth/login,184,0,1
+1794700159007,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-126,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159022,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-121,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159038,7,job search remote internships,200,OK,Users search jobs 1-116,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700158914,186,SETUP login,200,OK,Users search jobs 1-132,text,true,,501,305,23,23,http://localhost:9060/auth/login,186,0,1
+1794700159115,8,job search by skill,200,OK,Users search jobs 1-127,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700159145,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-117,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159146,7,job search remote internships,200,OK,Users search jobs 1-122,text,true,,3837,413,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700159007,184,SETUP login,200,OK,Users search jobs 1-133,text,true,,501,305,22,22,http://localhost:9060/auth/login,184,0,1
+1794700159207,7,job search remote internships,200,OK,Users search jobs 1-128,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700159238,8,job search remote internships,200,OK,Users search jobs 1-123,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700159253,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-118,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159115,182,SETUP login,200,OK,Users search jobs 1-134,text,true,,499,303,22,22,http://localhost:9060/auth/login,182,0,1
+1794700159315,7,job search by skill,200,OK,Users search jobs 1-129,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700159329,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-124,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159361,6,job search by skill,200,OK,Users search jobs 1-119,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700159208,181,SETUP login,200,OK,Users search jobs 1-135,text,true,,502,306,22,22,http://localhost:9060/auth/login,181,0,0
+1794700159407,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-130,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159437,7,job search by skill,200,OK,Users search jobs 1-125,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700159452,5,job search by title,200,OK,Users search jobs 1-120,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,5,0,0
+1794700159499,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-131,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159315,186,SETUP login,200,OK,Users search jobs 1-136,text,true,,498,302,23,23,http://localhost:9060/auth/login,185,0,1
+1794700159514,7,job search by title,200,OK,Users search jobs 1-126,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700159530,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-121,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159407,183,SETUP login,200,OK,Users search jobs 1-137,text,true,,497,301,22,22,http://localhost:9060/auth/login,183,0,1
+1794700159608,7,job search by skill,200,OK,Users search jobs 1-132,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700159623,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-127,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159669,6,job search by title,200,OK,Users search jobs 1-122,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,6,0,0
+1794700159699,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-133,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159515,185,SETUP login,200,OK,Users search jobs 1-138,text,true,,500,304,23,23,http://localhost:9060/auth/login,185,0,1
+1794700159729,8,job search remote internships,200,OK,Users search jobs 1-128,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700159760,8,job search by title,200,OK,Users search jobs 1-123,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700159608,190,SETUP login,200,OK,Users search jobs 1-139,text,true,,499,303,23,23,http://localhost:9060/auth/login,190,0,1
+1794700159807,7,job search by skill,200,OK,Users search jobs 1-134,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700159822,7,job search remote internships,200,OK,Users search jobs 1-129,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700159838,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-124,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159899,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-135,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159714,190,SETUP login,200,OK,Users search jobs 1-140,text,true,,498,302,23,23,http://localhost:9060/auth/login,190,0,1
+1794700159915,6,job search remote internships,200,OK,Users search jobs 1-130,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700159945,6,job search remote internships,200,OK,Users search jobs 1-125,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700159807,188,SETUP login,200,OK,Users search jobs 1-141,text,true,,502,306,23,23,http://localhost:9060/auth/login,188,0,1
+1794700160007,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-131,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700160007,7,job search by skill,200,OK,Users search jobs 1-136,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700160022,7,job search by skill,200,OK,Users search jobs 1-126,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700160098,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-137,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700159915,187,SETUP login,200,OK,Users search jobs 1-142,text,true,,501,305,23,23,http://localhost:9060/auth/login,187,0,1
+1794700160129,8,job search by title,200,OK,Users search jobs 1-127,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700160129,9,job search remote internships,200,OK,Users search jobs 1-132,text,true,,3837,413,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700160007,185,SETUP login,200,OK,Users search jobs 1-143,text,true,,502,306,23,23,http://localhost:9060/auth/login,185,0,1
+1794700160206,8,job search by title,200,OK,Users search jobs 1-138,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700160206,9,job search by title,200,OK,Users search jobs 1-133,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700160238,6,job search by skill,200,OK,Users search jobs 1-128,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700160114,186,SETUP login,200,OK,Users search jobs 1-144,text,true,,494,288,23,23,http://localhost:9060/auth/login,186,0,1
+1794700160314,7,job search by title,200,OK,Users search jobs 1-139,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700160328,7,job search by title,200,OK,Users search jobs 1-134,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700160343,6,job search remote internships,200,OK,Users search jobs 1-129,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700160206,182,SETUP login,200,OK,Users search jobs 1-145,text,true,,494,300,22,22,http://localhost:9060/auth/login,182,0,1
+1794700160404,8,job search by title,200,OK,Users search jobs 1-135,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700160419,6,job search remote internships,200,OK,Users search jobs 1-140,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700160435,6,job search by title,200,OK,Users search jobs 1-130,text,true,,3995,393,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,6,0,0
+1794700160299,183,SETUP login,200,OK,Users search jobs 1-146,text,true,,493,299,22,22,http://localhost:9060/auth/login,183,0,1
+1794700160497,7,job search by skill,200,OK,Users search jobs 1-141,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700160512,6,job search remote internships,200,OK,Users search jobs 1-131,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700160527,6,job search by skill,200,OK,Users search jobs 1-136,text,true,,4218,410,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700160405,183,SETUP login,200,OK,Users search jobs 1-147,text,true,,496,301,22,22,http://localhost:9060/auth/login,183,0,0
+1794700160604,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-142,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700160604,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-137,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700160650,6,job search remote internships,200,OK,Users search jobs 1-132,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700160497,183,SETUP login,200,OK,Users search jobs 1-148,text,true,,499,304,22,22,http://localhost:9060/auth/login,183,0,1
+1794700160694,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-143,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700160725,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-138,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700160725,6,job search remote internships,200,OK,Users search jobs 1-133,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700160604,191,SETUP login,200,OK,Users search jobs 1-149,text,true,,494,299,23,23,http://localhost:9060/auth/login,190,0,1
+1794700160802,8,job search remote internships,200,OK,Users search jobs 1-144,text,true,,3837,411,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700160830,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-139,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700160846,7,job search by skill,200,OK,Users search jobs 1-134,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700160695,189,SETUP login,200,OK,Users search jobs 1-150,text,true,,502,307,22,22,http://localhost:9060/auth/login,189,0,0
+1794700160891,8,job search remote internships,200,OK,Users search jobs 1-145,text,true,,3837,411,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700160922,7,job search by title,200,OK,Users search jobs 1-135,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700160937,7,job search by skill,200,OK,Users search jobs 1-140,text,true,,4218,410,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700160803,187,SETUP login,200,OK,Users search jobs 1-151,text,true,,493,298,22,22,http://localhost:9060/auth/login,187,0,0
+1794700160984,7,job search by skill,200,OK,Users search jobs 1-146,text,true,,4218,408,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700161015,6,job search remote internships,200,OK,Users search jobs 1-141,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700161046,7,job search by title,200,OK,Users search jobs 1-136,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700160892,189,SETUP login,200,OK,Users search jobs 1-152,text,true,,498,303,22,22,http://localhost:9060/auth/login,189,0,0
+1794700161093,7,job search remote internships,200,OK,Users search jobs 1-147,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700161108,8,job search remote internships,200,OK,Users search jobs 1-142,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700161108,8,job search by skill,200,OK,Users search jobs 1-137,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700161000,183,SETUP login,200,OK,Users search jobs 1-153,text,true,,499,304,22,22,http://localhost:9060/auth/login,183,0,0
+1794700161185,7,job search remote internships,200,OK,Users search jobs 1-148,text,true,,3837,412,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700161200,7,job search by skill,200,OK,Users search jobs 1-143,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700161230,7,job search by title,200,OK,Users search jobs 1-138,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700161093,183,SETUP login,200,OK,Users search jobs 1-154,text,true,,497,302,22,22,http://localhost:9060/auth/login,183,0,1
+1794700161306,8,job search remote internships,200,OK,Users search jobs 1-149,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700161322,7,job search by skill,200,OK,Users search jobs 1-144,text,true,,4218,408,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700161337,7,job search by skill,200,OK,Users search jobs 1-139,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700161200,183,SETUP login,200,OK,Users search jobs 1-155,text,true,,497,302,22,22,http://localhost:9060/auth/login,183,0,1
+1794700161398,7,job search remote internships,200,OK,Users search jobs 1-150,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700161414,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-145,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700161445,6,job search remote internships,200,OK,Users search jobs 1-140,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700161291,183,SETUP login,200,OK,Users search jobs 1-156,text,true,,495,300,22,22,http://localhost:9060/auth/login,183,0,1
+1794700161491,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-151,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700161507,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-146,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700161522,6,job search remote internships,200,OK,Users search jobs 1-141,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700161399,180,SETUP login,200,OK,Users search jobs 1-157,text,true,,494,299,22,22,http://localhost:9060/auth/login,180,0,0
+1794700161583,7,job search by title,200,OK,Users search jobs 1-152,text,true,,3995,392,22,22,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700161614,7,job search by title,200,OK,Users search jobs 1-147,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700161629,7,job search remote internships,200,OK,Users search jobs 1-142,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700161507,185,SETUP login,200,OK,Users search jobs 1-158,text,true,,497,302,23,23,http://localhost:9060/auth/login,185,0,1
+1794700161689,7,job search by title,200,OK,Users search jobs 1-153,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700161704,7,job search by skill,200,OK,Users search jobs 1-148,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700161719,7,job search remote internships,200,OK,Users search jobs 1-143,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700161599,183,SETUP login,200,OK,Users search jobs 1-159,text,true,,496,301,22,22,http://localhost:9060/auth/login,182,0,1
+1794700161781,6,job search remote internships,200,OK,Users search jobs 1-154,text,true,,3837,412,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700161827,6,job search by title,200,OK,Users search jobs 1-149,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,6,0,0
+1794700161842,6,job search by skill,200,OK,Users search jobs 1-144,text,true,,4218,408,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700161705,182,SETUP login,200,OK,Users search jobs 1-160,text,true,,497,302,22,22,http://localhost:9060/auth/login,182,0,0
+1794700161889,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-155,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700161920,8,job search by skill,200,OK,Users search jobs 1-145,text,true,,4218,408,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700161920,8,job search remote internships,200,OK,Users search jobs 1-150,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700161797,182,SETUP login,200,OK,Users search jobs 1-161,text,true,,500,305,22,22,http://localhost:9060/auth/login,182,0,0
+1794700161982,6,job search by skill,200,OK,Users search jobs 1-156,text,true,,4218,409,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700161997,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-151,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162013,8,job search by title,200,OK,Users search jobs 1-146,text,true,,3737,391,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,8,0,0
+1794700161905,183,SETUP login,200,OK,Users search jobs 1-162,text,true,,495,300,22,22,http://localhost:9060/auth/login,183,0,0
+1794700162089,7,job search remote internships,200,OK,Users search jobs 1-157,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700162105,6,job search remote internships,200,OK,Users search jobs 1-152,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700162135,7,job search remote internships,200,OK,Users search jobs 1-147,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700161998,185,SETUP login,200,OK,Users search jobs 1-163,text,true,,495,300,22,22,http://localhost:9060/auth/login,185,0,1
+1794700162195,7,job search by title,200,OK,Users search jobs 1-158,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700162211,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-153,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162226,7,job search by title,200,OK,Users search jobs 1-148,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,7,0,0
+1794700162105,184,SETUP login,200,OK,Users search jobs 1-164,text,true,,500,305,22,22,http://localhost:9060/auth/login,184,0,1
+1794700162288,12,job search by title,200,OK,Users search jobs 1-154,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,12,0,0
+1794700162288,12,job search by title,200,OK,Users search jobs 1-159,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,12,0,0
+1794700162335,8,job search remote internships,200,OK,Users search jobs 1-149,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700162195,196,SETUP login,200,OK,Users search jobs 1-165,text,true,,502,307,22,22,http://localhost:9060/auth/login,196,0,1
+1794700162398,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-155,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162398,9,job search by skill,200,OK,Users search jobs 1-160,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700162429,9,job search by title,200,OK,Users search jobs 1-150,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700162491,9,job search by skill,200,OK,Users search jobs 1-161,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700162305,195,SETUP login,200,OK,Users search jobs 1-166,text,true,,499,304,23,23,http://localhost:9060/auth/login,195,0,0
+1794700162491,11,job search by title,200,OK,Users search jobs 1-156,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,11,0,0
+1794700162506,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-151,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162398,189,SETUP login,200,OK,Users search jobs 1-167,text,true,,497,302,22,22,http://localhost:9060/auth/login,189,0,1
+1794700162599,9,job search by skill,200,OK,Users search jobs 1-162,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700162599,10,job search by title,200,OK,Users search jobs 1-157,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700162614,10,job search by skill,200,OK,Users search jobs 1-152,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700162506,186,SETUP login,200,OK,Users search jobs 1-168,text,true,,496,301,22,22,http://localhost:9060/auth/login,186,0,1
+1794700162693,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-163,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162708,7,job search remote internships,200,OK,Users search jobs 1-158,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700162724,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-153,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162599,185,SETUP login,200,OK,Users search jobs 1-169,text,true,,499,304,22,22,http://localhost:9060/auth/login,185,0,1
+1794700162802,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-159,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162802,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-164,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162802,7,job search by skill,200,OK,Users search jobs 1-154,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700162895,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-165,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162709,187,SETUP login,200,OK,Users search jobs 1-170,text,true,,494,299,23,23,http://localhost:9060/auth/login,187,0,0
+1794700162910,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-155,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162910,9,job search remote internships,200,OK,Users search jobs 1-160,text,true,,3837,412,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700162802,185,SETUP login,200,OK,Users search jobs 1-171,text,true,,496,301,22,22,http://localhost:9060/auth/login,185,0,1
+1794700163004,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-166,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700163004,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-156,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700163004,6,job search by skill,200,OK,Users search jobs 1-161,text,true,,4218,409,22,22,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700163096,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-167,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700162910,187,SETUP login,200,OK,Users search jobs 1-172,text,true,,496,301,23,23,http://localhost:9060/auth/login,187,0,1
+1794700163111,9,job search by skill,200,OK,Users search jobs 1-157,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,9,0,0
+1794700163111,10,job search by title,200,OK,Users search jobs 1-162,text,true,,3737,392,22,22,http://localhost:9060/jobs?q=data&page=2&page_size=10,10,0,0
+1794700163004,184,SETUP login,200,OK,Users search jobs 1-173,text,true,,496,301,22,22,http://localhost:9060/auth/login,184,0,1
+1794700163203,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-163,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700163203,7,job search by skill,200,OK,Users search jobs 1-168,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700163218,7,job search remote internships,200,OK,Users search jobs 1-158,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700163111,184,SETUP login,200,OK,Users search jobs 1-174,text,true,,495,300,22,22,http://localhost:9060/auth/login,184,0,1
+1794700163295,7,job search by skill,200,OK,Users search jobs 1-169,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700163311,8,job search remote internships,200,OK,Users search jobs 1-164,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700163311,9,job search remote internships,200,OK,Users search jobs 1-159,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700163203,190,SETUP login,200,OK,Users search jobs 1-175,text,true,,495,300,23,23,http://localhost:9060/auth/login,190,0,1
+1794700163402,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-165,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700163402,7,job search by skill,200,OK,Users search jobs 1-170,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700163433,7,job search by title,200,OK,Users search jobs 1-160,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700163296,190,SETUP login,200,OK,Users search jobs 1-176,text,true,,497,302,22,22,http://localhost:9060/auth/login,190,0,0
+1794700163495,8,job search remote internships,200,OK,Users search jobs 1-171,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700163510,6,job search by skill,200,OK,Users search jobs 1-166,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700163525,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-161,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700163403,185,SETUP login,200,OK,Users search jobs 1-177,text,true,,500,303,23,23,http://localhost:9060/auth/login,185,0,1
+1794700163604,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-172,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700163604,7,job search by skill,200,OK,Users search jobs 1-167,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700163634,8,job search by skill,200,OK,Users search jobs 1-162,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700163495,188,SETUP login,200,OK,Users search jobs 1-178,text,true,,500,304,22,22,http://localhost:9060/auth/login,188,0,1
+1794700163695,9,job search remote internships,200,OK,Users search jobs 1-173,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700163711,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-168,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700163711,8,job search remote internships,200,OK,Users search jobs 1-163,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700163604,189,SETUP login,200,OK,Users search jobs 1-179,text,true,,499,303,23,23,http://localhost:9060/auth/login,189,0,1
+1794700163804,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-174,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700163804,8,job search remote internships,200,OK,Users search jobs 1-169,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700163835,7,job search by skill,200,OK,Users search jobs 1-164,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700163695,190,SETUP login,200,OK,Users search jobs 1-180,text,true,,495,299,22,22,http://localhost:9060/auth/login,190,0,1
+1794700163896,9,job search by title,200,OK,Users search jobs 1-175,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700163911,10,job search by skill,200,OK,Users search jobs 1-170,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700163911,11,job search by title,200,OK,Users search jobs 1-165,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,11,0,0
+1794700163804,189,SETUP login,200,OK,Users search jobs 1-181,text,true,,497,301,23,23,http://localhost:9060/auth/login,189,0,1
+1794700163990,9,job search remote internships,200,OK,Users search jobs 1-176,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700164005,8,job search by title,200,OK,Users search jobs 1-171,text,true,,241,392,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,8,0,0
+1794700164020,8,job search by skill,200,OK,Users search jobs 1-166,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700163897,189,SETUP login,200,OK,Users search jobs 1-182,text,true,,499,303,22,22,http://localhost:9060/auth/login,189,0,0
+1794700164099,7,job search by skill,200,OK,Users search jobs 1-177,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700164114,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-172,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700164114,8,job search by skill,200,OK,Users search jobs 1-167,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700164005,188,SETUP login,200,OK,Users search jobs 1-183,text,true,,498,302,23,23,http://localhost:9060/auth/login,188,0,1
+1794700164192,7,job search by skill,200,OK,Users search jobs 1-178,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700164207,7,job search remote internships,200,OK,Users search jobs 1-173,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700164223,6,job search by skill,200,OK,Users search jobs 1-168,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700164099,185,SETUP login,200,OK,Users search jobs 1-184,text,true,,503,307,22,22,http://localhost:9060/auth/login,185,0,1
+1794700164299,7,job search remote internships,200,OK,Users search jobs 1-179,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700164315,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-169,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700164315,7,job search remote internships,200,OK,Users search jobs 1-174,text,true,,3837,412,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700164207,184,SETUP login,200,OK,Users search jobs 1-185,text,true,,505,309,22,22,http://localhost:9060/auth/login,184,0,1
+1794700164392,7,job search by skill,200,OK,Users search jobs 1-180,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700164408,6,job search remote internships,200,OK,Users search jobs 1-175,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700164423,6,job search by skill,200,OK,Users search jobs 1-170,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700164299,184,SETUP login,200,OK,Users search jobs 1-186,text,true,,499,303,22,22,http://localhost:9060/auth/login,184,0,1
+1794700164501,8,job search remote internships,200,OK,Users search jobs 1-181,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700164501,9,job search by title,200,OK,Users search jobs 1-176,text,true,,3995,392,23,23,http://localhost:9060/jobs?q=data&page=1&page_size=10,9,0,0
+1794700164516,6,job search by skill,200,OK,Users search jobs 1-171,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,6,0,0
+1794700164408,182,SETUP login,200,OK,Users search jobs 1-187,text,true,,496,300,22,22,http://localhost:9060/auth/login,182,0,1
+1794700164593,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-182,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,22,22,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700164608,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-177,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700164624,6,job search remote internships,200,OK,Users search jobs 1-172,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700164501,184,SETUP login,200,OK,Users search jobs 1-188,text,true,,503,307,22,22,http://localhost:9060/auth/login,184,0,1
+1794700164701,8,job search remote internships,200,OK,Users search jobs 1-183,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700164701,9,job search by title,200,OK,Users search jobs 1-178,text,true,,241,393,23,23,http://localhost:9060/jobs?q=data&page=3&page_size=10,9,0,0
+1794700164717,6,job search by skill,200,OK,Users search jobs 1-173,text,true,,4218,409,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,5,0,0
+1794700164609,184,SETUP login,200,OK,Users search jobs 1-189,text,true,,500,304,23,23,http://localhost:9060/auth/login,184,0,1
+1794700164793,6,job search remote internships,200,OK,Users search jobs 1-184,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700164808,7,job search by title,200,OK,Users search jobs 1-179,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700164823,7,job search by title,200,OK,Users search jobs 1-174,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700164702,183,SETUP login,200,OK,Users search jobs 1-190,text,true,,498,302,23,23,http://localhost:9060/auth/login,183,0,0
+1794700164900,8,job search remote internships,200,OK,Users search jobs 1-180,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700164900,8,job search remote internships,200,OK,Users search jobs 1-185,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700164915,7,job search by title,200,OK,Users search jobs 1-175,text,true,,3737,392,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,7,0,0
+1794700164793,183,SETUP login,200,OK,Users search jobs 1-191,text,true,,501,305,22,22,http://localhost:9060/auth/login,183,0,1
+1794700164992,8,job search by title,200,OK,Users search jobs 1-186,text,true,,3737,393,23,23,http://localhost:9060/jobs?q=data&page=2&page_size=10,8,0,0
+1794700165025,8,job search remote internships,200,OK,Users search jobs 1-176,text,true,,3837,412,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700165025,8,job search remote internships,200,OK,Users search jobs 1-181,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700164900,181,SETUP login,200,OK,Users search jobs 1-192,text,true,,500,304,22,22,http://localhost:9060/auth/login,181,0,1
+1794700165103,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-182,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700165102,8,job search by skill,200,OK,Users search jobs 1-187,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700165118,8,job search by skill,200,OK,Users search jobs 1-177,text,true,,4218,410,23,23,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700165195,7,job search remote internships,200,OK,Users search jobs 1-188,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700165211,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-183,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,23,23,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700164993,223,SETUP login,200,OK,Users search jobs 1-193,text,true,,501,305,23,23,http://localhost:9060/auth/login,223,0,1
+1794700165211,6,job search remote internships,200,OK,Users search jobs 1-178,text,true,,3837,413,23,23,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,6,0,0
+1794700165103,183,SETUP login,200,OK,Users search jobs 1-194,text,true,,499,303,22,22,http://localhost:9060/auth/login,183,0,1
+1794700165304,10,job search remote internships,200,OK,Users search jobs 1-189,text,true,,3837,413,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,10,0,0
+1794700165304,10,job search by title,200,OK,Users search jobs 1-184,text,true,,241,393,22,22,http://localhost:9060/jobs?q=data&page=3&page_size=10,10,0,0
+1794700165320,7,job search remote internships,200,OK,Users search jobs 1-179,text,true,,3837,413,22,22,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700165196,186,SETUP login,200,OK,Users search jobs 1-195,text,true,,501,305,21,21,http://localhost:9060/auth/login,186,0,0
+1794700165396,7,job search remote internships,200,OK,Users search jobs 1-190,text,true,,3837,413,21,21,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700165411,8,job search by skill,200,OK,Users search jobs 1-180,text,true,,4218,410,21,21,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700165411,9,job search by title,200,OK,Users search jobs 1-185,text,true,,3737,393,20,20,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700165305,187,SETUP login,200,OK,Users search jobs 1-196,text,true,,496,300,20,20,http://localhost:9060/auth/login,187,0,0
+1794700165489,7,job search remote internships,200,OK,Users search jobs 1-191,text,true,,3837,413,20,20,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700165504,8,job search remote internships,200,OK,Users search jobs 1-186,text,true,,3837,413,20,20,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700165534,7,job search by skill,200,OK,Users search jobs 1-181,text,true,,4218,410,20,20,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700165396,187,SETUP login,200,OK,Users search jobs 1-197,text,true,,498,302,19,19,http://localhost:9060/auth/login,187,0,0
+1794700165594,8,job search by skill,200,OK,Users search jobs 1-192,text,true,,4218,410,19,19,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700165609,8,job search by skill,200,OK,Users search jobs 1-182,text,true,,4218,410,19,19,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700165625,7,job search remote internships,200,OK,Users search jobs 1-187,text,true,,3837,413,18,18,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700165504,188,SETUP login,200,OK,Users search jobs 1-198,text,true,,499,303,18,18,http://localhost:9060/auth/login,187,0,1
+1794700165704,8,job search remote internships,200,OK,Users search jobs 1-188,text,true,,3837,413,18,18,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700165719,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-193,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,18,18,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700165719,8,job search by skill,200,OK,Users search jobs 1-183,text,true,,4218,410,18,18,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700165594,189,SETUP login,200,OK,Users search jobs 1-199,text,true,,501,305,17,17,http://localhost:9060/auth/login,189,0,1
+1794700165796,8,job search by title,200,OK,Users search jobs 1-194,text,true,,3995,393,17,17,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700165828,9,job search remote internships,200,OK,Users search jobs 1-189,text,true,,3837,413,17,17,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700165828,10,job search by skill,200,OK,Users search jobs 1-184,text,true,,4218,410,17,17,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700165704,190,SETUP login,200,OK,Users search jobs 1-200,text,true,,499,303,16,16,http://localhost:9060/auth/login,190,0,1
+1794700165890,9,job search by title,200,OK,Users search jobs 1-195,text,true,,3737,393,16,16,http://localhost:9060/jobs?q=data&page=2&page_size=10,9,0,0
+1794700165905,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-190,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,16,16,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700165921,8,job search by skill,200,OK,Users search jobs 1-185,text,true,,4218,410,16,16,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700166000,8,job search by skill,200,OK,Users search jobs 1-191,text,true,,4218,410,15,15,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700166000,9,job search remote internships,200,OK,Users search jobs 1-196,text,true,,3837,413,15,15,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700166016,7,job search by skill,200,OK,Users search jobs 1-186,text,true,,4218,410,15,15,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700166093,8,job search by skill,200,OK,Users search jobs 1-197,text,true,,4218,410,14,14,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700166109,7,job search by skill,200,OK,Users search jobs 1-192,text,true,,4218,410,14,14,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700166139,7,job search remote internships,200,OK,Users search jobs 1-187,text,true,,3837,413,14,14,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700166202,7,job search by skill,200,OK,Users search jobs 1-198,text,true,,4218,410,13,13,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700166217,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-188,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,13,13,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700166233,8,job search by title,200,OK,Users search jobs 1-193,text,true,,3995,393,12,12,http://localhost:9060/jobs?q=data&page=1&page_size=10,8,0,0
+1794700166296,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-199,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,12,12,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700166312,7,job search by title,200,OK,Users search jobs 1-194,text,true,,241,393,12,12,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700166343,7,job search by title,200,OK,Users search jobs 1-189,text,true,,241,393,12,12,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700166406,8,job search remote internships,200,OK,Users search jobs 1-200,text,true,,3837,413,11,11,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0
+1794700166406,9,job search remote internships,200,OK,Users search jobs 1-195,text,true,,3837,413,11,11,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700166421,7,job search by title,200,OK,Users search jobs 1-190,text,true,,241,393,11,11,http://localhost:9060/jobs?q=data&page=3&page_size=10,7,0,0
+1794700166514,9,job search remote internships,200,OK,Users search jobs 1-191,text,true,,3837,413,10,10,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,9,0,0
+1794700166514,10,job search by skill,200,OK,Users search jobs 1-196,text,true,,4218,410,10,10,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,10,0,0
+1794700166607,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-197,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,9,9,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700166622,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-192,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,9,9,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700166716,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-198,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,8,8,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700166746,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-193,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,8,8,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700166808,7,job search by skill,200,OK,Users search jobs 1-199,text,true,,4218,410,7,7,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700166823,7,job search remote internships,200,OK,Users search jobs 1-194,text,true,,3837,413,7,7,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,7,0,0
+1794700166916,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-200,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,6,6,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700166916,8,job search by skill,200,OK,Users search jobs 1-195,text,true,,4218,410,6,6,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700167040,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-196,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,5,5,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700167117,8,job search by skill,200,OK,Users search jobs 1-197,text,true,,4218,410,4,4,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,8,0,0
+1794700167231,7,job search by skill,200,OK,Users search jobs 1-198,text,true,,4218,410,3,3,http://localhost:9060/jobs?skills=Python&skills_match=any&page_size=10,7,0,0
+1794700167323,0,job search by city,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in query at index 35: http://localhost:9060/jobs?city=San Jose&page_size=10,Users search jobs 1-199,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1205,0,2,2,http://localhost:9060/jobs?city=San Jose&page_size=10,0,0,0
+1794700167432,8,job search remote internships,200,OK,Users search jobs 1-200,text,true,,3837,413,1,1,http://localhost:9060/jobs?category=internship&is_remote=true&sort=salary,8,0,0

@@ -1,0 +1,448 @@
+=== driver started 2026-11-14 15:43:42 ===
+--- login 100 users, start 15:43:46
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\login.jmx
+    Starting standalone test @ 2026 Nov 14 15:43:48 PST (1794699828376)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary =    100 in 00:00:10 =    9.7/s Avg:   259 Min:   188 Max:   940 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:43:58 PST (1794699838764)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\login.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_100.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_100.log -Jthreads=100 -Jramp=10 -Jloops=1 -Jhost=localhos
+      done in 13 s
+    result file: 100 counted samples, 0 failed (0.0%)
+--- login 200 users, start 15:44:22
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\login.jmx
+    Starting standalone test @ 2026 Nov 14 15:44:24 PST (1794699864199)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +     55 in 00:00:06 =    9.6/s Avg:   202 Min:   186 Max:   242 Err:     0 (0.00%) Active: 2 Started: 56 Finished: 54
+    summary +    145 in 00:00:14 =   10.0/s Avg:   195 Min:   184 Max:   255 Err:     0 (0.00%) Active: 0 Started: 200 Finished: 200
+    summary =    200 in 00:00:20 =    9.9/s Avg:   197 Min:   184 Max:   255 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:44:44 PST (1794699884497)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\login.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_200.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_200.log -Jthreads=200 -Jramp=20 -Jloops=1 -Jhost=localhos
+      done in 23 s
+    result file: 200 counted samples, 0 failed (0.0%)
+--- login 300 users, start 15:45:08
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\login.jmx
+    Starting standalone test @ 2026 Nov 14 15:45:09 PST (1794699909217)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    206 in 00:00:21 =    9.9/s Avg:   193 Min:   181 Max:   248 Err:     0 (0.00%) Active: 3 Started: 208 Finished: 205
+    summary +     94 in 00:00:09 =   10.1/s Avg:   275 Min:   181 Max:  1352 Err:     0 (0.00%) Active: 0 Started: 300 Finished: 300
+    summary =    300 in 00:00:30 =   10.0/s Avg:   218 Min:   181 Max:  1352 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:45:39 PST (1794699939384)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\login.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_300.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_300.log -Jthreads=300 -Jramp=30 -Jloops=1 -Jhost=localhos
+      done in 33 s
+    result file: 300 counted samples, 0 failed (0.0%)
+--- login 400 users, start 15:46:02
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\login.jmx
+    Starting standalone test @ 2026 Nov 14 15:46:04 PST (1794699964989)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +      1 in 00:00:01 =    1.5/s Avg:   196 Min:   196 Max:   196 Err:     0 (0.00%) Active: 3 Started: 5 Finished: 2
+    summary +    246 in 00:00:24 =   10.1/s Avg:   190 Min:   180 Max:   413 Err:     0 (0.00%) Active: 2 Started: 248 Finished: 246
+    summary =    247 in 00:00:25 =    9.9/s Avg:   190 Min:   180 Max:   413 Err:     0 (0.00%)
+    summary +    153 in 00:00:15 =   10.0/s Avg:   188 Min:   181 Max:   219 Err:     0 (0.00%) Active: 0 Started: 400 Finished: 400
+    summary =    400 in 00:00:40 =    9.9/s Avg:   189 Min:   180 Max:   413 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:46:45 PST (1794700005311)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\login.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_400.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_400.log -Jthreads=400 -Jramp=40 -Jloops=1 -Jhost=localhos
+      done in 44 s
+    result file: 400 counted samples, 0 failed (0.0%)
+--- login 500 users, start 15:47:10
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\login.jmx
+    Starting standalone test @ 2026 Nov 14 15:47:12 PST (1794700032180)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    175 in 00:00:18 =    9.9/s Avg:   192 Min:   181 Max:   392 Err:     0 (0.00%) Active: 2 Started: 176 Finished: 174
+    summary +    300 in 00:00:30 =   10.0/s Avg:   188 Min:   179 Max:   272 Err:     0 (0.00%) Active: 3 Started: 477 Finished: 474
+    summary =    475 in 00:00:48 =   10.0/s Avg:   190 Min:   179 Max:   392 Err:     0 (0.00%)
+    summary +     25 in 00:00:02 =   10.0/s Avg:   190 Min:   182 Max:   236 Err:     0 (0.00%) Active: 0 Started: 500 Finished: 500
+    summary =    500 in 00:00:50 =   10.0/s Avg:   190 Min:   179 Max:   392 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:48:02 PST (1794700082496)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\login.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_500.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\login_500.log -Jthreads=500 -Jramp=50 -Jloops=1 -Jhost=localhos
+      done in 53 s
+    result file: 500 counted samples, 0 failed (0.0%)
+--- job_search 100 users, start 15:48:26
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx
+    Starting standalone test @ 2026 Nov 14 15:48:28 PST (1794700108227)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +     12 in 00:00:02 =    6.8/s Avg:   163 Min:     0 Max:   232 Err:     2 (16.67%) Active: 17 Started: 17 Finished: 0
+    summary +    388 in 00:00:10 =   37.2/s Avg:    52 Min:     0 Max:   330 Err:    64 (16.49%) Active: 0 Started: 100 Finished: 100
+    summary =    400 in 00:00:12 =   32.8/s Avg:    55 Min:     0 Max:   330 Err:    66 (16.50%)
+    Tidying up ...    @ 2026 Nov 14 15:48:40 PST (1794700120480)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_100.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_100.log -Jthreads=100 -Jramp=10 -Jloops=3 
+      done in 15 s
+    result file: 300 counted samples, 66 failed (22.0%)
+--- job_search 200 users, start 15:49:04
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx
+    Starting standalone test @ 2026 Nov 14 15:49:05 PST (1794700145198)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary =    800 in 00:00:22 =   36.1/s Avg:    51 Min:     0 Max:   248 Err:   161 (20.12%)
+    Tidying up ...    @ 2026 Nov 14 15:49:27 PST (1794700167442)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_200.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_200.log -Jthreads=200 -Jramp=20 -Jloops=3 
+      done in 25 s
+    result file: 600 counted samples, 161 failed (26.8%)
+--- job_search 300 users, start 15:49:52
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx
+    Starting standalone test @ 2026 Nov 14 15:49:54 PST (1794700194066)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    175 in 00:00:06 =   29.8/s Avg:    60 Min:     0 Max:   238 Err:    34 (19.43%) Active: 23 Started: 59 Finished: 36
+    summary +   1025 in 00:00:26 =   39.0/s Avg:    72 Min:     0 Max:  1529 Err:   205 (20.00%) Active: 0 Started: 300 Finished: 300
+    summary =   1200 in 00:00:32 =   37.3/s Avg:    70 Min:     0 Max:  1529 Err:   239 (19.92%)
+    Tidying up ...    @ 2026 Nov 14 15:50:26 PST (1794700226298)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_300.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_300.log -Jthreads=300 -Jramp=30 -Jloops=3 
+      done in 35 s
+    result file: 900 counted samples, 239 failed (26.6%)
+--- job_search 400 users, start 15:50:50
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx
+    Starting standalone test @ 2026 Nov 14 15:50:51 PST (1794700251127)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    295 in 00:00:09 =   33.3/s Avg:    57 Min:     0 Max:   229 Err:    50 (16.95%) Active: 23 Started: 89 Finished: 66
+    summary +   1200 in 00:00:30 =   40.0/s Avg:    50 Min:     0 Max:   225 Err:   238 (19.83%) Active: 23 Started: 389 Finished: 366
+    summary =   1495 in 00:00:39 =   38.5/s Avg:    52 Min:     0 Max:   229 Err:   288 (19.26%)
+    summary +    105 in 00:00:04 =   26.1/s Avg:    41 Min:     0 Max:   222 Err:    29 (27.62%) Active: 0 Started: 400 Finished: 400
+    summary =   1600 in 00:00:43 =   37.3/s Avg:    51 Min:     0 Max:   229 Err:   317 (19.81%)
+    Tidying up ...    @ 2026 Nov 14 15:51:34 PST (1794700294038)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_400.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_400.log -Jthreads=400 -Jramp=40 -Jloops=3 
+      done in 46 s
+    result file: 1200 counted samples, 317 failed (26.4%)
+--- job_search 500 users, start 15:51:57
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx
+    Starting standalone test @ 2026 Nov 14 15:51:59 PST (1794700319845)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +      1 in 00:00:01 =    0.8/s Avg:   257 Min:   257 Max:   257 Err:     0 (0.00%) Active: 10 Started: 10 Finished: 0
+    summary +   1142 in 00:00:29 =   39.5/s Avg:    55 Min:     0 Max:   261 Err:   221 (19.35%) Active: 23 Started: 301 Finished: 278
+    summary =   1143 in 00:00:30 =   37.9/s Avg:    55 Min:     0 Max:   261 Err:   221 (19.34%)
+    summary +    857 in 00:00:22 =   38.8/s Avg:    51 Min:     0 Max:   257 Err:   170 (19.84%) Active: 0 Started: 500 Finished: 500
+    summary =   2000 in 00:00:52 =   38.3/s Avg:    53 Min:     0 Max:   261 Err:   391 (19.55%)
+    Tidying up ...    @ 2026 Nov 14 15:52:52 PST (1794700372126)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\job_search.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_500.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\job_search_500.log -Jthreads=500 -Jramp=50 -Jloops=3 
+      done in 56 s
+    result file: 1500 counted samples, 391 failed (26.1%)
+--- apply 100 users, start 15:53:15
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx
+    Starting standalone test @ 2026 Nov 14 15:53:17 PST (1794700397378)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    183 in 00:00:12 =   14.7/s Avg:   312 Min:     6 Max:  2413 Err:     0 (0.00%) Active: 70 Started: 100 Finished: 30
+    summary +    117 in 00:00:07 =   17.0/s Avg:    23 Min:     5 Max:   212 Err:     0 (0.00%) Active: 0 Started: 100 Finished: 100
+    summary =    300 in 00:00:19 =   15.5/s Avg:   199 Min:     5 Max:  2413 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:53:36 PST (1794700416878)
+    ... end of run
+    apply: using pairs from position 0
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_100.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_100.log -Jthreads=100 -Jramp=10 -Jloops=1 -Jhost=localhos
+      done in 22 s
+    result file: 100 counted samples, 0 failed (0.0%)
+--- apply 200 users, start 15:54:00
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx
+    Starting standalone test @ 2026 Nov 14 15:54:01 PST (1794700441728)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +      1 in 00:00:03 =    0.3/s Avg:   250 Min:   250 Max:   250 Err:     0 (0.00%) Active: 35 Started: 35 Finished: 0
+    summary +    590 in 00:00:25 =   23.8/s Avg:    70 Min:     5 Max:   252 Err:     0 (0.00%) Active: 10 Started: 200 Finished: 190
+    summary =    591 in 00:00:28 =   20.9/s Avg:    70 Min:     5 Max:   252 Err:     0 (0.00%)
+    summary +      9 in 00:00:01 =   10.8/s Avg:     6 Min:     6 Max:    12 Err:     0 (0.00%) Active: 0 Started: 200 Finished: 200
+    summary =    600 in 00:00:29 =   20.6/s Avg:    69 Min:     5 Max:   252 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:54:30 PST (1794700470960)
+    ... end of run
+    apply: using pairs from position 100
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_200.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_200.log -Jthreads=200 -Jramp=20 -Jloops=1 -Jhost=localhos
+      done in 32 s
+    result file: 200 counted samples, 0 failed (0.0%)
+--- apply 300 users, start 15:54:54
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx
+    Starting standalone test @ 2026 Nov 14 15:54:57 PST (1794700497949)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +      1 in 00:00:06 =    0.2/s Avg:  1806 Min:  1806 Max:  1806 Err:     0 (0.00%) Active: 56 Started: 56 Finished: 0
+    summary +    749 in 00:00:26 =   29.4/s Avg:   143 Min:     5 Max:  2347 Err:     0 (0.00%) Active: 81 Started: 300 Finished: 219
+    summary =    750 in 00:00:32 =   23.6/s Avg:   145 Min:     5 Max:  2347 Err:     0 (0.00%)
+    summary +    150 in 00:00:08 =   18.6/s Avg:    32 Min:     5 Max:   201 Err:     0 (0.00%) Active: 0 Started: 300 Finished: 300
+    summary =    900 in 00:00:40 =   22.6/s Avg:   126 Min:     5 Max:  2347 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:55:38 PST (1794700538105)
+    ... end of run
+    apply: using pairs from position 300
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_300.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_300.log -Jthreads=300 -Jramp=30 -Jloops=1 -Jhost=localhos
+      done in 45 s
+    result file: 300 counted samples, 0 failed (0.0%)
+--- apply 400 users, start 15:56:04
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx
+    Starting standalone test @ 2026 Nov 14 15:56:06 PST (1794700566260)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    521 in 00:00:24 =   22.1/s Avg:    87 Min:     5 Max:   366 Err:     0 (0.00%) Active: 92 Started: 236 Finished: 144
+    summary +    679 in 00:00:26 =   26.6/s Avg:    63 Min:     5 Max:   252 Err:     0 (0.00%) Active: 0 Started: 400 Finished: 400
+    summary =   1200 in 00:00:49 =   24.4/s Avg:    74 Min:     5 Max:   366 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:56:55 PST (1794700615558)
+    ... end of run
+    apply: using pairs from position 600
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_400.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_400.log -Jthreads=400 -Jramp=40 -Jloops=1 -Jhost=localhos
+      done in 53 s
+    result file: 400 counted samples, 0 failed (0.0%)
+--- apply 500 users, start 15:57:21
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx
+    Starting standalone test @ 2026 Nov 14 15:57:23 PST (1794700643446)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +     33 in 00:00:07 =    5.1/s Avg:   187 Min:    28 Max:   226 Err:     0 (0.00%) Active: 65 Started: 65 Finished: 0
+    summary +    877 in 00:00:30 =   29.2/s Avg:    73 Min:     5 Max:   262 Err:     0 (0.00%) Active: 93 Started: 366 Finished: 273
+    summary =    910 in 00:00:37 =   24.9/s Avg:    78 Min:     5 Max:   262 Err:     0 (0.00%)
+    summary +    590 in 00:00:23 =   26.1/s Avg:    63 Min:     5 Max:   235 Err:     0 (0.00%) Active: 0 Started: 500 Finished: 500
+    summary =   1500 in 00:00:59 =   25.4/s Avg:    72 Min:     5 Max:   262 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:58:22 PST (1794700702676)
+    ... end of run
+    apply: using pairs from position 1000
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\apply.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_500.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\apply_500.log -Jthreads=500 -Jramp=50 -Jloops=1 -Jhost=localhos
+      done in 62 s
+    result file: 500 counted samples, 0 failed (0.0%)
+--- events 100 users, start 15:58:47
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\events.jmx
+    Starting standalone test @ 2026 Nov 14 15:58:48 PST (1794700728571)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    294 in 00:00:11 =   25.9/s Avg:   249 Min:     7 Max:  2559 Err:     0 (0.00%) Active: 6 Started: 100 Finished: 94
+    summary +      6 in 00:00:01 =   11.6/s Avg:    10 Min:     9 Max:    12 Err:     0 (0.00%) Active: 0 Started: 100 Finished: 100
+    summary =    300 in 00:00:12 =   25.2/s Avg:   244 Min:     7 Max:  2559 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 15:59:00 PST (1794700740522)
+    ... end of run
+    events: using pairs from position 0
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\events.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_100.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_100.log -Jthreads=100 -Jramp=10 -Jloops=1 -Jhost=local
+      done in 15 s
+    result file: 200 counted samples, 0 failed (0.0%)
+--- events 200 users, start 15:59:24
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\events.jmx
+    Starting standalone test @ 2026 Nov 14 15:59:25 PST (1794700765261)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    103 in 00:00:05 =   22.0/s Avg:    80 Min:     7 Max:   211 Err:     0 (0.00%) Active: 18 Started: 47 Finished: 29
+    summary +    497 in 00:00:17 =   29.2/s Avg:    67 Min:     3 Max:   229 Err:     8 (1.61%) Active: 0 Started: 200 Finished: 200
+    summary =    600 in 00:00:22 =   27.7/s Avg:    69 Min:     3 Max:   229 Err:     8 (1.33%)
+    Tidying up ...    @ 2026 Nov 14 15:59:47 PST (1794700787017)
+    ... end of run
+    events: using pairs from position 100
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\events.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_200.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_200.log -Jthreads=200 -Jramp=20 -Jloops=1 -Jhost=local
+      done in 24 s
+    result file: 400 counted samples, 8 failed (2.0%)
+--- events 300 users, start 16:00:13
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\events.jmx
+    Starting standalone test @ 2026 Nov 14 16:00:14 PST (1794700814350)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    422 in 00:00:16 =   27.0/s Avg:    75 Min:     7 Max:   223 Err:     0 (0.00%) Active: 22 Started: 156 Finished: 134
+    summary +    478 in 00:00:16 =   29.7/s Avg:    99 Min:     3 Max:  1319 Err:     8 (1.67%) Active: 0 Started: 300 Finished: 300
+    summary =    900 in 00:00:32 =   28.4/s Avg:    88 Min:     3 Max:  1319 Err:     8 (0.89%)
+    Tidying up ...    @ 2026 Nov 14 16:00:46 PST (1794700846125)
+    ... end of run
+    events: using pairs from position 300
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\events.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_300.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_300.log -Jthreads=300 -Jramp=30 -Jloops=1 -Jhost=local
+      done in 34 s
+    result file: 600 counted samples, 8 failed (1.3%)
+--- events 400 users, start 16:01:10
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\events.jmx
+    Starting standalone test @ 2026 Nov 14 16:01:12 PST (1794700872393)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    487 in 00:00:18 =   27.8/s Avg:    74 Min:     7 Max:   259 Err:     0 (0.00%) Active: 18 Started: 175 Finished: 157
+    summary +    713 in 00:00:24 =   29.5/s Avg:    68 Min:     3 Max:   241 Err:    10 (1.40%) Active: 0 Started: 400 Finished: 400
+    summary =   1200 in 00:00:42 =   28.8/s Avg:    71 Min:     3 Max:   259 Err:    10 (0.83%)
+    Tidying up ...    @ 2026 Nov 14 16:01:54 PST (1794700914165)
+    ... end of run
+    events: using pairs from position 600
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\events.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_400.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_400.log -Jthreads=400 -Jramp=40 -Jloops=1 -Jhost=local
+      done in 45 s
+    result file: 800 counted samples, 10 failed (1.2%)
+--- events 500 users, start 16:02:17
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\events.jmx
+    Starting standalone test @ 2026 Nov 14 16:02:19 PST (1794700939176)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +    286 in 00:00:11 =   26.6/s Avg:    73 Min:     3 Max:   253 Err:    10 (3.50%) Active: 17 Started: 107 Finished: 90
+    summary +    902 in 00:00:30 =   30.1/s Avg:    69 Min:     2 Max:   236 Err:     8 (0.89%) Active: 18 Started: 408 Finished: 390
+    summary =   1188 in 00:00:41 =   29.1/s Avg:    70 Min:     2 Max:   253 Err:    18 (1.52%)
+    summary +    312 in 00:00:11 =   28.6/s Avg:    66 Min:     7 Max:   206 Err:     0 (0.00%) Active: 0 Started: 500 Finished: 500
+    summary =   1500 in 00:00:52 =   29.0/s Avg:    69 Min:     2 Max:   253 Err:    18 (1.20%)
+    Tidying up ...    @ 2026 Nov 14 16:03:10 PST (1794700990898)
+    ... end of run
+    events: using pairs from position 1000
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\events.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_500.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\events_500.log -Jthreads=500 -Jramp=50 -Jloops=1 -Jhost=local
+      done in 54 s
+    result file: 1000 counted samples, 18 failed (1.8%)
+--- assistant 5 users, start 16:03:34
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\assistant.jmx
+    Starting standalone test @ 2026 Nov 14 16:03:35 PST (1794701015723)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +      9 in 00:01:00 =    0.2/s Avg: 19989 Min:   187 Max: 59276 Err:     0 (0.00%) Active: 2 Started: 5 Finished: 3
+    summary +      1 in 00:00:07 =    0.2/s Avg: 65087 Min: 65087 Max: 65087 Err:     0 (0.00%) Active: 0 Started: 5 Finished: 5
+    summary =     10 in 00:01:07 =    0.2/s Avg: 24499 Min:   187 Max: 65087 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 16:04:42 PST (1794701082376)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\assistant.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\assistant_5.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\assistant_5.log -Jthreads=5 -Jramp=5 -Jloops=1 -Jhost=loc
+      done in 70 s
+    result file: 5 counted samples, 0 failed (0.0%)
+--- assistant 10 users, start 16:05:07
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\assistant.jmx
+    Starting standalone test @ 2026 Nov 14 16:05:12 PST (1794701112544)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +     12 in 00:01:20 =    0.2/s Avg: 11524 Min:   209 Max: 77760 Err:     0 (0.00%) Active: 9 Started: 10 Finished: 1
+    summary +      4 in 00:01:31 =    0.0/s Avg: 132180 Min: 97716 Max: 166979 Err:     0 (0.00%) Active: 5 Started: 10 Finished: 5
+    summary =     16 in 00:02:51 =    0.1/s Avg: 41688 Min:   209 Max: 166979 Err:     0 (0.00%)
+    summary +      4 in 00:01:07 =    0.1/s Avg: 217317 Min: 186664 Max: 230475 Err:     0 (0.00%) Active: 0 Started: 10 Finished: 10
+    summary =     20 in 00:03:57 =    0.1/s Avg: 76814 Min:   209 Max: 230475 Err:     0 (0.00%)
+    Tidying up ...    @ 2026 Nov 14 16:09:10 PST (1794701350019)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\assistant.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\assistant_10.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\assistant_10.log -Jthreads=10 -Jramp=5 -Jloops=1 -Jhost=
+      done in 245 s
+    result file: 10 counted samples, 0 failed (0.0%)
+--- assistant 20 users, start 16:09:38
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\assistant.jmx
+    Starting standalone test @ 2026 Nov 14 16:09:43 PST (1794701383012)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +     26 in 00:05:52 =    0.1/s Avg: 66162 Min:   203 Max: 346835 Err:     0 (0.00%) Active: 15 Started: 20 Finished: 5
+    summary +      1 in 00:00:26 =    0.0/s Avg: 374006 Min: 374006 Max: 374006 Err:     0 (0.00%) Active: 14 Started: 20 Finished: 6
+    summary =     27 in 00:06:18 =    0.1/s Avg: 77564 Min:   203 Max: 374006 Err:     0 (0.00%)
+    summary +      1 in 00:00:33 =    0.0/s Avg: 408267 Min: 408267 Max: 408267 Err:     0 (0.00%) Active: 13 Started: 20 Finished: 7
+    summary =     28 in 00:06:52 =    0.1/s Avg: 89374 Min:   203 Max: 408267 Err:     0 (0.00%)
+    summary +      4 in 00:01:25 =    0.0/s Avg: 463940 Min: 431643 Max: 494217 Err:     0 (0.00%) Active: 9 Started: 20 Finished: 11
+    summary =     32 in 00:08:17 =    0.1/s Avg: 136195 Min:   203 Max: 494217 Err:     0 (0.00%)
+    summary +      2 in 00:00:36 =    0.1/s Avg: 521353 Min: 515254 Max: 527452 Err:     0 (0.00%) Active: 7 Started: 20 Finished: 13
+    summary =     34 in 00:08:53 =    0.1/s Avg: 158851 Min:   203 Max: 527452 Err:     0 (0.00%)
+    summary +      1 in 00:00:29 =    0.0/s Avg: 559671 Min: 559671 Max: 559671 Err:     0 (0.00%) Active: 6 Started: 20 Finished: 14
+    summary =     35 in 00:09:21 =    0.1/s Avg: 170303 Min:   203 Max: 559671 Err:     0 (0.00%)
+    summary +      5 in 00:00:11 =    0.5/s Avg: 568068 Min: 568016 Max: 568111 Err:     5 (100.00%) Active: 0 Started: 20 Finished: 20
+    summary =     40 in 00:09:32 =    0.1/s Avg: 220024 Min:   203 Max: 568111 Err:     5 (12.50%)
+    Tidying up ...    @ 2026 Nov 14 16:19:15 PST (1794701955694)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\assistant.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\assistant_20.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\assistant_20.log -Jthreads=20 -Jramp=5 -Jloops=1 -Jhost=
+      done in 580 s
+    result file: 20 counted samples, 5 failed (25.0%)
+--- assistant 50 users, start 16:19:42
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+    Creating summariser <summary>
+    Created the tree successfully using C:\Users\patel\data260-pair06\jmeter\plans\assistant.jmx
+    Starting standalone test @ 2026 Nov 14 16:19:51 PST (1794701991454)
+    Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+    summary +     55 in 00:07:38 =    0.1/s Avg: 41031 Min:   208 Max: 457210 Err:     0 (0.00%) Active: 46 Started: 50 Finished: 4
+    summary +      8 in 00:00:32 =    0.3/s Avg: 476601 Min: 473887 Max: 488534 Err:     0 (0.00%) Active: 38 Started: 50 Finished: 12
+    summary =     63 in 00:08:11 =    0.1/s Avg: 96341 Min:   208 Max: 488534 Err:     0 (0.00%)
+    summary +      4 in 00:00:59 =    0.1/s Avg: 526234 Min: 501238 Max: 546829 Err:     0 (0.00%) Active: 34 Started: 50 Finished: 16
+    summary =     67 in 00:09:10 =    0.1/s Avg: 122006 Min:   208 Max: 546829 Err:     0 (0.00%)
+    summary +     33 in 00:00:34 =    1.0/s Avg: 568964 Min: 557179 Max: 569692 Err:    31 (93.94%) Active: 0 Started: 50 Finished: 50
+    summary =    100 in 00:09:45 =    0.2/s Avg: 269502 Min:   208 Max: 569692 Err:    31 (31.00%)
+    Tidying up ...    @ 2026 Nov 14 16:29:37 PST (1794702577259)
+    ... end of run
+    RUN C:\tools\apache-jmeter-5.6.3\bin\jmeter.bat -n -t C:\Users\patel\data260-pair06\jmeter\plans\assistant.jmx -l C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\assistant_50.jtl -j C:\Users\patel\data260-pair06\docs\lab2\jmeter\results\assistant_50.log -Jthreads=50 -Jramp=5 -Jloops=1 -Jhost=
+      done in 618 s
+    result file: 50 counted samples, 31 failed (62.0%)
+=== all runs finished 2026-11-14 16:30:30 ===

@@ -1,0 +1,71 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1794701384230,626,SETUP login,200,OK,Users chat 1-4,text,true,,494,300,6,6,http://localhost:9060/auth/login,626,0,1
+1794701383968,888,SETUP login,200,OK,Users chat 1-3,text,true,,495,301,6,6,http://localhost:9060/auth/login,888,0,1
+1794701383771,1083,SETUP login,200,OK,Users chat 1-1,text,true,,494,288,6,6,http://localhost:9060/auth/login,1083,0,85
+1794701383773,1083,SETUP login,200,OK,Users chat 1-2,text,true,,493,299,6,6,http://localhost:9060/auth/login,1083,0,85
+1794701384476,380,SETUP login,200,OK,Users chat 1-5,text,true,,498,304,6,6,http://localhost:9060/auth/login,380,0,1
+1794701384724,353,SETUP login,200,OK,Users chat 1-6,text,true,,494,300,7,7,http://localhost:9060/auth/login,352,0,1
+1794701384968,435,SETUP login,200,OK,Users chat 1-7,text,true,,493,299,8,8,http://localhost:9060/auth/login,435,0,1
+1794701385217,354,SETUP login,200,OK,Users chat 1-8,text,true,,495,301,9,9,http://localhost:9060/auth/login,354,0,2
+1794701385465,301,SETUP login,200,OK,Users chat 1-9,text,true,,497,303,10,10,http://localhost:9060/auth/login,301,0,1
+1794701385714,247,SETUP login,200,OK,Users chat 1-10,text,true,,494,298,10,10,http://localhost:9060/auth/login,246,0,1
+1794701385963,318,SETUP login,200,OK,Users chat 1-11,text,true,,496,301,12,12,http://localhost:9060/auth/login,318,0,1
+1794701386211,355,SETUP login,200,OK,Users chat 1-12,text,true,,496,301,13,13,http://localhost:9060/auth/login,355,0,2
+1794701386472,326,SETUP login,200,OK,Users chat 1-13,text,true,,499,304,14,14,http://localhost:9060/auth/login,326,0,1
+1794701386721,234,SETUP login,200,OK,Users chat 1-14,text,true,,500,305,14,14,http://localhost:9060/auth/login,234,0,4
+1794701386970,322,SETUP login,200,OK,Users chat 1-15,text,true,,499,304,16,16,http://localhost:9060/auth/login,322,0,2
+1794701387220,203,SETUP login,200,OK,Users chat 1-16,text,true,,494,299,16,16,http://localhost:9060/auth/login,203,0,2
+1794701387464,213,SETUP login,200,OK,Users chat 1-17,text,true,,496,301,17,17,http://localhost:9060/auth/login,212,0,1
+1794701387711,216,SETUP login,200,OK,Users chat 1-18,text,true,,499,304,18,18,http://localhost:9060/auth/login,216,0,0
+1794701387960,242,SETUP login,200,OK,Users chat 1-19,text,true,,502,307,19,19,http://localhost:9060/auth/login,242,0,1
+1794701388207,376,SETUP login,200,OK,Users chat 1-20,text,true,,497,302,20,20,http://localhost:9060/auth/login,376,0,2
+1794701385061,209021,assistant chat,200,OK,Users chat 1-1,text,true,,2161,486,20,20,http://localhost:9060/assistant/chat,209013,0,0
+1794701385061,251999,assistant chat,200,OK,Users chat 1-3,text,true,,2250,524,19,19,http://localhost:9060/assistant/chat,251947,0,0
+1794701385572,271549,assistant chat,200,OK,Users chat 1-8,text,true,,1835,502,18,18,http://localhost:9060/assistant/chat,271548,0,0
+1794701386956,304622,assistant chat,200,OK,Users chat 1-14,text,true,,1377,499,17,17,http://localhost:9060/assistant/chat,304621,0,0
+1794701385404,327642,assistant chat,200,OK,Users chat 1-7,text,true,,2024,535,16,16,http://localhost:9060/assistant/chat,327641,0,0
+1794701388203,346835,assistant chat,200,OK,Users chat 1-19,text,true,,2089,508,15,15,http://localhost:9060/assistant/chat,346835,0,0
+1794701387677,374006,assistant chat,200,OK,Users chat 1-17,text,true,,2120,496,14,14,http://localhost:9060/assistant/chat,374005,0,0
+1794701386799,408267,assistant chat,200,OK,Users chat 1-13,text,true,,2303,494,13,13,http://localhost:9060/assistant/chat,408267,0,0
+1794701386567,431643,assistant chat,200,OK,Users chat 1-12,text,true,,2149,484,12,12,http://localhost:9060/assistant/chat,431643,0,0
+1794701387928,455576,assistant chat,200,OK,Users chat 1-18,text,true,,2249,500,11,11,http://localhost:9060/assistant/chat,455576,0,0
+1794701387424,474326,assistant chat,200,OK,Users chat 1-16,text,true,,1626,500,10,10,http://localhost:9060/assistant/chat,474326,0,0
+1794701386282,494217,assistant chat,200,OK,Users chat 1-11,text,true,,1968,499,9,9,http://localhost:9060/assistant/chat,494217,0,0
+1794701385061,515254,assistant chat,200,OK,Users chat 1-4,text,true,,1393,492,8,8,http://localhost:9060/assistant/chat,515254,0,0
+1794701388584,527452,assistant chat,200,OK,Users chat 1-20,text,true,,867,499,7,7,http://localhost:9060/assistant/chat,527452,0,0
+1794701385061,559671,assistant chat,200,OK,Users chat 1-5,text,true,,1835,488,6,6,http://localhost:9060/assistant/chat,559670,0,0
+1794701385078,568016,assistant chat,504,Gateway Time-out,Users chat 1-6,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[504]]]
+
+****** comparison: [[[200]]]
+
+/",329,509,5,5,http://localhost:9060/assistant/chat,568016,0,0
+1794701385061,568085,assistant chat,504,Gateway Time-out,Users chat 1-2,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[504]]]
+
+****** comparison: [[[200]]]
+
+/",329,493,5,5,http://localhost:9060/assistant/chat,568035,0,0
+1794701385767,568107,assistant chat,504,Gateway Time-out,Users chat 1-9,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[504]]]
+
+****** comparison: [[[200]]]
+
+/",329,487,5,5,http://localhost:9060/assistant/chat,568107,0,0
+1794701385961,568111,assistant chat,504,Gateway Time-out,Users chat 1-10,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[504]]]
+
+****** comparison: [[[200]]]
+
+/",329,511,2,2,http://localhost:9060/assistant/chat,568111,0,0
+1794701387293,568021,assistant chat,504,Gateway Time-out,Users chat 1-15,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[504]]]
+
+****** comparison: [[[200]]]
+
+/",329,498,1,1,http://localhost:9060/assistant/chat,568021,0,0
