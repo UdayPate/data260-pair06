@@ -21,6 +21,12 @@ import jwt
 
 from ..config import JWT_ALGORITHM, JWT_EXPIRE_MINUTES, JWT_SECRET
 
+# How many seconds the clock of the machine that CHECKS a token may differ from the clock of the one that ISSUED it. Without
+# this a token is refused ("not yet valid") when its issue time (iat) is slightly ahead of the checking clock. That really
+# happened: the clock of the Docker virtual machine on a laptop is stepped back by about 2 s every 30 s, which made about 2 %
+# of requests under load fail with 401 (JMeter runs, Lab 2). Separate nodes in Kubernetes can differ the same way.
+CLOCK_LEEWAY_SECONDS = 10
+
 
 def hash_password(plain: str) -> str:
     """Return a salted bcrypt hash (the salt is stored inside the hash string)."""
@@ -58,6 +64,6 @@ def create_access_token(user_id: int, role: str, session_id: str) -> str:
 def decode_access_token(token: str) -> Optional[dict]:
     """Return the token's payload, or None if it is forged, malformed or expired."""
     try:
-        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM], leeway=CLOCK_LEEWAY_SECONDS)
     except jwt.PyJWTError:
         return None

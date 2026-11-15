@@ -131,6 +131,24 @@ def test_expired_token_is_401(client, db):
     assert client.get("/auth/me", headers=auth_header(expired)).status_code == 401
 
 
+def test_token_issued_a_few_seconds_ahead_of_this_clock_is_accepted(client, db):
+    """Two clocks that differ by a second or two (a Docker VM whose clock is stepped, two Kubernetes nodes) must not cause 401s."""
+    client.post("/auth/student/signup", json=STUDENT)
+    now = datetime.now(timezone.utc)
+    ahead = jwt.encode({"sub": "1", "role": "student", "jti": _session_id(db), "iat": now + timedelta(seconds=3),
+                        "exp": now + timedelta(hours=1)}, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    assert client.get("/auth/me", headers=auth_header(ahead)).status_code == 200
+
+
+def test_token_issued_far_in_the_future_is_still_401(client, db):
+    """The tolerance is small: a token that claims to be issued a minute from now is refused."""
+    client.post("/auth/student/signup", json=STUDENT)
+    now = datetime.now(timezone.utc)
+    far = jwt.encode({"sub": "1", "role": "student", "jti": _session_id(db), "iat": now + timedelta(minutes=1),
+                      "exp": now + timedelta(hours=1)}, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    assert client.get("/auth/me", headers=auth_header(far)).status_code == 401
+
+
 def test_token_signed_with_wrong_secret_is_401(client, db):
     client.post("/auth/student/signup", json=STUDENT)
     forged = jwt.encode({"sub": "1", "role": "student", "jti": _session_id(db),

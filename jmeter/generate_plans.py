@@ -149,7 +149,7 @@ def build_plans():
         '<RandomController guiclass="RandomControlGui" testclass="RandomController" testname="a random job search" enabled="true">'
         + prop("InterleaveControl.style", "1", "intProp") + '</RandomController><hashTree>'
         + sampler("job search by title", "GET", "/jobs", 200, query={"q": "data", "page": "${__Random(1,3)}", "page_size": "10"})
-        + sampler("job search by city", "GET", "/jobs", 200, query={"city": "San Jose", "page_size": "10"})
+        + sampler("job search by city", "GET", "/jobs", 200, query={"city": "San%20Jose", "page_size": "10"})
         + sampler("job search remote internships", "GET", "/jobs", 200, query={"category": "internship", "is_remote": "true", "sort": "salary"})
         + sampler("job search by skill", "GET", "/jobs", 200, query={"skills": "Python", "skills_match": "any", "page_size": "10"})
         + '</hashTree>' + think_time())

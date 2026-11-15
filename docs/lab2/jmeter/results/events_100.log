@@ -1,365 +1,365 @@
-2026-11-14 15:58:48,263 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
-2026-11-14 15:58:48,281 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
-2026-11-14 15:58:48,281 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
-2026-11-14 15:58:48,282 INFO o.a.j.JMeter: Setting JMeter property: threads=100
-2026-11-14 15:58:48,282 INFO o.a.j.JMeter: Setting JMeter property: ramp=10
-2026-11-14 15:58:48,282 INFO o.a.j.JMeter: Setting JMeter property: loops=1
-2026-11-14 15:58:48,282 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
-2026-11-14 15:58:48,287 INFO o.a.j.JMeter: Setting JMeter property: port=9060
-2026-11-14 15:58:48,288 INFO o.a.j.JMeter: Setting JMeter property: data=C:/Users/patel/data260-pair06/jmeter/data
-2026-11-14 15:58:48,288 INFO o.a.j.JMeter: Setting JMeter property: response_timeout=30000
-2026-11-14 15:58:48,288 INFO o.a.j.JMeter: Setting JMeter property: think=500
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: Version 5.6.3
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: java.version=17.0.21
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: os.name=Windows 11
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: os.arch=amd64
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: os.version=10.0
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: file.encoding=Cp1252
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: java.awt.headless=true
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: Max memory     =1073741824
-2026-11-14 15:58:48,294 INFO o.a.j.JMeter: Available Processors =12
-2026-11-14 15:58:48,301 INFO o.a.j.JMeter: Default Locale=English (EN)
-2026-11-14 15:58:48,301 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
-2026-11-14 15:58:48,301 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
-2026-11-14 15:58:48,301 INFO o.a.j.JMeter: user.dir  =C:\Users\patel\data260-pair06
-2026-11-14 15:58:48,302 INFO o.a.j.JMeter: PWD       =C:\Users\patel\data260-pair06
-2026-11-14 15:58:48,311 INFO o.a.j.JMeter: IP: 192.168.1.12 Name: DESKTOP-0B8PB15 FullName: DESKTOP-0B8PB15
-2026-11-14 15:58:48,329 INFO o.a.j.s.FileServer: Default base='C:\Users\patel\data260-pair06'
-2026-11-14 15:58:48,332 INFO o.a.j.s.FileServer: Set new base='C:\Users\patel\data260-pair06\jmeter\plans'
-2026-11-14 15:58:48,472 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
-2026-11-14 15:58:48,491 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
-2026-11-14 15:58:48,493 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-11-14 15:58:48,495 INFO o.a.j.s.SaveService: Loading file: C:\Users\patel\data260-pair06\jmeter\plans\events.jmx
-2026-11-14 15:58:48,543 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-11-14 15:58:48,543 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-11-14 15:58:48,543 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-11-14 15:58:48,543 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-11-14 15:58:48,543 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
-2026-11-14 15:58:48,543 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
-2026-11-14 15:58:48,563 INFO o.a.j.JMeter: Creating summariser <summary>
-2026-11-14 15:58:48,578 INFO o.a.j.e.StandardJMeterEngine: Running the test!
-2026-11-14 15:58:48,578 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-11-14 15:58:48,578 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-11-14 15:58:48,581 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
-2026-11-14 15:58:48,581 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
-2026-11-14 15:58:48,640 INFO o.a.j.JMeter: Running test (1794700728640)
-2026-11-14 15:58:48,652 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Users search and register
-2026-11-14 15:58:48,652 INFO o.a.j.e.StandardJMeterEngine: Starting 100 threads for group Users search and register.
-2026-11-14 15:58:48,652 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-11-14 15:58:48,652 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=100 ramp-up=10 delayedStart=false
-2026-11-14 15:58:48,686 INFO o.a.j.t.ThreadGroup: Started thread group number 1
-2026-11-14 15:58:48,688 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
-2026-11-14 15:58:48,922 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-1
-2026-11-14 15:58:48,925 INFO o.a.j.s.FileServer: Stored: C:/Users/patel/data260-pair06/jmeter/data/event_pairs.csv
-2026-11-14 15:58:49,022 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-2
-2026-11-14 15:58:49,120 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-3
-2026-11-14 15:58:49,218 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-4
-2026-11-14 15:58:49,317 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-5
-2026-11-14 15:58:49,415 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-6
-2026-11-14 15:58:49,456 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = DESKTOP-0B8PB15
-2026-11-14 15:58:49,462 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
-2026-11-14 15:58:49,463 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
-2026-11-14 15:58:49,463 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
-2026-11-14 15:58:49,463 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
-2026-11-14 15:58:49,463 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
-2026-11-14 15:58:49,518 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-7
-2026-11-14 15:58:49,616 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-8
-2026-11-14 15:58:49,717 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-9
-2026-11-14 15:58:49,816 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-10
-2026-11-14 15:58:49,913 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-11
-2026-11-14 15:58:50,014 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-12
-2026-11-14 15:58:50,112 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-13
-2026-11-14 15:58:50,212 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-14
-2026-11-14 15:58:50,311 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-15
-2026-11-14 15:58:50,409 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-16
-2026-11-14 15:58:50,512 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-17
-2026-11-14 15:58:50,608 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-18
-2026-11-14 15:58:50,710 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-19
-2026-11-14 15:58:50,807 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-20
-2026-11-14 15:58:50,911 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-21
-2026-11-14 15:58:51,021 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-22
-2026-11-14 15:58:51,113 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-23
-2026-11-14 15:58:51,207 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-24
-2026-11-14 15:58:51,314 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-25
-2026-11-14 15:58:51,422 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-26
-2026-11-14 15:58:51,515 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-27
-2026-11-14 15:58:51,608 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-28
-2026-11-14 15:58:51,717 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-29
-2026-11-14 15:58:51,812 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-30
-2026-11-14 15:58:51,905 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-31
-2026-11-14 15:58:52,014 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-32
-2026-11-14 15:58:52,107 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-33
-2026-11-14 15:58:52,215 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-34
-2026-11-14 15:58:52,307 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-35
-2026-11-14 15:58:52,415 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-36
-2026-11-14 15:58:52,508 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-37
-2026-11-14 15:58:52,616 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-38
-2026-11-14 15:58:52,709 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-39
-2026-11-14 15:58:52,815 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-40
-2026-11-14 15:58:52,907 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-41
-2026-11-14 15:58:53,016 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-42
-2026-11-14 15:58:53,108 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-43
-2026-11-14 15:58:53,202 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-44
-2026-11-14 15:58:53,310 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-45
-2026-11-14 15:58:53,418 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-46
-2026-11-14 15:58:53,512 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-47
-2026-11-14 15:58:53,606 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-48
-2026-11-14 15:58:53,663 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-18
-2026-11-14 15:58:53,663 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-18
-2026-11-14 15:58:53,715 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-49
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-22
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-6
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-10
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-22
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-14
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-10
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-2
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-20
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-2
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-20
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-14
-2026-11-14 15:58:53,734 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-6
-2026-11-14 15:58:53,741 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-9
-2026-11-14 15:58:53,741 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-23
-2026-11-14 15:58:53,741 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-9
-2026-11-14 15:58:53,741 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-23
-2026-11-14 15:58:53,744 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-4
-2026-11-14 15:58:53,744 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-1
-2026-11-14 15:58:53,744 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-4
-2026-11-14 15:58:53,744 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-1
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-7
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-13
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-8
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-7
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-3
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-15
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-3
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-13
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-5
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-15
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-5
-2026-11-14 15:58:53,751 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-8
-2026-11-14 15:58:53,796 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-17
-2026-11-14 15:58:53,796 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-16
-2026-11-14 15:58:53,796 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-12
-2026-11-14 15:58:53,796 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-11
-2026-11-14 15:58:53,797 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-17
-2026-11-14 15:58:53,797 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-12
-2026-11-14 15:58:53,797 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-16
-2026-11-14 15:58:53,797 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-11
-2026-11-14 15:58:53,808 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-50
-2026-11-14 15:58:53,813 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-21
-2026-11-14 15:58:53,814 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-21
-2026-11-14 15:58:53,819 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-19
-2026-11-14 15:58:53,820 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-19
-2026-11-14 15:58:53,838 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-25
-2026-11-14 15:58:53,838 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-24
-2026-11-14 15:58:53,838 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-25
-2026-11-14 15:58:53,838 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-24
-2026-11-14 15:58:53,844 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-28
-2026-11-14 15:58:53,844 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-28
-2026-11-14 15:58:53,852 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-26
-2026-11-14 15:58:53,852 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-26
-2026-11-14 15:58:53,855 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-27
-2026-11-14 15:58:53,855 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-27
-2026-11-14 15:58:53,866 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-31
-2026-11-14 15:58:53,866 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-31
-2026-11-14 15:58:53,868 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-29
-2026-11-14 15:58:53,868 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-29
-2026-11-14 15:58:53,878 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-30
-2026-11-14 15:58:53,878 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-30
-2026-11-14 15:58:53,889 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-33
-2026-11-14 15:58:53,889 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-33
-2026-11-14 15:58:53,899 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-32
-2026-11-14 15:58:53,899 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-32
-2026-11-14 15:58:53,901 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-51
-2026-11-14 15:58:54,011 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-52
-2026-11-14 15:58:54,100 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-34
-2026-11-14 15:58:54,100 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-34
-2026-11-14 15:58:54,104 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-53
-2026-11-14 15:58:54,114 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-35
-2026-11-14 15:58:54,114 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-35
-2026-11-14 15:58:54,212 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-54
-2026-11-14 15:58:54,271 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-36
-2026-11-14 15:58:54,271 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-36
-2026-11-14 15:58:54,306 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-55
-2026-11-14 15:58:54,400 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-56
-2026-11-14 15:58:54,406 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-37
-2026-11-14 15:58:54,407 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-37
-2026-11-14 15:58:54,412 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-38
-2026-11-14 15:58:54,412 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-38
-2026-11-14 15:58:54,460 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-39
-2026-11-14 15:58:54,460 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-39
-2026-11-14 15:58:54,509 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-57
-2026-11-14 15:58:54,564 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-40
-2026-11-14 15:58:54,564 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-40
-2026-11-14 15:58:54,602 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-58
-2026-11-14 15:58:54,675 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-41
-2026-11-14 15:58:54,676 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-41
-2026-11-14 15:58:54,710 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-59
-2026-11-14 15:58:54,803 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-60
-2026-11-14 15:58:54,853 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-42
-2026-11-14 15:58:54,853 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-42
-2026-11-14 15:58:54,908 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-61
-2026-11-14 15:58:54,994 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-43
-2026-11-14 15:58:54,994 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-43
-2026-11-14 15:58:55,001 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-62
-2026-11-14 15:58:55,052 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-44
-2026-11-14 15:58:55,052 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-44
-2026-11-14 15:58:55,106 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-45
-2026-11-14 15:58:55,106 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-45
-2026-11-14 15:58:55,108 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-63
-2026-11-14 15:58:55,196 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-46
-2026-11-14 15:58:55,196 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-46
-2026-11-14 15:58:55,201 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-64
-2026-11-14 15:58:55,307 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-47
-2026-11-14 15:58:55,307 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-47
-2026-11-14 15:58:55,309 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-65
-2026-11-14 15:58:55,367 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-48
-2026-11-14 15:58:55,367 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-48
-2026-11-14 15:58:55,401 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-66
-2026-11-14 15:58:55,490 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-49
-2026-11-14 15:58:55,490 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-49
-2026-11-14 15:58:55,510 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-67
-2026-11-14 15:58:55,582 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-50
-2026-11-14 15:58:55,582 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-50
-2026-11-14 15:58:55,603 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-68
-2026-11-14 15:58:55,689 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-51
-2026-11-14 15:58:55,689 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-51
-2026-11-14 15:58:55,709 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-69
-2026-11-14 15:58:55,768 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-52
-2026-11-14 15:58:55,768 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-52
-2026-11-14 15:58:55,801 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-70
-2026-11-14 15:58:55,874 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-53
-2026-11-14 15:58:55,875 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-53
-2026-11-14 15:58:55,908 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-71
-2026-11-14 15:58:55,967 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-54
-2026-11-14 15:58:55,967 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-54
-2026-11-14 15:58:56,000 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-72
-2026-11-14 15:58:56,056 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-55
-2026-11-14 15:58:56,056 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-55
-2026-11-14 15:58:56,106 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-73
-2026-11-14 15:58:56,198 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-74
-2026-11-14 15:58:56,208 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-56
-2026-11-14 15:58:56,209 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-56
-2026-11-14 15:58:56,285 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-57
-2026-11-14 15:58:56,286 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-57
-2026-11-14 15:58:56,306 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-75
-2026-11-14 15:58:56,346 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-58
-2026-11-14 15:58:56,346 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-58
-2026-11-14 15:58:56,399 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-76
-2026-11-14 15:58:56,455 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-59
-2026-11-14 15:58:56,455 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-59
-2026-11-14 15:58:56,492 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-77
-2026-11-14 15:58:56,549 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-60
-2026-11-14 15:58:56,549 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-60
-2026-11-14 15:58:56,600 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-78
-2026-11-14 15:58:56,658 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-61
-2026-11-14 15:58:56,658 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-61
-2026-11-14 15:58:56,708 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-79
-2026-11-14 15:58:56,736 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-62
-2026-11-14 15:58:56,736 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-62
-2026-11-14 15:58:56,801 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-80
-2026-11-14 15:58:56,830 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-63
-2026-11-14 15:58:56,830 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-63
-2026-11-14 15:58:56,912 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-81
-2026-11-14 15:58:56,942 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-64
-2026-11-14 15:58:56,942 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-64
-2026-11-14 15:58:57,002 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-82
-2026-11-14 15:58:57,078 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-65
-2026-11-14 15:58:57,078 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-65
-2026-11-14 15:58:57,094 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-83
-2026-11-14 15:58:57,138 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-66
-2026-11-14 15:58:57,138 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-66
-2026-11-14 15:58:57,204 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-84
-2026-11-14 15:58:57,295 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-67
-2026-11-14 15:58:57,295 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-67
-2026-11-14 15:58:57,295 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-85
-2026-11-14 15:58:57,340 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-68
-2026-11-14 15:58:57,340 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-68
-2026-11-14 15:58:57,403 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-86
-2026-11-14 15:58:57,449 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-69
-2026-11-14 15:58:57,449 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-69
-2026-11-14 15:58:57,496 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-87
-2026-11-14 15:58:57,525 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-70
-2026-11-14 15:58:57,525 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-70
-2026-11-14 15:58:57,602 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-88
-2026-11-14 15:58:57,648 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-71
-2026-11-14 15:58:57,648 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-71
-2026-11-14 15:58:57,695 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-89
-2026-11-14 15:58:57,737 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-72
-2026-11-14 15:58:57,737 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-72
-2026-11-14 15:58:57,801 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-90
-2026-11-14 15:58:57,859 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-73
-2026-11-14 15:58:57,859 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-73
-2026-11-14 15:58:57,893 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-91
-2026-11-14 15:58:58,001 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-92
-2026-11-14 15:58:58,015 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-74
-2026-11-14 15:58:58,015 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-74
-2026-11-14 15:58:58,059 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-75
-2026-11-14 15:58:58,059 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-75
-2026-11-14 15:58:58,094 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-93
-2026-11-14 15:58:58,165 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-76
-2026-11-14 15:58:58,166 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-76
-2026-11-14 15:58:58,203 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-94
-2026-11-14 15:58:58,260 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-77
-2026-11-14 15:58:58,260 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-77
-2026-11-14 15:58:58,295 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-95
-2026-11-14 15:58:58,335 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-78
-2026-11-14 15:58:58,335 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-78
-2026-11-14 15:58:58,404 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-96
-2026-11-14 15:58:58,445 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-79
-2026-11-14 15:58:58,445 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-79
-2026-11-14 15:58:58,498 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-97
-2026-11-14 15:58:58,540 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-80
-2026-11-14 15:58:58,540 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-80
-2026-11-14 15:58:58,591 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-98
-2026-11-14 15:58:58,648 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-81
-2026-11-14 15:58:58,648 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-81
-2026-11-14 15:58:58,700 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-99
-2026-11-14 15:58:58,741 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-82
-2026-11-14 15:58:58,741 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-82
-2026-11-14 15:58:58,793 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-100
-2026-11-14 15:58:58,837 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-83
-2026-11-14 15:58:58,837 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-83
-2026-11-14 15:58:58,926 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-84
-2026-11-14 15:58:58,927 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-84
-2026-11-14 15:58:59,024 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-85
-2026-11-14 15:58:59,024 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-85
-2026-11-14 15:58:59,126 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-86
-2026-11-14 15:58:59,126 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-86
-2026-11-14 15:58:59,284 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-87
-2026-11-14 15:58:59,284 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-87
-2026-11-14 15:58:59,343 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-88
-2026-11-14 15:58:59,343 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-88
-2026-11-14 15:58:59,436 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-89
-2026-11-14 15:58:59,436 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-89
-2026-11-14 15:58:59,545 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-90
-2026-11-14 15:58:59,545 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-90
-2026-11-14 15:58:59,637 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-91
-2026-11-14 15:58:59,637 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-91
-2026-11-14 15:58:59,742 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-92
-2026-11-14 15:58:59,742 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-92
-2026-11-14 15:58:59,819 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-93
-2026-11-14 15:58:59,819 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-93
-2026-11-14 15:58:59,959 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-94
-2026-11-14 15:58:59,959 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-94
-2026-11-14 15:59:00,004 INFO o.a.j.r.Summariser: summary +    294 in 00:00:11 =   25.9/s Avg:   249 Min:     7 Max:  2559 Err:     0 (0.00%) Active: 6 Started: 100 Finished: 94
-2026-11-14 15:59:00,069 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-95
-2026-11-14 15:59:00,069 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-95
-2026-11-14 15:59:00,160 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-96
-2026-11-14 15:59:00,160 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-96
-2026-11-14 15:59:00,237 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-97
-2026-11-14 15:59:00,237 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-97
-2026-11-14 15:59:00,314 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-98
-2026-11-14 15:59:00,314 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-98
-2026-11-14 15:59:00,424 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-99
-2026-11-14 15:59:00,424 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-99
-2026-11-14 15:59:00,519 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-100
-2026-11-14 15:59:00,519 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-100
-2026-11-14 15:59:00,519 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
-2026-11-14 15:59:00,519 INFO o.a.j.s.FileServer: Close: C:/Users/patel/data260-pair06/jmeter/data/event_pairs.csv
-2026-11-14 15:59:00,522 INFO o.a.j.r.Summariser: summary +      6 in 00:00:01 =   11.6/s Avg:    10 Min:     9 Max:    12 Err:     0 (0.00%) Active: 0 Started: 100 Finished: 100
-2026-11-14 15:59:00,522 INFO o.a.j.r.Summariser: summary =    300 in 00:00:12 =   25.2/s Avg:   244 Min:     7 Max:  2559 Err:     0 (0.00%)
+2026-11-14 17:37:27,091 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-11-14 17:37:27,103 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-11-14 17:37:27,103 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-11-14 17:37:27,107 INFO o.a.j.JMeter: Setting JMeter property: threads=100
+2026-11-14 17:37:27,107 INFO o.a.j.JMeter: Setting JMeter property: ramp=10
+2026-11-14 17:37:27,107 INFO o.a.j.JMeter: Setting JMeter property: loops=1
+2026-11-14 17:37:27,107 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-11-14 17:37:27,108 INFO o.a.j.JMeter: Setting JMeter property: port=9060
+2026-11-14 17:37:27,108 INFO o.a.j.JMeter: Setting JMeter property: data=C:/Users/patel/data260-pair06/jmeter/data
+2026-11-14 17:37:27,108 INFO o.a.j.JMeter: Setting JMeter property: response_timeout=30000
+2026-11-14 17:37:27,108 INFO o.a.j.JMeter: Setting JMeter property: think=500
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: Version 5.6.3
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: java.version=17.0.21
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: os.name=Windows 11
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: os.arch=amd64
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: os.version=10.0
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: file.encoding=Cp1252
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: java.awt.headless=true
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-11-14 17:37:27,111 INFO o.a.j.JMeter: Available Processors =12
+2026-11-14 17:37:27,120 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-11-14 17:37:27,120 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-11-14 17:37:27,120 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-11-14 17:37:27,120 INFO o.a.j.JMeter: user.dir  =C:\Users\patel\data260-pair06
+2026-11-14 17:37:27,120 INFO o.a.j.JMeter: PWD       =C:\Users\patel\data260-pair06
+2026-11-14 17:37:27,124 INFO o.a.j.JMeter: IP: 192.168.1.12 Name: DESKTOP-0B8PB15 FullName: DESKTOP-0B8PB15
+2026-11-14 17:37:27,137 INFO o.a.j.s.FileServer: Default base='C:\Users\patel\data260-pair06'
+2026-11-14 17:37:27,137 INFO o.a.j.s.FileServer: Set new base='C:\Users\patel\data260-pair06\jmeter\plans'
+2026-11-14 17:37:27,260 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-11-14 17:37:27,282 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-11-14 17:37:27,282 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-11-14 17:37:27,286 INFO o.a.j.s.SaveService: Loading file: C:\Users\patel\data260-pair06\jmeter\plans\events.jmx
+2026-11-14 17:37:27,336 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-11-14 17:37:27,336 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-11-14 17:37:27,336 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-11-14 17:37:27,336 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-11-14 17:37:27,336 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-11-14 17:37:27,336 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-11-14 17:37:27,352 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-11-14 17:37:27,365 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-11-14 17:37:27,365 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-11-14 17:37:27,366 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-11-14 17:37:27,369 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-11-14 17:37:27,369 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-11-14 17:37:27,416 INFO o.a.j.JMeter: Running test (1794706647416)
+2026-11-14 17:37:27,425 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Users search and register
+2026-11-14 17:37:27,425 INFO o.a.j.e.StandardJMeterEngine: Starting 100 threads for group Users search and register.
+2026-11-14 17:37:27,425 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-11-14 17:37:27,425 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=100 ramp-up=10 delayedStart=false
+2026-11-14 17:37:27,459 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-11-14 17:37:27,459 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-11-14 17:37:27,481 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-1
+2026-11-14 17:37:27,482 INFO o.a.j.s.FileServer: Stored: C:/Users/patel/data260-pair06/jmeter/data/event_pairs.csv
+2026-11-14 17:37:27,579 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-2
+2026-11-14 17:37:27,680 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-3
+2026-11-14 17:37:27,775 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-4
+2026-11-14 17:37:27,877 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-5
+2026-11-14 17:37:27,975 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-6
+2026-11-14 17:37:28,007 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = DESKTOP-0B8PB15
+2026-11-14 17:37:28,012 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-11-14 17:37:28,013 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-11-14 17:37:28,013 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-11-14 17:37:28,013 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-11-14 17:37:28,013 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-11-14 17:37:28,074 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-7
+2026-11-14 17:37:28,177 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-8
+2026-11-14 17:37:28,274 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-9
+2026-11-14 17:37:28,374 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-10
+2026-11-14 17:37:28,475 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-11
+2026-11-14 17:37:28,574 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-12
+2026-11-14 17:37:28,675 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-13
+2026-11-14 17:37:28,774 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-14
+2026-11-14 17:37:28,872 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-15
+2026-11-14 17:37:28,972 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-16
+2026-11-14 17:37:29,070 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-17
+2026-11-14 17:37:29,172 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-18
+2026-11-14 17:37:29,268 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-19
+2026-11-14 17:37:29,369 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-20
+2026-11-14 17:37:29,408 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-2
+2026-11-14 17:37:29,408 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-2
+2026-11-14 17:37:29,412 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-1
+2026-11-14 17:37:29,412 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-1
+2026-11-14 17:37:29,417 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-3
+2026-11-14 17:37:29,417 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-3
+2026-11-14 17:37:29,469 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-21
+2026-11-14 17:37:29,490 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-4
+2026-11-14 17:37:29,490 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-4
+2026-11-14 17:37:29,574 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-22
+2026-11-14 17:37:29,587 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-5
+2026-11-14 17:37:29,587 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-5
+2026-11-14 17:37:29,676 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-23
+2026-11-14 17:37:29,686 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-6
+2026-11-14 17:37:29,687 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-6
+2026-11-14 17:37:29,771 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-24
+2026-11-14 17:37:29,779 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-7
+2026-11-14 17:37:29,779 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-7
+2026-11-14 17:37:29,873 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-25
+2026-11-14 17:37:29,886 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-8
+2026-11-14 17:37:29,886 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-8
+2026-11-14 17:37:29,972 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-26
+2026-11-14 17:37:29,985 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-9
+2026-11-14 17:37:29,985 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-9
+2026-11-14 17:37:30,066 INFO o.a.j.r.Summariser: summary +     43 in 00:00:03 =   16.2/s Avg:    97 Min:     6 Max:   230 Err:     0 (0.00%) Active: 17 Started: 26 Finished: 9
+2026-11-14 17:37:30,071 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-27
+2026-11-14 17:37:30,097 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-10
+2026-11-14 17:37:30,097 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-10
+2026-11-14 17:37:30,173 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-28
+2026-11-14 17:37:30,201 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-11
+2026-11-14 17:37:30,201 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-11
+2026-11-14 17:37:30,272 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-29
+2026-11-14 17:37:30,302 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-12
+2026-11-14 17:37:30,302 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-12
+2026-11-14 17:37:30,370 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-30
+2026-11-14 17:37:30,389 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-13
+2026-11-14 17:37:30,389 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-13
+2026-11-14 17:37:30,473 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-31
+2026-11-14 17:37:30,493 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-14
+2026-11-14 17:37:30,493 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-14
+2026-11-14 17:37:30,572 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-32
+2026-11-14 17:37:30,583 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-15
+2026-11-14 17:37:30,584 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-15
+2026-11-14 17:37:30,673 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-33
+2026-11-14 17:37:30,687 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-16
+2026-11-14 17:37:30,687 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-16
+2026-11-14 17:37:30,773 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-34
+2026-11-14 17:37:30,789 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-17
+2026-11-14 17:37:30,789 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-17
+2026-11-14 17:37:30,874 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-35
+2026-11-14 17:37:30,903 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-18
+2026-11-14 17:37:30,903 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-18
+2026-11-14 17:37:30,978 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-36
+2026-11-14 17:37:31,008 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-19
+2026-11-14 17:37:31,008 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-19
+2026-11-14 17:37:31,077 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-37
+2026-11-14 17:37:31,102 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-20
+2026-11-14 17:37:31,102 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-20
+2026-11-14 17:37:31,177 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-38
+2026-11-14 17:37:31,201 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-21
+2026-11-14 17:37:31,201 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-21
+2026-11-14 17:37:31,270 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-39
+2026-11-14 17:37:31,309 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-22
+2026-11-14 17:37:31,309 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-22
+2026-11-14 17:37:31,372 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-40
+2026-11-14 17:37:31,397 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-23
+2026-11-14 17:37:31,397 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-23
+2026-11-14 17:37:31,472 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-41
+2026-11-14 17:37:31,500 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-24
+2026-11-14 17:37:31,500 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-24
+2026-11-14 17:37:31,562 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-42
+2026-11-14 17:37:31,616 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-25
+2026-11-14 17:37:31,616 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-25
+2026-11-14 17:37:31,667 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-43
+2026-11-14 17:37:31,706 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-26
+2026-11-14 17:37:31,706 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-26
+2026-11-14 17:37:31,767 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-44
+2026-11-14 17:37:31,791 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-27
+2026-11-14 17:37:31,792 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-27
+2026-11-14 17:37:31,868 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-45
+2026-11-14 17:37:31,925 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-28
+2026-11-14 17:37:31,925 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-28
+2026-11-14 17:37:31,971 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-46
+2026-11-14 17:37:32,011 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-29
+2026-11-14 17:37:32,011 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-29
+2026-11-14 17:37:32,070 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-47
+2026-11-14 17:37:32,126 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-30
+2026-11-14 17:37:32,126 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-30
+2026-11-14 17:37:32,171 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-48
+2026-11-14 17:37:32,211 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-31
+2026-11-14 17:37:32,211 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-31
+2026-11-14 17:37:32,263 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-49
+2026-11-14 17:37:32,293 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-32
+2026-11-14 17:37:32,293 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-32
+2026-11-14 17:37:32,367 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-50
+2026-11-14 17:37:32,392 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-33
+2026-11-14 17:37:32,392 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-33
+2026-11-14 17:37:32,469 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-51
+2026-11-14 17:37:32,494 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-34
+2026-11-14 17:37:32,495 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-34
+2026-11-14 17:37:32,571 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-52
+2026-11-14 17:37:32,610 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-35
+2026-11-14 17:37:32,610 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-35
+2026-11-14 17:37:32,673 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-53
+2026-11-14 17:37:32,713 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-36
+2026-11-14 17:37:32,713 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-36
+2026-11-14 17:37:32,776 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-54
+2026-11-14 17:37:32,800 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-37
+2026-11-14 17:37:32,800 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-37
+2026-11-14 17:37:32,865 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-55
+2026-11-14 17:37:32,901 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-38
+2026-11-14 17:37:32,901 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-38
+2026-11-14 17:37:32,970 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-56
+2026-11-14 17:37:33,010 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-39
+2026-11-14 17:37:33,010 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-39
+2026-11-14 17:37:33,060 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-57
+2026-11-14 17:37:33,116 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-40
+2026-11-14 17:37:33,116 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-40
+2026-11-14 17:37:33,167 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-58
+2026-11-14 17:37:33,220 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-41
+2026-11-14 17:37:33,220 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-41
+2026-11-14 17:37:33,273 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-59
+2026-11-14 17:37:33,298 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-42
+2026-11-14 17:37:33,299 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-42
+2026-11-14 17:37:33,359 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-60
+2026-11-14 17:37:33,387 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-43
+2026-11-14 17:37:33,388 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-43
+2026-11-14 17:37:33,462 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-61
+2026-11-14 17:37:33,500 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-44
+2026-11-14 17:37:33,500 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-44
+2026-11-14 17:37:33,563 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-62
+2026-11-14 17:37:33,601 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-45
+2026-11-14 17:37:33,601 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-45
+2026-11-14 17:37:33,661 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-63
+2026-11-14 17:37:33,699 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-46
+2026-11-14 17:37:33,699 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-46
+2026-11-14 17:37:33,762 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-64
+2026-11-14 17:37:33,802 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-47
+2026-11-14 17:37:33,802 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-47
+2026-11-14 17:37:33,868 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-65
+2026-11-14 17:37:33,907 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-48
+2026-11-14 17:37:33,907 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-48
+2026-11-14 17:37:33,958 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-66
+2026-11-14 17:37:33,982 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-49
+2026-11-14 17:37:33,982 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-49
+2026-11-14 17:37:34,062 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-67
+2026-11-14 17:37:34,087 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-50
+2026-11-14 17:37:34,087 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-50
+2026-11-14 17:37:34,166 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-68
+2026-11-14 17:37:34,187 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-51
+2026-11-14 17:37:34,188 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-51
+2026-11-14 17:37:34,269 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-69
+2026-11-14 17:37:34,309 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-52
+2026-11-14 17:37:34,309 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-52
+2026-11-14 17:37:34,360 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-70
+2026-11-14 17:37:34,398 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-53
+2026-11-14 17:37:34,399 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-53
+2026-11-14 17:37:34,464 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-71
+2026-11-14 17:37:34,504 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-54
+2026-11-14 17:37:34,504 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-54
+2026-11-14 17:37:34,556 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-72
+2026-11-14 17:37:34,579 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-55
+2026-11-14 17:37:34,579 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-55
+2026-11-14 17:37:34,657 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-73
+2026-11-14 17:37:34,692 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-56
+2026-11-14 17:37:34,692 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-56
+2026-11-14 17:37:34,758 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-74
+2026-11-14 17:37:34,787 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-57
+2026-11-14 17:37:34,787 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-57
+2026-11-14 17:37:34,862 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-75
+2026-11-14 17:37:34,901 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-58
+2026-11-14 17:37:34,901 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-58
+2026-11-14 17:37:34,968 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-76
+2026-11-14 17:37:34,994 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-59
+2026-11-14 17:37:34,994 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-59
+2026-11-14 17:37:35,057 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-77
+2026-11-14 17:37:35,080 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-60
+2026-11-14 17:37:35,081 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-60
+2026-11-14 17:37:35,163 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-78
+2026-11-14 17:37:35,200 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-61
+2026-11-14 17:37:35,200 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-61
+2026-11-14 17:37:35,267 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-79
+2026-11-14 17:37:35,306 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-62
+2026-11-14 17:37:35,306 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-62
+2026-11-14 17:37:35,353 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-80
+2026-11-14 17:37:35,391 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-63
+2026-11-14 17:37:35,391 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-63
+2026-11-14 17:37:35,465 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-81
+2026-11-14 17:37:35,477 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-64
+2026-11-14 17:37:35,477 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-64
+2026-11-14 17:37:35,563 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-82
+2026-11-14 17:37:35,587 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-65
+2026-11-14 17:37:35,587 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-65
+2026-11-14 17:37:35,667 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-83
+2026-11-14 17:37:35,678 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-66
+2026-11-14 17:37:35,679 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-66
+2026-11-14 17:37:35,765 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-84
+2026-11-14 17:37:35,789 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-67
+2026-11-14 17:37:35,789 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-67
+2026-11-14 17:37:35,856 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-85
+2026-11-14 17:37:35,899 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-68
+2026-11-14 17:37:35,899 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-68
+2026-11-14 17:37:35,958 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-86
+2026-11-14 17:37:35,997 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-69
+2026-11-14 17:37:35,997 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-69
+2026-11-14 17:37:36,059 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-87
+2026-11-14 17:37:36,069 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-70
+2026-11-14 17:37:36,069 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-70
+2026-11-14 17:37:36,164 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-88
+2026-11-14 17:37:36,188 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-71
+2026-11-14 17:37:36,188 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-71
+2026-11-14 17:37:36,262 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-89
+2026-11-14 17:37:36,275 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-72
+2026-11-14 17:37:36,275 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-72
+2026-11-14 17:37:36,364 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-90
+2026-11-14 17:37:36,376 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-73
+2026-11-14 17:37:36,377 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-73
+2026-11-14 17:37:36,463 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-91
+2026-11-14 17:37:36,501 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-74
+2026-11-14 17:37:36,501 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-74
+2026-11-14 17:37:36,554 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-92
+2026-11-14 17:37:36,579 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-75
+2026-11-14 17:37:36,579 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-75
+2026-11-14 17:37:36,658 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-93
+2026-11-14 17:37:36,696 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-76
+2026-11-14 17:37:36,697 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-76
+2026-11-14 17:37:36,761 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-94
+2026-11-14 17:37:36,785 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-77
+2026-11-14 17:37:36,786 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-77
+2026-11-14 17:37:36,857 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-95
+2026-11-14 17:37:36,893 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-78
+2026-11-14 17:37:36,893 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-78
+2026-11-14 17:37:36,959 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-96
+2026-11-14 17:37:36,997 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-79
+2026-11-14 17:37:36,997 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-79
+2026-11-14 17:37:37,052 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-97
+2026-11-14 17:37:37,079 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-80
+2026-11-14 17:37:37,079 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-80
+2026-11-14 17:37:37,150 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-98
+2026-11-14 17:37:37,188 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-81
+2026-11-14 17:37:37,188 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-81
+2026-11-14 17:37:37,252 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-99
+2026-11-14 17:37:37,290 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-82
+2026-11-14 17:37:37,290 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-82
+2026-11-14 17:37:37,359 INFO o.a.j.t.JMeterThread: Thread started: Users search and register 1-100
+2026-11-14 17:37:37,399 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-83
+2026-11-14 17:37:37,399 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-83
+2026-11-14 17:37:37,497 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-84
+2026-11-14 17:37:37,498 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-84
+2026-11-14 17:37:37,590 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-85
+2026-11-14 17:37:37,590 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-85
+2026-11-14 17:37:37,697 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-86
+2026-11-14 17:37:37,697 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-86
+2026-11-14 17:37:37,798 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-87
+2026-11-14 17:37:37,798 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-87
+2026-11-14 17:37:37,883 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-88
+2026-11-14 17:37:37,884 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-88
+2026-11-14 17:37:38,007 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-89
+2026-11-14 17:37:38,007 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-89
+2026-11-14 17:37:38,092 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-90
+2026-11-14 17:37:38,092 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-90
+2026-11-14 17:37:38,181 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-91
+2026-11-14 17:37:38,181 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-91
+2026-11-14 17:37:38,288 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-92
+2026-11-14 17:37:38,288 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-92
+2026-11-14 17:37:38,381 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-93
+2026-11-14 17:37:38,381 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-93
+2026-11-14 17:37:38,488 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-94
+2026-11-14 17:37:38,488 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-94
+2026-11-14 17:37:38,574 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-95
+2026-11-14 17:37:38,574 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-95
+2026-11-14 17:37:38,701 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-96
+2026-11-14 17:37:38,701 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-96
+2026-11-14 17:37:38,796 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-97
+2026-11-14 17:37:38,796 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-97
+2026-11-14 17:37:38,870 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-98
+2026-11-14 17:37:38,870 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-98
+2026-11-14 17:37:38,981 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-99
+2026-11-14 17:37:38,981 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-99
+2026-11-14 17:37:39,078 INFO o.a.j.t.JMeterThread: Thread is done: Users search and register 1-100
+2026-11-14 17:37:39,078 INFO o.a.j.t.JMeterThread: Thread finished: Users search and register 1-100
+2026-11-14 17:37:39,078 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-11-14 17:37:39,078 INFO o.a.j.s.FileServer: Close: C:/Users/patel/data260-pair06/jmeter/data/event_pairs.csv
+2026-11-14 17:37:39,080 INFO o.a.j.r.Summariser: summary +    257 in 00:00:09 =   28.5/s Avg:    64 Min:     6 Max:   213 Err:     0 (0.00%) Active: 0 Started: 100 Finished: 100
+2026-11-14 17:37:39,081 INFO o.a.j.r.Summariser: summary =    300 in 00:00:12 =   25.7/s Avg:    69 Min:     6 Max:   230 Err:     0 (0.00%)

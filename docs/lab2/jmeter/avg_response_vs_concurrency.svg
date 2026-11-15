@@ -30,20 +30,20 @@
 <circle cx="570.0" cy="355.1" r="4" fill="#d62728"/>
 <line x1="584" y1="50" x2="610" y2="50" stroke="#d62728" stroke-width="2.5"/>
 <text x="616" y="54">Application submission (202, Kafka)</text>
-<polyline fill="none" stroke="#9467bd" stroke-width="2.5" points="70.0,152.8 195.0,357.2 320.0,336.6 445.0,356.9 570.0,357.2"/>
-<circle cx="70.0" cy="152.8" r="4" fill="#9467bd"/>
-<circle cx="195.0" cy="357.2" r="4" fill="#9467bd"/>
-<circle cx="320.0" cy="336.6" r="4" fill="#9467bd"/>
-<circle cx="445.0" cy="356.9" r="4" fill="#9467bd"/>
-<circle cx="570.0" cy="357.2" r="4" fill="#9467bd"/>
+<polyline fill="none" stroke="#9467bd" stroke-width="2.5" points="70.0,357.1 195.0,358.0 320.0,358.1 445.0,358.3 570.0,358.2"/>
+<circle cx="70.0" cy="357.1" r="4" fill="#9467bd"/>
+<circle cx="195.0" cy="358.0" r="4" fill="#9467bd"/>
+<circle cx="320.0" cy="358.1" r="4" fill="#9467bd"/>
+<circle cx="445.0" cy="358.3" r="4" fill="#9467bd"/>
+<circle cx="570.0" cy="358.2" r="4" fill="#9467bd"/>
 <line x1="584" y1="70" x2="610" y2="70" stroke="#9467bd" stroke-width="2.5"/>
 <text x="616" y="74">Event search + registration</text>
-<polyline fill="none" stroke="#2ca02c" stroke-width="2.5" points="70.0,355.3 195.0,360.0 320.0,340.1 445.0,360.2 570.0,359.5"/>
-<circle cx="70.0" cy="355.3" r="4" fill="#2ca02c"/>
-<circle cx="195.0" cy="360.0" r="4" fill="#2ca02c"/>
-<circle cx="320.0" cy="340.1" r="4" fill="#2ca02c"/>
-<circle cx="445.0" cy="360.2" r="4" fill="#2ca02c"/>
-<circle cx="570.0" cy="359.5" r="4" fill="#2ca02c"/>
+<polyline fill="none" stroke="#2ca02c" stroke-width="2.5" points="70.0,359.1 195.0,359.3 320.0,359.4 445.0,358.7 570.0,359.1"/>
+<circle cx="70.0" cy="359.1" r="4" fill="#2ca02c"/>
+<circle cx="195.0" cy="359.3" r="4" fill="#2ca02c"/>
+<circle cx="320.0" cy="359.4" r="4" fill="#2ca02c"/>
+<circle cx="445.0" cy="358.7" r="4" fill="#2ca02c"/>
+<circle cx="570.0" cy="359.1" r="4" fill="#2ca02c"/>
 <line x1="584" y1="90" x2="610" y2="90" stroke="#2ca02c" stroke-width="2.5"/>
 <text x="616" y="94">Job search</text>
 <polyline fill="none" stroke="#1f77b4" stroke-width="2.5" points="70.0,159.2 195.0,208.2 320.0,191.2 445.0,214.5 570.0,214.1"/>
