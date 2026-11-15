@@ -1,0 +1,19 @@
+# On EKS the gateway (the API, port 9060) and the website (port 9061) become Services of type LoadBalancer:
+# AWS creates a public load balancer for each and shows its address in  kubectl -n p06-handshake get svc
+apiVersion: v1
+kind: Service
+metadata:
+  name: p06-gateway
+spec:
+  type: LoadBalancer
+  ports:
+    - {name: http, port: 9060, targetPort: 9060}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: p06-frontend
+spec:
+  type: LoadBalancer
+  ports:
+    - {name: http, port: 9061, targetPort: 9061}

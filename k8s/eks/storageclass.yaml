@@ -1,0 +1,13 @@
+# The default StorageClass on EKS: EBS gp3 volumes through the EBS CSI driver add-on (the old in-tree "gp2" class does not work on
+# Kubernetes 1.34). MongoDB and Kafka ask for volumes without naming a class, so they get this one.   kubectl apply -f k8s/eks/storageclass.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete

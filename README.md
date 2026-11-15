@@ -267,6 +267,33 @@ curl.exe http://localhost:9060/health             # the gateway; the website is 
 kind delete cluster --name p06-handshake; docker compose start       # when you are done
 ```
 
+## Lab 2: AWS (ECR and EKS)
+
+The images are in **Amazon ECR** (Elastic Container Registry), one repository per image, named `p06-<service>` (account `858444017481`,
+region `us-east-1`, tag `1.0.0`). The cluster is an **EKS** (Elastic Kubernetes Service) cluster named `p06-handshake` with two `m5.large` nodes.
+It bills by the hour, so it is created for the demo and deleted afterwards. The ECR images stay. Needs: AWS CLI signed in, `eksctl`, `kubectl`,
+Docker running, the git-ignored root `.env`. (Windows PowerShell, repo root.)
+
+```powershell
+# Push the images (once; the website image is built and pushed by deploy.py because it needs the gateway's public address)
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 858444017481.dkr.ecr.us-east-1.amazonaws.com
+docker tag p06-job:1.0.0 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-job:1.0.0       # and the same for the other services
+docker push 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-job:1.0.0
+
+# Create (or restore) the deployment: about 15 to 20 minutes for the cluster, about 10 for the rest
+eksctl create cluster -f k8s/eks/cluster.yaml
+python k8s/eks/deploy.py                    # Secret, manifests (k8s/overlays/eks), load balancers, website image, CORS, seeding
+
+kubectl -n p06-handshake get pods,svc       # the EXTERNAL-IP column of p06-gateway / p06-frontend is the public address
+# deploy.py prints the two addresses: the website http://<frontend-load-balancer>:9061 and the API http://<gateway-load-balancer>:9060
+
+# Delete everything when you are done (stops the billing)
+eksctl delete cluster -f k8s/eks/cluster.yaml
+```
+
+The load-balancer addresses change every time the cluster is created, which is why `deploy.py` rebuilds the website image each time. The AI assistant
+needs Ollama, which runs on a developer machine, not in AWS: on EKS it answers with its "model unavailable" message; everything else works.
+
 ## Features
 
 **Student:** sign up / sign in / sign out; profile (picture, contact details, education, experience, skills, career

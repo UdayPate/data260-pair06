@@ -1,0 +1,20 @@
+# The AWS (EKS) version of the deployment: the base, with the images pulled from ECR and the gateway and the website
+# published through AWS load balancers.   kubectl apply -k k8s/overlays/eks
+#
+# ECR address: <account>.dkr.ecr.<region>.amazonaws.com/p06-<service>:1.0.0   (account 858444017481, region us-east-1)
+# The base names the images p06-<service>:1.0.0; the images: list below swaps in the full ECR name without editing base/.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+patches:
+  - path: loadbalancers.yaml
+images:
+  - {name: p06-student,     newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-student}
+  - {name: p06-company,     newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-company}
+  - {name: p06-job,         newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-job}
+  - {name: p06-application, newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-application}
+  - {name: p06-event,       newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-event}
+  - {name: p06-assistant,   newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-assistant}
+  - {name: p06-gateway,     newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-gateway}
+  - {name: p06-frontend,    newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-frontend}

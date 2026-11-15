@@ -1,0 +1,26 @@
+# The EKS cluster for Lab 2 (Pair 06).   eksctl create cluster -f k8s/eks/cluster.yaml
+# Delete it when you are done (it bills by the hour):   eksctl delete cluster -f k8s/eks/cluster.yaml
+#
+# Two m7i-flex.large nodes (2 CPUs, 8 GiB each). The 18 pods ask for about 1 CPU and 2 GiB in total (k8s/README.md), so this
+# leaves room for the cluster's own components. The EBS CSI driver add-on is needed because MongoDB and Kafka use volumes.
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: p06-handshake
+  region: us-east-1
+  version: "1.34"
+managedNodeGroups:
+  - name: p06-nodes-b
+    instanceType: m7i-flex.large   # 2 CPUs, 8 GiB; the account is on the AWS Free plan, which refuses m5.large (free-tier-eligible types only)
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 2
+    volumeSize: 30
+    iam:
+      withAddonPolicies:
+        ebs: true
+addons:
+  - name: aws-ebs-csi-driver
+  - name: vpc-cni
+  - name: coredns
+  - name: kube-proxy

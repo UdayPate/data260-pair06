@@ -1,0 +1,98 @@
+﻿AWS evidence, captured 2026-11-15 13:50 (real command output; no secrets)
+
+$ kubectl config current-context
+arn:aws:eks:us-east-1:858444017481:cluster/p06-handshake
+
+$ kubectl get nodes -o wide
+NAME                             STATUS   ROLES    AGE     VERSION                INTERNAL-IP      EXTERNAL-IP     OS-IMAGE                        KERNEL-VERSION                     CONTAINER-RUNTIME
+ip-192-168-25-131.ec2.internal   Ready    <none>   4m29s   v1.34.12-eks-9adbfea   192.168.25.131   13.220.98.86    Amazon Linux 2023.12.20261112   6.12.115-140.210.amzn2023.x86_64   containerd://2.3.7+unknown
+ip-192-168-45-231.ec2.internal   Ready    <none>   4m31s   v1.34.12-eks-9adbfea   192.168.45.231   52.87.205.197   Amazon Linux 2023.12.20261112   6.12.115-140.210.amzn2023.x86_64   containerd://2.3.7+unknown
+
+$ kubectl -n p06-handshake get pods
+NAME                                     READY   STATUS    RESTARTS   AGE
+p06-application-5b858775c8-mx75d         1/1     Running   0          107s
+p06-application-5b858775c8-z2wfb         1/1     Running   0          101s
+p06-application-worker-b8c7bd74f-ppsc7   1/1     Running   0          107s
+p06-assistant-777d75c84d-7bnjt           1/1     Running   0          107s
+p06-company-77d6d57b5-6kqjz              1/1     Running   0          107s
+p06-event-6996df4dc8-467dd               1/1     Running   0          107s
+p06-event-worker-5c4dff4cbc-q4wnx        1/1     Running   0          107s
+p06-frontend-59f9f66b6c-9ds4t            1/1     Running   0          106s
+p06-frontend-59f9f66b6c-mc5pz            1/1     Running   0          104s
+p06-gateway-5d7d7df587-f9nfm             1/1     Running   0          2m40s
+p06-gateway-5d7d7df587-sfzps             1/1     Running   0          2m40s
+p06-job-74fd8b9d57-drsnz                 1/1     Running   0          101s
+p06-job-74fd8b9d57-dskxc                 1/1     Running   0          107s
+p06-job-worker-57d6f5f48d-ff6p8          1/1     Running   0          107s
+p06-kafka-0                              1/1     Running   0          2m38s
+p06-memory-worker-85b95786c8-kq5nw       1/1     Running   0          106s
+p06-mongo-0                              1/1     Running   0          2m38s
+p06-student-7d89754979-b9txq             1/1     Running   0          107s
+p06-student-7d89754979-psj9n             1/1     Running   0          99s
+
+$ kubectl -n p06-handshake get svc
+NAME              TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)          AGE
+p06-application   ClusterIP      10.100.163.34    <none>                                                                    9065/TCP         2m46s
+p06-assistant     ClusterIP      10.100.156.186   <none>                                                                    9067/TCP         2m46s
+p06-company       ClusterIP      10.100.91.165    <none>                                                                    9063/TCP         2m46s
+p06-event         ClusterIP      10.100.27.175    <none>                                                                    9066/TCP         2m46s
+p06-frontend      LoadBalancer   10.100.171.109   a4912d3cb6d584b91b972a4484498d26-1429080191.us-east-1.elb.amazonaws.com   9061:31500/TCP   2m45s
+p06-gateway       LoadBalancer   10.100.35.29     a32f4ccf8d4f8449f8f180724a13d503-1201583443.us-east-1.elb.amazonaws.com   9060:30818/TCP   2m45s
+p06-job           ClusterIP      10.100.140.205   <none>                                                                    9064/TCP         2m45s
+p06-kafka         ClusterIP      10.100.233.196   <none>                                                                    9092/TCP         2m44s
+p06-mongo         ClusterIP      10.100.41.129    <none>                                                                    27017/TCP        2m44s
+p06-student       ClusterIP      10.100.229.242   <none>                                                                    9062/TCP         2m44s
+
+$ kubectl -n p06-handshake get pvc
+NAME               STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+data-p06-kafka-0   Bound    pvc-18693e0f-6dcb-4f92-b213-6d5222526a55   2Gi        RWO            gp3            <unset>                 2m41s
+data-p06-mongo-0   Bound    pvc-24fb2df0-3741-4b30-95d6-4df4590af24d   2Gi        RWO            gp3            <unset>                 2m41s
+
+$ aws ecr describe-images (every p06 repository)
+p06-student	None	1788	2026-11-15T12:38:07.989000-08:00
+p06-student	None	59729951	2026-11-15T12:38:07.990000-08:00
+p06-student	1.0.0	59729951	2026-11-15T12:38:08.476000-08:00
+p06-company	None	1787	2026-11-15T12:38:48.285000-08:00
+p06-company	None	59729442	2026-11-15T12:38:48.258000-08:00
+p06-company	1.0.0	59729442	2026-11-15T12:38:48.742000-08:00
+p06-job	None	1776	2026-11-15T12:39:28.125000-08:00
+p06-job	None	63829389	2026-11-15T12:39:28.072000-08:00
+p06-job	1.0.0	63829389	2026-11-15T12:39:28.521000-08:00
+p06-application	None	63883028	2026-11-15T12:40:08.474000-08:00
+p06-application	None	1800	2026-11-15T12:40:08.541000-08:00
+p06-application	1.0.0	63883028	2026-11-15T12:40:09.001000-08:00
+p06-event	None	63829197	2026-11-15T12:40:43.306000-08:00
+p06-event	None	1782	2026-11-15T12:40:43.298000-08:00
+p06-event	1.0.0	63829197	2026-11-15T12:40:43.728000-08:00
+p06-assistant	None	64370893	2026-11-15T12:41:05.943000-08:00
+p06-assistant	None	1794	2026-11-15T12:41:05.942000-08:00
+p06-assistant	1.0.0	64370893	2026-11-15T12:41:06.389000-08:00
+p06-gateway	None	1548	2026-11-15T12:41:19.192000-08:00
+p06-gateway	None	20978609	2026-11-15T12:41:19.145000-08:00
+p06-gateway	1.0.0	20978609	2026-11-15T12:41:19.699000-08:00
+p06-frontend	None	21349292	2026-11-15T13:49:03.194000-08:00
+p06-frontend	None	1744	2026-11-15T13:49:03.033000-08:00
+p06-frontend	1.0.0	21349292	2026-11-15T13:49:03.661000-08:00
+
+End-to-end requests through the PUBLIC AWS load balancer (gateway http://a32f4ccf8d4f8449f8f180724a13d503-1201583443.us-east-1.elb.amazonaws.com:9060)
+$ curl GET /health
+{"status":"ok","service":"p06-gateway","pair":"06"}
+$ curl GET <website load balancer>:9061/        -> HTTP 200
+$ curl POST /auth/login (demo.student@sjsu.edu, role student) -> access token received (219 characters, not shown)
+$ curl GET /jobs?page_size=2   -> first items: id 286 "QA Engineer" (Murillo Group, Mountain View), id 248 ...
+$ curl GET /events             -> first item: id 46 "Networking Night" (Wright PLC)
+$ curl POST /jobs/286/apply (PDF resume)
+{"accepted":true,"event_id":"4b3f24cb-4035-4a0a-986f-62f00aef4657","trace_id":"1a58b99a4b86e9f609676ddacd9f7685","job_id":286,"message":"Your application was received. It will appear in My applications in a moment."}   HTTP 202
+$ curl POST /jobs/248/apply (PDF resume)
+{"accepted":true,"event_id":"4ed35311-6eb3-4da4-8919-5fecfcf6bcca","trace_id":"adc688e934e0fdedab83a6561a007963","job_id":248,"message":"Your application was received. It will appear in My applications in a moment."}   HTTP 202
+(8 seconds later) $ curl GET /applications/mine
+total 13
+1502 248 Pending 2026-11-15T21:50:35.363000      <- written by the Application worker after the Kafka message
+1501 286 Pending 2026-11-15T21:50:34.960000
+8 39 Reviewed 2026-10-05T09:44:00
+
+Notes (real findings during this deployment):
+* The first node group (m5.large) never started: the account is on the AWS Free plan, which refuses instance types that are not
+  free-tier-eligible ("InvalidParameterCombination - The specified instance type is not eligible for Free Tier"). Fixed by using m7i-flex.large.
+* eksctl stopped before installing the EBS CSI driver add-on; it was installed by hand (aws eks create-addon) and a gp3 default StorageClass added (k8s/eks/storageclass.yaml).
+* The AI assistant cannot reach Ollama from AWS (Ollama runs on a developer machine), so it answers with its "model unavailable" message there.
