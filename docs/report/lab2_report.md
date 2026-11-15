@@ -439,7 +439,114 @@ The sections below belong to Sreeramachandra Sai Achutuni. Each box names what t
 
 ## 7. Cloud deployment (AWS ECR and EKS)
 
-> **PLACEHOLDER (partner): AWS ECR and EKS deployment.** To add: the ECR repositories and pushed images with the `p06-` names, the EKS cluster, the `p06-handshake` namespace, running pods, Kubernetes Services, the LoadBalancer or Ingress endpoint, one successful end-to-end request with request and response, `kubectl` output, and how the services communicate and scale. Notes for this work are at the end of `k8s/README.md` (images from ECR, LoadBalancer Services, the website image built with the load balancer address, the EBS storage driver, an Ollama address). Hide access keys, passwords and tokens in every screenshot.
+(Evidence: `docs/lab2/aws_evidence.txt` (real command output), the screenshots `docs/lab2/screenshots/aws_*.png`, and the files `k8s/eks/`, `k8s/overlays/eks/`. Region `us-east-1`. The cluster was created twice: the first time for the first end-to-end test, the second time to take the console screenshots and to test the restore. It was deleted after each use, because it bills by the hour.)
+
+### 7.1 What was built
+
+| Part | Result |
+|---|---|
+| Registry | **Amazon ECR**: 8 private repositories, one per image, named `p06-<service>` (`p06-student`, `p06-company`, `p06-job`, `p06-application`, `p06-event`, `p06-assistant`, `p06-gateway`, `p06-frontend`), tag `1.0.0` |
+| Cluster | **Amazon EKS** cluster `p06-handshake`, Kubernetes 1.34, made with `eksctl` 0.231.0 from `k8s/eks/cluster.yaml` |
+| Nodes | one managed node group `p06-nodes-b`, 2 × `m7i-flex.large` (2 CPUs and 8 GiB each) |
+| Add-ons | `vpc-cni`, `coredns`, `kube-proxy`, `metrics-server`, and `aws-ebs-csi-driver` (the disks of MongoDB and Kafka) |
+| Storage | StorageClass `gp3` (EBS through the CSI driver), set as the default in `k8s/eks/storageclass.yaml` |
+| Workload | namespace `p06-handshake` with the same manifests as on kind (`k8s/base/`) plus the overlay `k8s/overlays/eks/`: the eight images come from ECR, the gateway and the website are Services of type `LoadBalancer`, and the website pods always pull their image |
+| Secret | `p06-secrets` made by `k8s/create_secret.py` from the git-ignored `.env`; nothing secret is in the repository |
+
+The nodes are `m7i-flex.large` because the account is on the AWS Free plan, which refuses every other type (section 7.7).
+
+### 7.2 Images in ECR
+
+![The eight p06- repositories in Amazon ECR (first part of the list).](../lab2/screenshots/aws_ecr_repositories_1.png)
+
+![The other three repositories (p06-gateway, p06-job, p06-student).](../lab2/screenshots/aws_ecr_repositories_2.png)
+
+The images are the ones built for Docker Compose and kind (`docker compose build`, tag `1.0.0`). Each is tagged with the registry address and pushed:
+
+```
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com
+docker tag  p06-job:1.0.0 <account>.dkr.ecr.us-east-1.amazonaws.com/p06-job:1.0.0
+docker push <account>.dkr.ecr.us-east-1.amazonaws.com/p06-job:1.0.0
+```
+
+(The same for the other services.) The size of each image in ECR (compressed), from `aws ecr describe-images`: the five Python services 59.7 to 63.9 MB, the assistant 64.4 MB, the gateway 21.0 MB and the website 21.3 MB. The website image is not pushed by hand: `deploy.py` builds and pushes it, because the address of the API is written into its JavaScript at build time (`VITE_API_URL`) and AWS only hands out the load balancer address after the Service exists.
+
+### 7.3 How it is deployed
+
+```
+eksctl create cluster -f k8s/eks/cluster.yaml     # the cluster and the nodes
+python k8s/eks/deploy.py                          # everything else
+```
+
+`deploy.py` (`k8s/eks/deploy.py`) does these steps in order, so a restore is the same two commands:
+
+1. `aws eks update-kubeconfig`, makes sure the EBS driver add-on is active, creates the namespace, the `gp3` StorageClass and the Secret.
+2. `kubectl apply -k k8s/overlays/eks`: the pods start and AWS creates two public load balancers.
+3. Waits for the two load balancer addresses (the gateway on port 9060 and the website on 9061).
+4. Builds the website image with the gateway address, logs Docker in to ECR and pushes it.
+5. Puts the website address into `CORS_ORIGINS` (so the browser may call the API) and restarts the pods that read it.
+6. Waits until every Deployment and StatefulSet is ready.
+7. Seeds MongoDB through a temporary `kubectl port-forward` (the seed code is not inside the service images).
+
+### 7.4 The running system
+
+![The EKS cluster p06-handshake in the AWS Console: status Active, Kubernetes 1.34.](../lab2/screenshots/aws_eks_clusters.png)
+
+![The cluster page: Active, created 32 minutes earlier; cluster health 0 issues, node health 0 issues, 1 node group, 5 add-ons.](../lab2/screenshots/aws_eks_cluster_info.png)
+
+![The node group p06-nodes-b: desired size 2, status Active (Kubernetes 1.34.12).](../lab2/screenshots/aws_eks_nodegroup.png)
+
+![kubectl -n p06-handshake get pods: all 19 pods are 1/1 Running with 0 restarts.](../lab2/screenshots/aws_kubectl_pods.png)
+
+![kubectl -n p06-handshake get svc: the services p06-frontend and p06-gateway have an EXTERNAL-IP (an AWS load balancer address); every other Service is ClusterIP, reachable only inside the cluster.](../lab2/screenshots/aws_kubectl_services.png)
+
+Pods and Services on the second deployment (the screenshots above): 19 pods (the 6 services, the 3 Kafka workers and the memory worker, the gateway, the website, MongoDB and Kafka), all `1/1 Running` with 0 restarts about 19 minutes after the start.
+### 7.5 One end-to-end request through the public load balancer
+
+First deployment, the gateway address `a32f4ccf…us-east-1.elb.amazonaws.com:9060` (from `docs/lab2/aws_evidence.txt`):
+
+| Request | Answer |
+|---|---|
+| `GET /health` | `{"status":"ok","service":"p06-gateway","pair":"06"}` |
+| `GET` the website on port 9061 | HTTP 200 |
+| `POST /auth/login` (`demo.student@sjsu.edu`, role `student`) | an access token (not shown) |
+| `GET /jobs` and `GET /events` | job 286 "QA Engineer" and event 46 "Networking Night" in the first items |
+| `POST /jobs/286/apply` (PDF resume) | **202**, `event_id` `4b3f24cb-4035-4a0a-986f-62f00aef4657`, `trace_id` `1a58b99a4b86e9f609676ddacd9f7685` |
+| `POST /jobs/248/apply` | **202**, `event_id` `4ed35311-6eb3-4da4-8919-5fecfcf6bcca` |
+| `GET /applications/mine` 8 seconds later | total 13; applications **1502** (job 248) and **1501** (job 286), both `Pending`, created 21:50:35 and 21:50:34 UTC |
+
+The two new applications exist only because the Application worker read the Kafka message and wrote them to MongoDB: the request went through the AWS load balancer, the gateway, the Application service, Kafka, the worker and MongoDB. The same pages in a browser:
+
+![The website on the AWS address (first deployment): My applications shows the three applications dated Nov 15, 2026, all Pending (QA Engineer is job 286, Sales Development Representative is job 248).](../lab2/screenshots/aws_website_my_applications_first.png)
+
+![The job page of the third one (Frontend Developer, job 234) on the AWS address: "Your application: Pending, applied on Nov 15, 2026".](../lab2/screenshots/aws_website_job_page_first.png)
+
+On the second deployment, after the fix of section 7.7, the same checks gave: `/health` ok, the website HTTP 200, login works, `GET /jobs` total 102, and `/applications/mine` total 11 (the fresh seed). The browser login works too:
+
+![The website on the second deployment (address adffdf95…:9061): signed in as Demo Student, 11 applications (the seed value) and 1 registered event.](../lab2/screenshots/aws_website_dashboard.png)
+
+### 7.6 How the services communicate and scale
+
+Inside the cluster every part reaches the others by the name of its Service, which Kubernetes resolves to the ready pods behind it: the gateway forwards to `p06-student:9062`, `p06-company:9063`, `p06-job:9064`, `p06-application:9065`, `p06-event:9066` and `p06-assistant:9067`; the services and workers use `p06-mongo:27017` and `p06-kafka:9092`. Only the gateway and the website are public: their Services are of type `LoadBalancer` and AWS puts a load balancer in front of the nodes (port 9060 maps to a node port, for example 9060:31257). Every other Service is `ClusterIP`. A Service spreads the requests over its pods; a pod that is not ready receives none.
+
+The manifests run 2 replicas of the student, job and application services, the gateway and the website, and 1 of the company, event and assistant services, the three Kafka workers, the memory worker, MongoDB and Kafka. To scale by hand: `kubectl -n p06-handshake scale deployment/p06-job --replicas=4`. `metrics-server` is installed, but no autoscaler is configured. **Scaling was tested on kind (section 4.4), not on EKS.**
+
+### 7.7 Problems met on AWS (real, fixed)
+
+| Problem | Cause | Fix |
+|---|---|---|
+| The first node group never started: no instance after 25 minutes, `eksctl` stopped with "exceeded max wait time" | The account is on the AWS Free plan. The auto scaling group's activity said: `InvalidParameterCombination - The specified instance type is not eligible for Free Tier` (`m5.large`) | `aws ec2 describe-instance-types --filters Name=free-tier-eligible,Values=true` lists the allowed types; the cluster now uses `m7i-flex.large` (2 CPUs, 8 GiB). The stuck node group took more than 20 minutes to delete, so a new one (`p06-nodes-b`) was created next to it. |
+| `kubectl get storageclass` showed only `gp2`, not the default, and the EBS driver add-on was missing | `eksctl` had stopped before installing the add-on; the in-tree `gp2` class does not work on Kubernetes 1.34 | the add-on was installed by hand once; `k8s/eks/storageclass.yaml` makes the CSI class `gp3` the default; `deploy.py` checks the add-on on every run. On the second cluster `eksctl` installed it itself. |
+| The website showed "Cannot reach the server. Is the backend running on port 9060?" although `curl` to the API worked | The website pods had started from the OLD `p06-frontend:1.0.0` still in ECR (first deployment), with the old gateway address inside; the new image was pushed after they started and `IfNotPresent` kept the old one on the node. I read the JavaScript of the site: it contained `a32f4ccf…` (old) instead of `aee50c90…` (current). | the overlay sets `imagePullPolicy: Always` for the website (`k8s/overlays/eks/frontend-pull.yaml`); after the restart the JavaScript contained the current address and the login worked (screenshot below). |
+
+![The error the browser showed before the fix.](../lab2/screenshots/aws_website_login_error.png)
+
+### 7.8 Limits and what was not covered
+
+- **The AI assistant was not tested on AWS.** Ollama runs on a developer machine and is not reachable from EKS (`OLLAMA_URL` points at `host.docker.internal`); the assistant is shown running locally (sections 12 to 14).
+- **No load test on AWS** (the JMeter runs of section 10 are described there), no TLS (the site is plain HTTP, so the browser says "Not secure"), no autoscaling.
+- **The cluster does not stay up.** It costs about $0.39 per hour (my estimate from AWS list prices for the control plane, two nodes, the NAT gateway and two load balancers, not a number from the bill), so it was deleted (`eksctl delete cluster`) after each use. The images stay in ECR. To restore it for the live demo: `eksctl create cluster -f k8s/eks/cluster.yaml` and `python k8s/eks/deploy.py`. The second cluster was ready about 14 minutes after the command started (the `eksctl` log), and `deploy.py` then finished in one run without an error. The website problem of section 7.7 only showed in the browser afterwards; its fix (the `Always` pull policy) is in the repository but has **not been tested by a third restore**. The load balancer addresses are new each time.
+- The instructions are in `README.md` ("Lab 2: AWS (ECR and EKS)") and `k8s/README.md`.
 
 ## 8. Memory and consolidation
 
