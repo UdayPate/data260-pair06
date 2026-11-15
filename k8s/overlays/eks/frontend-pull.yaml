@@ -1,0 +1,13 @@
+# The website image is rebuilt and pushed to ECR AFTER its pods first start (the build needs the gateway's public address, which AWS only
+# gives once the Services exist), and it keeps the tag 1.0.0. With the base's imagePullPolicy IfNotPresent a node would keep the OLD image
+# (with an old API address inside it) after the restart. "Always" makes every new pod pull the current image from ECR.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p06-frontend
+spec:
+  template:
+    spec:
+      containers:
+        - name: frontend
+          imagePullPolicy: Always

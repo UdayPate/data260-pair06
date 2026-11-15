@@ -11,7 +11,8 @@ the git-ignored .env and are never printed.
 Why the order matters: the website image has the gateway's PUBLIC address baked in (VITE_API_URL), and AWS only hands out that
 address after the gateway Service exists, and it is a NEW address every time the cluster is created. So the script
   1. points kubectl at the cluster, creates the namespace and the Secret,
-  2. applies the overlay k8s/overlays/eks (the website pods wait, their image is not in ECR yet or is the old one),
+  2. applies the overlay k8s/overlays/eks (the website pods start with whatever 1.0.0 image ECR holds, maybe an OLD one from an earlier
+     deployment; the overlay sets imagePullPolicy Always on the website so the restart in step 5 pulls the NEW image),
   3. waits for the two load-balancer addresses (gateway and website),
   4. builds the website image with the gateway address, pushes it to ECR,
   5. puts the website address into CORS_ORIGINS (so the browser may call the API) and restarts the pods that read it,
@@ -96,6 +97,10 @@ def main() -> int:
 
     print("== 1. kubectl -> the cluster, namespace, Secret")
     run(["aws", "eks", "update-kubeconfig", "--name", CLUSTER, "--region", REGION])
+    # The EBS CSI driver add-on gives MongoDB and Kafka their disks. eksctl did not install it for us once (it stopped early), so make sure
+    # it is there: "already exists" is fine (check=False), then wait until it is active.
+    run(["aws", "eks", "create-addon", "--cluster-name", CLUSTER, "--addon-name", "aws-ebs-csi-driver", "--region", REGION], check=False)
+    run(["aws", "eks", "wait", "addon-active", "--cluster-name", CLUSTER, "--addon-name", "aws-ebs-csi-driver", "--region", REGION], check=False)
     run(["kubectl", "apply", "-f", str(ROOT / "k8s" / "base" / "namespace.yaml")])
     run(["kubectl", "apply", "-f", str(ROOT / "k8s" / "eks" / "storageclass.yaml")])      # default volumes for MongoDB and Kafka
     run([sys.executable, str(ROOT / "k8s" / "create_secret.py")])

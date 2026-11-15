@@ -9,6 +9,7 @@ resources:
   - ../../base
 patches:
   - path: loadbalancers.yaml
+  - path: frontend-pull.yaml
 images:
   - {name: p06-student,     newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-student}
   - {name: p06-company,     newName: 858444017481.dkr.ecr.us-east-1.amazonaws.com/p06-company}
