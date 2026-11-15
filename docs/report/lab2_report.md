@@ -558,11 +558,78 @@ The manifests run 2 replicas of the student, job and application services, the g
 
 ## 10. Performance (JMeter)
 
-> **PLACEHOLDER (partner): JMeter plan, CRUD load tests and performance graphs.**
+(Evidence: `jmeter/plans/*.jmx`, `docs/lab2/jmeter/` (`results.md`, `results.json`, the two graphs, `run_output.txt`, and in `results/` the raw `.jtl` file, the JMeter log and the `docker stats` snapshots of every run). The runs were made by Uday on 2026-11-14 between 15:43 and 17:42 (Pacific time) with Apache JMeter 5.6.3, against the Docker Compose stack on `localhost:9060` (not against AWS). `results.md` is identical to a fresh `python jmeter/summarize.py` over the `.jtl` files.)
+
+> **PLACEHOLDER (Uday): the machine.** The test machine's CPU model, number of cores, RAM, the Docker Desktop memory limit (the snapshots show 7.361 GiB per container), whether Ollama ran with a GPU, and the Ollama model used for the assistant runs are not recorded in any file. Fill them in; the numbers below cannot be compared with another machine without them.
+
+### 10.1 The test plans
+
+Five plans, written by `jmeter/generate_plans.py` and committed as `jmeter/plans/*.jmx` (a test checks that the committed files are what the generator writes). In every plan the number of users, the ramp-up time and the loops are properties (`-Jthreads`, `-Jramp`, `-Jloops`), so one plan serves every level. `jmeter/run_load_tests.py` runs every level (non-GUI, `-n`) and `jmeter/summarize.py` makes the tables and graphs.
+
+| Plan | What each user does | Check | Levels |
+|---|---|---|---|
+| `login` | `POST /auth/login` | status 200 | 100, 200, 300, 400, 500 users |
+| `job_search` | signs in once, then 3 × `GET /jobs` with a search and filters | status 200 | 100 to 500 |
+| `apply` | signs in once, then `POST /jobs/{id}/apply` with a PDF resume (multipart) | status **202** (the application is written later by the Application worker) | 100 to 500 |
+| `events` | signs in once, then `GET /events` and `POST /events/{id}/register` | 200 and 201 | 100 to 500 |
+| `assistant` | signs in once, then `POST /assistant/chat` with one of 50 questions | status 200 | 5, 10, 20, 50 users |
+
+Method: the users start over a ramp of `users / 10` seconds (10 s for 100 users, 50 s for 500; 5 s for the assistant); the runner's default pause between a user's requests is 500 ms; the sign-in of the other plans is labelled `SETUP` and is not counted. The test data is written from the seeded database by `backend/scripts/jmeter_data.py`: each (student, job) and (student, event) pair is used once, because a second application for the same pair is answered with 409 (every run takes a fresh slice of a shuffled pool, with seed 6). The assistant plan uses a response timeout of 900 s; the other plans 30 s. A request counts as an error when its status is not the expected one or it times out.
+
+Two defects of the first runs were fixed before the final runs (commit `7f86ac5`): the job search plan did not URL-encode the city (a plan bug), and about 2 % of the requests under load failed with `401` because the clock of the Docker virtual machine steps backwards by about 2 seconds every 30 seconds, so a token looked "not yet valid" (the backend now accepts 10 seconds of clock difference, `app/core/security.py`). The tables below are the final runs.
+
+### 10.2 Results (100 to 500 users)
+
+| Users | Login: avg ms | req/s | Job search: avg ms | req/s | Apply (202): avg ms | req/s | Events: avg ms | req/s |
+|---|---|---|---|---|---|---|---|---|
+| 100 | 259.2 | 10.11 | 7.4 | 27.87 | 372.2 | 10.37 | 9.9 | 19.49 |
+| 200 | 197.5 | 10.05 | 7.2 | 28.89 | 13.2 | 10.18 | 8.8 | 19.75 |
+| 300 | 218.9 | 10.05 | 7.0 | 29.29 | 44.9 | 10.92 | 8.7 | 19.88 |
+| 400 | 189.6 | 10.03 | 7.9 | 29.48 | 17.0 | 10.25 | 8.5 | 19.89 |
+| 500 | 190.1 | 10.02 | 7.4 | 29.60 | 12.5 | 10.07 | 8.6 | 19.91 |
+
+**The error rate is 0.0 % in all 20 runs.** The number of requests that were counted: login and apply, one per user (100 to 500); job search, 3 per user (300 to 1,500); events, 2 per user (200 to 1,000). Throughput is requests per second between the first request's start and the last one's end.
+
+![Average response time against concurrent users for the four CRUD scenarios (from the JMeter files; graph written by jmeter/summarize.py).](../lab2/jmeter/avg_response_vs_concurrency.svg)
+
+### 10.3 What the numbers show
+
+- **The system was not pushed to its limit by these runs.** The average response time does not grow with the users, and throughput is the same at every level (login 10.0 to 10.1 requests per second). That is because the load generator itself is the limit: with a ramp of `users / 10` seconds, JMeter starts 10 users per second at every level, each sending one request, so the offered rate is about 10 requests per second (and 3 × 10 for the job search, 2 × 10 for the events) whatever the number of users. The runs show that the platform keeps up with that rate for up to 500 users; they do not show where it stops keeping up. A faster ramp would be the next test.
+- **Reads are cheap, login is not.** Job search and event search answered in 7 to 10 ms on average, a login in 190 to 260 ms. The `docker stats` snapshots explain the difference: during the 500-user login run the `p06-student` container used about 170 to 190 % CPU (roughly two cores) in 10 snapshots in a row, while its memory stayed at about 80 MiB. A login checks a bcrypt password hash, which is made slow on purpose; the CPU, not the database, is the work. The student service is the first resource to run hot.
+- **Apply returns before the work is done.** `POST /jobs/{id}/apply` answers 202 in 12 to 45 ms because the API only validates, stores the PDF and publishes the Kafka message; the Application worker writes the application afterwards. The 372 ms of the 100-user level is higher than at every other level (it is the first apply run; it does not come back at 200 to 500 users and I did not investigate the cause). **What this test does not measure is the delay until the worker has written the application, or whether the Kafka consumer group falls behind under load**; the `kafka-consumer-groups --describe` check of section 5.4 was not run during the JMeter runs, so the capacity of the three workers is not known from these results.
+- **Snapshots of the other containers** (one instant every few seconds, so peaks are noisy): MongoDB peaked at about 41 to 56 % CPU and 357 to 514 MiB in the 500-user CRUD runs; Kafka showed short CPU bursts (up to 159 %) even in runs that publish nothing, such as login, and I did not find out why.
 
 ## 11. Assistant load analysis
 
-> **PLACEHOLDER (partner): assistant load tests and their analysis.**
+(Evidence: `docs/lab2/jmeter/results/assistant_{5,10,20,50}.jtl` and `_stats.txt`, `docs/lab2/jmeter/results.md`, and `docs/lab2/trace_analysis.md` for the stage timing; the same test machine and the same placeholder for its specification as section 10.)
+
+### 11.1 Results
+
+Each user sends one question; there is one model instance (Ollama, which runs outside Docker; the model that was used belongs in the placeholder of section 10). Every request that took longer than the gateway allows was answered with HTTP 504.
+
+| Users | Samples | Answered (200) | 504 Gateway Time-out | Error rate | p50 s | p95 s | p99 s | fastest / slowest answer s | Answers per minute |
+|---|---|---|---|---|---|---|---|---|---|
+| 5 | 5 | 5 | 0 | 0 % | 48.3 | 63.9 | 64.9 | 33.6 / 65.1 | 4.6 |
+| 10 | 10 | 10 | 0 | 0 % | 158.7 | 230.1 | 230.4 | 56.9 / 230.5 | 2.6 |
+| 20 | 20 | 15 | 5 | 25 % | 465.0 | 568.1 | 568.1 | 209.0 / 559.7 | 1.6 |
+| 50 | 50 | 19 | 31 | 62 % | 569.3 | 569.6 | 569.7 | 440.7 / 565.3 | 2.0 |
+
+"Answers per minute" is the number of answered requests divided by the time of the last answer (computed from the `.jtl` files). The latencies include the failed requests (a 504 counts as a sample that took about 568 s), which is why p50 at 50 users is the time-out value.
+
+![Assistant latency (p50, p95, p99) against concurrent users (from the JMeter files).](../lab2/jmeter/assistant_latency.svg)
+
+### 11.2 Analysis
+
+- **Waiting for the model is the whole story.** The fastest answer at 5 users took 33.6 s (a single request on its own was not measured). The fastest answer took 56.9 s at 10 users, 209 s at 20 and 441 s at 50: with more users even the first answer is slower. The throughput does not rise with the users: 4.6, 2.6, 1.6 and 2.0 answers per minute, so every added user only adds waiting time (the drop from 4.6 to 1.6 is not explained by these files; the model sharing its compute between many requests, and work that goes on for requests that already got a 504, are possibilities I did not test). The p50 grows from 48 s to 159 s to 465 s.
+- **Model inference is the stage that costs the time.** In the 49 successful requests of `docs/lab2/trace_analysis.md` (50 requests, real Ollama, run one after the other on another machine, the partner's laptop, CPU only), model inference took 99.98 % of the request time (mean 193 s, median 158 s), tool execution about 10 ms and the database 0 ms (that run used an in-memory database, so it only shows that the tools are cheap, not what MongoDB costs under load). The absolute times of that run and of Uday's runs differ because the machines differ; the shape (everything is the model) is the same.
+- **The database was not measured under load.** The JMeter runs do not record the database time. The snapshots show MongoDB bursts of up to about 400 % CPU in the 50-user run, but they are single instants and I cannot say how much of the 565 s that is. I expect it to be small next to the model, but that is an expectation, not a measurement.
+- **Workers.** The chat request has no Kafka worker in its path (it is answered directly by the assistant service), so worker capacity does not limit it; the memory worker only runs after a session ends. The capacity of the application workers is not measured (section 10.3).
+- **The first thing that breaks is the gateway's time limit.** The gateway waits 600 s for an upstream answer (`proxy_read_timeout 600s` in `gateway/nginx.conf`) and the model client 600 s. From 20 users on, requests that wait in the queue run into it: 5 of 20 and 31 of 50 were answered with 504 after 568 to 569 s (the 504 arrives about 31 s earlier than the configured 600 s; I did not find out why). The 504 is the user-visible failure; it is not a fault of a service. A 504 does not stop the model, so the answer to a request whose user has already been told "time-out" is probably still computed, which takes capacity away from the others (not verified in the logs).
+- **Order of the bottlenecks.** For the assistant: first the single model (waiting from 5 users on, 48 s median), then the gateway's time limit (errors from 20 users on). For the other scenarios: no limit was reached up to 500 users at 10 new users per second; the student service's CPU (password hashing) is the resource that was busiest.
+
+### 11.3 What would help (proposals, not tested)
+
+Answer the assistant the way the application is answered (return 202 with a ticket and let the website poll for the result), so that no request waits for a gateway time limit; limit how many chats run at once and tell the user "busy" at once instead of queueing for minutes; use a smaller model or a GPU. The faster ramp for the CRUD scenarios and a Kafka lag measurement during the apply run are the two tests that are missing from section 10.
 
 ## 12. Token compaction
 
