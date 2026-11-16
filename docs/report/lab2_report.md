@@ -874,7 +874,7 @@ The model is Ollama's `qwen3:8b` with a context window of 8,192 tokens (`OLLAMA_
 | above 70 % | the chat window warns the student (the decision uses the exact percent, not the rounded one shown) |
 | 85 % or more | the history is compacted automatically before the next answer (`/compact` does it on request) |
 
-> **PLACEHOLDER (screenshot): the chat window with the "Tokens used" line and the context warning.** The stack is running on Docker Compose at `http://localhost:9061`; take the screenshot after a long chat (or after `/compact`) and save it as `docs/lab2/screenshots/chat_tokens_warning.png`.
+![The chat window after a real answer on Docker Compose: under the thread, "Tokens used: 4,942 · Context window: 34.4% full (2,822 of 8,192 tokens)". The context warning is not visible because the window was far from full; the compaction evidence is in 12.2 to 12.4.](../lab2/screenshots/chat_tokens_line.png)
 
 ### 12.2 Compaction
 

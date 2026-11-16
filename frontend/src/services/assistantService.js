@@ -3,8 +3,8 @@
 //   receive: { reply, conversation_id, tool_calls: [ { name, arguments, result } ] }
 import api from "./api";
 
-// A local model can take a while to think, so this request waits much longer than the usual 15 s.
-const CHAT_TIMEOUT_MS = 120000;
+// A local model can take a while to think, so this request waits much longer than the usual 15 s (the gateway allows 600 s; real answers took about 380 s on this CPU).
+const CHAT_TIMEOUT_MS = 620000;
 
 export function sendMessage(message, conversationId) {
   return api

@@ -126,6 +126,6 @@ describe("AI assistant chat window", () => {
     mock.onPost("/assistant/chat").reply(...reply("ok"));
     await user.type(await screen.findByLabelText("Message to the assistant"), "hello{Enter}");
     await screen.findByTestId("chat-assistant");
-    expect(mock.history.post[0].timeout).toBe(120000);
+    expect(mock.history.post[0].timeout).toBe(620000);
   });
 });
