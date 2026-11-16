@@ -9,7 +9,7 @@
 | Environment | Windows with WSL 2, Docker Desktop (client and server 28.0.4), base image `python:3.12-slim`, MongoDB 7, Kafka 3.9.0 (KRaft), `confluent-kafka` 2.6.1, `pymongo` 4.10.1; local Kubernetes with `kind` 0.33.0 (Kubernetes 1.34.0, `kubectl` client 1.32.2) |
 | Local model | `qwen3:8b` via Ollama (partner sections) |
 
-This report is written in two parts. Sections 1 to 6 are Uday's: Docker, Docker Compose, Kubernetes manifests, Kafka and the MongoDB migration. Sections 7 to 14 belong to the partner and are marked with red dashed boxes. Every claim in sections 1 to 6 comes from a file in the repository: `RUN_LOG.txt` (real commands and output, failures included), `docs/lab2/kafka_demos_output.txt`, `docs/lab2/`, `k8s/`, and the three screenshots in `docs/lab2/screenshots/`. The list is at the end of section 6.
+This report is written in two parts. Sections 1 to 6 are Uday's: Docker, Docker Compose, Kubernetes manifests, Kafka and the MongoDB migration. Sections 7 to 14 are the partner's: cloud deployment, memory, Redux, JMeter, assistant load, token compaction, a trace, and guardrails with the harness; every claim in them comes from a file in `docs/lab2/` or a screenshot in `docs/lab2/screenshots/`, and a red dashed box marks the few things still to be added (screenshots to take, and the test machine's specification). Every claim in sections 1 to 6 comes from a file in the repository: `RUN_LOG.txt` (real commands and output, failures included), `docs/lab2/kafka_demos_output.txt`, `docs/lab2/`, `k8s/`, and the three screenshots in `docs/lab2/screenshots/`. The list is at the end of section 6.
 
 ## 1. Pair parameters and seed counts
 
@@ -433,9 +433,9 @@ All indexes are one list (`INDEXES` in `mongo.py`), created by the seed script a
 | `docs/lab2/KAFKA_CONTRACT.md`, `MONGO_SCHEMA.md`, `ARCHITECTURE.md` | topics, message format, schema, indexes, diagrams |
 | `k8s/` and `docker-compose.yml`, `backend/docker/`, `gateway/`, `frontend/Dockerfile` | the manifests, images and Compose configuration described above |
 
-## Partner sections (placeholders)
+## Partner sections
 
-The sections below belong to Sreeramachandra Sai Achutuni. Each box names what the assignment asks for so that nothing is forgotten; the content, screenshots and numbers must come from the partner's own runs.
+The sections below belong to Sreeramachandra Sai Achutuni. The content, the numbers and the screenshots come from runs that were made (the files are named in each section); a red dashed box marks something that is still to be added.
 
 ## 7. Cloud deployment (AWS ECR and EKS)
 
