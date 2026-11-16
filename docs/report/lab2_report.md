@@ -799,7 +799,17 @@ The server-side state of a request (the Kafka queue, MongoDB) is outside Redux: 
 
 (Evidence: `jmeter/plans/*.jmx`, `docs/lab2/jmeter/` (`results.md`, `results.json`, the two graphs, `run_output.txt`, and in `results/` the raw `.jtl` file, the JMeter log and the `docker stats` snapshots of every run). The runs were made by Uday on 2026-11-14 between 15:43 and 17:42 (Pacific time) with Apache JMeter 5.6.3, against the Docker Compose stack on `localhost:9060` (not against AWS). `results.md` is identical to a fresh `python jmeter/summarize.py` over the `.jtl` files.)
 
-> **PLACEHOLDER (Uday): the machine.** The test machine's CPU model, number of cores, RAM, the Docker Desktop memory limit (the snapshots show 7.361 GiB per container), whether Ollama ran with a GPU, and the Ollama model used for the assistant runs are not recorded in any file. Fill them in; the numbers below cannot be compared with another machine without them.
+**The machine of the JMeter runs** (Uday's laptop, as he reported it; I did not measure these myself):
+
+| Item | Value |
+|---|---|
+| CPU | AMD Ryzen 5 7640HS, 6 cores / 12 threads |
+| RAM | 16 GB |
+| Docker Desktop memory | about 7.9 GB (Docker runs on WSL 2, which gives it half of the RAM by default) |
+| GPU | NVIDIA RTX 4060 Laptop, 8 GB of video memory |
+| Model | Ollama running `qwen3:8b` for the assistant tests |
+
+He did not say whether Ollama used the GPU for these runs, and I did not check it, so the report does not claim it. The trace and the 50-request timing runs of section 11 come from a different machine (the partner's laptop, CPU only), so the absolute times of the two sets cannot be compared.
 
 ### 10.1 The test plans
 

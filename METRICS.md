@@ -325,7 +325,7 @@ The run used an in-memory database and called the worker's handler directly (no 
 
 233 frontend tests pass in 18 files (2026-11-16); `store.test.jsx` covers the six slices. DevTools screenshots (2026-11-16): the assistant slice after a real answer (3 model calls, 6,806 prompt tokens in `usage`) and the applications slice with `submissions[73]` = `received` after the 202.
 
-### JMeter (run by Uday; `docs/lab2/jmeter/results.md`; machine specs not recorded)
+### JMeter (run by Uday; `docs/lab2/jmeter/results.md`; machine: AMD Ryzen 5 7640HS 6 cores/12 threads, 16 GB RAM, Docker about 7.9 GB, RTX 4060 Laptop 8 GB, as reported by Uday)
 
 | Test | 100 to 500 users | Errors |
 |---|---|---|
