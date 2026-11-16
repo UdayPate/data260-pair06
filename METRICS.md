@@ -323,7 +323,7 @@ The run used an in-memory database and called the worker's handler directly (no 
 
 ### Redux
 
-233 frontend tests pass in 18 files (2026-11-16); `store.test.jsx` covers the six slices. The DevTools screenshots are not taken yet.
+233 frontend tests pass in 18 files (2026-11-16); `store.test.jsx` covers the six slices. DevTools screenshots (2026-11-16): the assistant slice after a real answer (3 model calls, 6,806 prompt tokens in `usage`) and the applications slice with `submissions[73]` = `received` after the 202.
 
 ### JMeter (run by Uday; `docs/lab2/jmeter/results.md`; machine specs not recorded)
 

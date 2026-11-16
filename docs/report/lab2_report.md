@@ -777,7 +777,17 @@ The conversation used to live in the chat component, so leaving the home page th
 
 ### 9.4 Redux DevTools evidence
 
-> **PLACEHOLDER (screenshots, to be taken in a browser): Redux DevTools for at least two slices, including the conversation slice.** The stack is running on Docker Compose at `http://localhost:9061` (login `demo.student@sjsu.edu`, `Password123!`); install the Redux DevTools browser extension, open the page, press F12 and choose the **Redux** tab (the store is "Handshake p06"). Take: (1) the `assistant` slice: send a message to the assistant and show the actions `assistant/send/pending` and `assistant/send/fulfilled` with the **State** tab on `assistant` (the `messages`, `conversationId` and `usage`), then go to another page and back to show that the thread is still there; (2) the `applications` slice: apply to a job and show `applications/submit/pending`, `applications/submit/fulfilled` and the `submissions` entry `received`, later `saved`. Save them as `docs/lab2/screenshots/redux_assistant.png` and `redux_applications.png`, with no token or password visible.
+Both screenshots were taken in Chrome with the Redux DevTools extension on the real stack (Docker Compose, `http://localhost:9061`, store "Handshake p06"). The token is cut to its first characters by the extension; nothing else secret is shown.
+
+**The `assistant` slice.** The actions `assistant/send/pending` and `assistant/send/fulfilled` (the real model answered about 6 minutes later), and the State tab with `assistant` expanded: `conversationId`, `messages` (2 entries), `status: "idle"`, `error: ""` and `usage` (3 model calls, 6,806 prompt tokens).
+
+![Redux DevTools, assistant slice: the two send actions and the state of the conversation.](../lab2/screenshots/redux_assistant.png)
+
+**The `applications` slice.** After applying to job 73 the actions `applications/submit/pending` and `applications/submit/fulfilled` appear; at the fulfilled action the State tab shows `submissions` for job 73 with `status: "received"` (the server answered 202, the application is queued). The later `saved` state, when the job comes back with `my_application`, was not captured in a screenshot; it is covered by the store test in 9.2.
+
+![Redux DevTools, applications slice: submit/pending and submit/fulfilled, and submissions[73] = received.](../lab2/screenshots/redux_applications.png)
+
+One more screenshot, `docs/lab2/screenshots/redux_jobs_actions.png`, is kept in the repository as an extra: it shows `jobs/fetchJobs` and `jobs/fetchJob` as pending and fulfilled pairs.
 
 ### 9.5 Tests and limits
 
