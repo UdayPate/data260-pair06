@@ -633,11 +633,130 @@ Answer the assistant the way the application is answered (return 202 with a tick
 
 ## 12. Token compaction
 
-> **PLACEHOLDER (partner): token tracking, compaction and recall evidence.**
+(Evidence: `backend/app/assistant/usage.py`, `compaction.py`, `model_client.py`; `docs/lab2/compaction_demo.md` and `.json` (the main run), `compaction_demo_run1_64pct.md` and `compaction_demo_run2_68pct.md` (the two earlier runs, kept); the script `backend/scripts/compaction_demo.py`; the tests in `backend/tests/test_tokens_compaction_tracing.py` and the chat window tests in `frontend/src/test/`.)
+
+### 12.1 Token tracking
+
+The model is Ollama's `qwen3:8b` with a context window of 8,192 tokens (`OLLAMA_NUM_CTX`). The model client reads the counts Ollama itself reports for every call (`prompt_eval_count`, the tokens the model read, and `eval_count`, the tokens it wrote), and the agent loop adds them after every model call (`usage.py`): the conversation keeps the total of the prompt tokens, the answer tokens and the number of calls. The **context in use** is the last call's prompt plus its answer, because that is what the model had to hold at the end of the request. `POST /assistant/chat` returns the counts in an extra field `usage`, next to the three fields of the Lab 1 contract, and the chat window shows "Tokens used" and the percent of the window, with a warning above 70 %.
+
+| Percent of the window | What happens |
+|---|---|
+| up to 70 % | nothing |
+| above 70 % | the chat window warns the student (the decision uses the exact percent, not the rounded one shown) |
+| 85 % or more | the history is compacted automatically before the next answer (`/compact` does it on request) |
+
+> **PLACEHOLDER (screenshot): the chat window with the "Tokens used" line and the context warning.** The stack is running on Docker Compose at `http://localhost:9061`; take the screenshot after a long chat (or after `/compact`) and save it as `docs/lab2/screenshots/chat_tokens_warning.png`.
+
+### 12.2 Compaction
+
+When the context reaches 85 % (or the student types `/compact`), the stored history is replaced by one summary message, so the next call is short again. **The summary is built by code from the tool results that are already stored, not written by the model**, so it cannot invent a fact: it lists the student's preferences, the jobs that came up (id, title, company, city, pay, deadline), the companies, the events, the applications on file, what was saved in this chat, what the student asked before and the current request. The text is wrapped as untrusted database content (guardrail 5 of section 14), it never contains a secret, a second compaction keeps what the first one knew, and compaction is skipped when a save is waiting for the student's yes or when the chat is tiny.
+
+### 12.3 Evidence: tokens before and after, and recall
+
+Run on 2026-11-14 with the real model (`python -m scripts.compaction_demo`): a long chat of 41 stored messages (built with the real tools and a scripted model, so the token counts of that step are estimates), then one real question before and one after the compaction. Every context figure below is the model's own count.
+
+| | Messages in the stored history | Context tokens (the model's own count) | Context window used |
+|---|---|---|---|
+| Before compaction | 41 | 5,934 (last model call of the request: prompt plus answer) | **72.4 %** |
+| After compaction | 2 | 2,922 (last model call of the next request) | **35.7 %** |
+
+The stored history alone, estimated from the characters (characters divided by 4), went from 3,178 to 746 tokens. **The context in use was cut roughly in half (72.4 % to 35.7 %).** The estimated history fell by more (to about a quarter of its size), but the context does not fall as far as the history does, because the system prompt, the tool descriptions and the standing rules are sent on every call.
+
+**Recall after compaction.** Two questions about facts that only the summary still held, asked after the compaction:
+
+| Question | Expected | Result | The model's answer |
+|---|---|---|---|
+| Which company posted the job called "Cloud Platform Intern 13"? | Acme Data | **PASS** | The job "Cloud Platform Intern 13" was posted by **Acme Data**. |
+| What is the id of the job called "Cloud Platform Intern 13"? | 13 | **PASS** | The id of the job called "Cloud Platform Intern 13" is **13**. |
+
+The summary that replaced the history is printed in full in `docs/lab2/compaction_demo.md`; it starts with "[Conversation summary #1 …: the earlier messages were replaced by this summary to save space …]" and lists 15 jobs, 6 companies and the six earlier requests.
+
+### 12.4 The earlier runs, kept
+
+The demo was run three times; the earlier two are kept because they show why the third differs. In the first run the history before compaction was 34 messages and the context 5,249 tokens (**64.1 %**), in the second 41 messages and 5,585 tokens (**68.2 %**); both are under the 70 % warning line, so they did not show the situation the feature is for. After compaction they gave 2,927 tokens (35.7 %) and 2,946 tokens (36.0 %). For the third run I made the history that the demo builds longer (72.4 %, above the warning line). **All three runs passed both of their recall questions** (the earlier runs asked about "Backend Engineer Intern 20" and "Cloud Platform Intern 13"; the lists are in their files).
+
+### 12.5 Tests and limits
+
+`test_tokens_compaction_tracing.py` tests, without a model: the counting (every call is added, the context is the last prompt plus answer), the thresholds (70 % and 85 %, including the boundary cases), the model client reading Ollama's counts, what the summary keeps, that compaction is skipped when it should be, a second compaction, the recall of an id from the summary on the next turn, the automatic compaction at 85 % and the `/compact` command.
+
+- The automatic compaction at 85 % is covered by that unit test; the real-model run of 12.3 compacted a history at 72.4 % with the compaction function, so **the 85 % trigger itself was not shown with the real model**.
+- The long history before the compaction was built with a scripted model, so only the two measured steps (before and after) used the real one.
+- Two recall questions is a small check, not a measure of how much a summary loses.
 
 ## 13. One end-to-end trace
 
-> **PLACEHOLDER (partner): one trace followed through the system.** To add: the `trace_id` across the API, the Kafka headers and body, the worker log and the assistant stages. The Kafka part of the trace is described in section 5.2 and the apply flow in section 2.
+(Evidence: `docs/lab2/e2e_trace_output.txt`, written by `backend/scripts/e2e_trace.py` during one real run on 2026-11-15 at 15:59 Pacific time (the logs are in UTC, 00:05 on 16 November) against the Docker Compose stack, with the real Ollama model, the real Kafka broker and a real MongoDB. The trace code is `backend/app/assistant/tracing.py`, `backend/app/events/` and `backend/app/db_timing.py`. The Kafka part of the apply flow is described in sections 5.2 and 2.)
+
+### 13.1 What a trace id is
+
+Every request gets a `trace_id`: 32 hexadecimal characters, taken from the request's `X-Trace-ID` header or the gateway's request id, or made fresh if there is none. It is returned in the answer of `POST /assistant/chat` (field `trace_id`, next to `usage`), written in every log line of the request (`trace_id=...`), copied into **both the headers and the body** of any Kafka message the request causes, read again by the worker that consumes the message (which puts it in its own log and its own records), and saved with the time of each stage in the `traces` collection of MongoDB. `/trace` in the chat shows it for the student's last request.
+
+### 13.2 The run, step by step
+
+The script signs in as the demo student, asks the assistant a real question, asks for `/trace`, then sends `/memory learn`, which publishes a Kafka message that the memory worker consumes.
+
+**Step 1: the request with the model** (`POST /assistant/chat`, "Find a data internship", HTTP 200 after 381.6 s; trace `b339ddb7028eac3833a325ed806e15ef`). The assistant called one tool, `search_jobs`, and answered with five internships. `/trace` reports where the time went:
+
+| Stage | Time | Share of the request (381,758 ms) |
+|---|---|---|
+| Model inference (2 model calls, 4,280 prompt + 338 answer tokens, context 32.0 % of 8,192) | 381,502 ms | 99.93 % |
+| Database (21 queries, measured with a MongoDB command listener) | 145.5 ms | 0.04 % |
+| Tool execution without its queries (the `search_jobs` code) | 28.7 ms | 0.01 % |
+| The tool's own queries (counted in the database line) | 101.1 ms | |
+| Not attributed to a stage (building the prompt, parsing) | about 82 ms | 0.02 % |
+
+The slowest stage is model inference. The request was slow (the median of the 50 requests in `docs/lab2/trace_analysis.md` is 158 s) because the model ran on a CPU while Docker and the stack used most of the memory (about 0.7 GB was free).
+
+**Step 2: `/memory learn`** (trace `2bfd059d87d155dc63c1d67efc38f5d9`). The API did not wait for the model: HTTP 200 after **0.70 s** (683 ms in the trace: 2 queries, 12 ms of database time, no model call) with the answer "I will learn from this chat in the background; check with /memory in a minute." It had published one Kafka message:
+
+```
+topic p06.memory.session_ended, key 1 (the student id)
+headers: event_id:7163bc9d-0afb-46d8-9795-ec19d1c1f80b, event_type:memory.session_ended, trace_id:2bfd059d87d155dc63c1d67efc38f5d9
+body:    {"event_id":"7163bc9d-0afb-46d8-9795-ec19d1c1f80b","event_type":"memory.session_ended",
+          "timestamp":"2026-11-16T00:05:47.141264Z","trace_id":"2bfd059d87d155dc63c1d67efc38f5d9",
+          "payload":{"student_id":1,"conversation_id":"adca869300d745ae9ef8641b089a43da"},
+          "producer":"p06-assistant","schema_version":1}
+```
+
+(read back with `kafka-console-consumer` and `print.headers=true`: the same id is in the header and in the body).
+
+**Step 3: the worker.** The memory worker (`p06-memory-worker`, a Kafka consumer) read the message from partition 2, offset 0, 1.48 s after it was published (`queue_wait_ms=1476.8`, measured from the envelope's `timestamp`), asked the model once (456 prompt and 24 answer tokens, 45.2 s) and saved one note. Its log:
+
+```
+event=assistant_memory_worker trace_id=2bfd059d… status=ok total_ms=45282.1 model_ms=45200.0 db_ms=55.6 db_calls=4 queue_wait_ms=1476.8 model_calls=1 …
+event=memory.session_ended student_id=1 learned=1 trace_id=2bfd059d…
+worker=memory event=processed type=memory.session_ended event_id=7163bc9d-… trace_id=2bfd059d… message=p06.memory.session_ended[2]@0
+```
+
+Afterwards `/memory` showed what the worker learned (a real model answer): `2026-11-16 | goal | Student is looking for a data internship.` The consumer group `p06-memory-worker` had a **lag of 0** on the partition (the offset is committed only after the database write) and the dead-letter topic `p06.dlq` was empty.
+
+### 13.3 Where the trace id was found
+
+| Place | What was found |
+|---|---|
+| The API response | `trace_id` of the chat (`b339ddb7…`) and of `/memory learn` (`2bfd059d…`) |
+| The assistant service log | `event=published type=memory.session_ended … trace_id=2bfd059d…` and `event=assistant_chat trace_id=2bfd059d… total_ms=683.1 …` |
+| The Kafka message, header | `trace_id:2bfd059d87d155dc63c1d67efc38f5d9` |
+| The Kafka message, body | `"trace_id":"2bfd059d87d155dc63c1d67efc38f5d9"` |
+| The worker log | three lines with the id (above) |
+| MongoDB `traces` | for `2bfd059d…`: two documents, `kind: chat` (the API side, `detail: command /memory`) and `kind: memory_worker` (the worker side, with `queue_wait_ms`); for `b339ddb7…`: one `kind: chat` document with the stage times of step 1 |
+| MongoDB `memory_runs` | one document with the id, `learned: 1`, `learned_ids: [1]` |
+| The gateway | **not found**: the gateway's access log shows the three requests but has no trace id in it |
+
+The timeline of step 2 (UTC): the request enters the gateway at 00:05:46; the message is stamped 00:05:47.141; the assistant logs "published" at 00:05:47.799; the worker starts about 1.5 s later and its trace is saved at 00:06:33.898, 45 s afterwards, when the model had answered; the worker logs `processed` (and commits the offset) at 00:06:33.973.
+
+### 13.4 What the trace shows
+
+- **The request and the background job are two parts of one trace.** The student gets the answer to `/memory learn` in 0.7 s because the slow part (the model, 45 s) runs in the worker; the same id ties the two parts together in the logs, in Kafka and in the database.
+- **In every part, the model is what costs the time**: 99.93 % of the chat request and 99.8 % of the worker's work (45,200 of 45,282 ms). This is the first measurement of the database time against a real MongoDB: 145.5 ms in 21 queries for the chat, 55.6 ms in 4 for the worker. (The 50-request stage analysis of `trace_analysis.md` used an in-memory database that reports no database time; the JMeter runs of section 10 do not record it.)
+- The apply flow follows the same rule without the model: the 202 answer of `POST /jobs/{id}/apply` carries `event_id` and `trace_id`, and the Application worker logs `event=processed` with the same ids (section 4.4 on kind; the 202 answers on AWS carried `event_id` and `trace_id` too, section 7.5).
+
+### 13.5 Limits
+
+- **One run, one request of each kind**, on one machine: the numbers show where the time goes, not how long the assistant normally takes.
+- The database time is for one request without load; it was **not** measured under load (section 11).
+- The trace id is the same in all the places above, but I did not verify that it equals the gateway's own `$request_id`, because the gateway's log does not record it.
+- On AWS the worker's log of the two applications of section 7.5 was not collected; the Kafka-to-worker link of the apply flow is shown on kind (section 4.4) and on Compose (section 5).
 
 ## 14. Guardrails and the evaluation harness
 

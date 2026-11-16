@@ -1,0 +1,70 @@
+End-to-end trace, run on 2026-11-15 15:59:24. Real Ollama model, real Kafka, real MongoDB (Docker Compose, project p06-handshake).
+
+== 1. sign in (demo student)
+POST /auth/login -> HTTP 200
+
+== 2. ask the assistant: "Find a data internship"  (the real model answers; this takes a while on a CPU)
+POST /assistant/chat -> HTTP 200 after 381.6 s
+  trace_id        : b339ddb7028eac3833a325ed806e15ef
+  conversation_id : adca869300d745ae9ef8641b089a43da
+  tools called    : ['search_jobs']
+  usage           : {'model_calls': 2, 'prompt_tokens': 4280, 'completion_tokens': 338, 'total_tokens': 4618, 'context_tokens': 2618, 'context_window': 8192, 'context_percent': 32.0, 'context_estimated': False, 'warn': False, 'compact_recommended': False, 'compactions': 0}
+  reply (first 400 characters): 'Here are 5 data internships that match your request:\n\n1. **Data Engineer Intern** at Anderson-Watson in Mountain View, CA (internship) - $50–$58/hr, deadline 2026-12-22. Skills: Kubernetes, Python, PyTorch, Spark.\n2. **Data Analyst Intern** at Wilson PLC in Mountain View, CA (internship) - $23–$28/hr, deadline 2027-02-16. Skills: Data Analysis, Pandas, Python, SQL, Statistics.\n3. **Data Analyst In'
+
+== 3. /trace: where the time of that request went
+Trace b339ddb7028eac3833a325ed806e15ef (this id is in the logs and in any Kafka event this request caused):
+- chat: ok, 381758.2 ms total
+    model_ms=381502.3, db_ms=145.5, db_calls=21, tool_ms=129.8, tool_db_ms=101.1, tool_compute_ms=28.7
+    2 model call(s), 4280 prompt + 338 completion tokens, context 32.0% full
+    tools: search_jobs
+    slowest stage: model inference
+
+== 4. "/memory learn": the API queues a Kafka message and answers at once
+POST /assistant/chat '/memory learn' -> HTTP 200 after 0.70 s (the model is NOT waited for)
+  trace_id : 2bfd059d87d155dc63c1d67efc38f5d9
+  reply    : I will learn from this chat in the background; check with /memory in a minute.
+
+== 5. wait for the memory worker (a Kafka consumer) to finish its work with this trace id
+worker finished after about 62 s
+
+== 6. the same trace id (2bfd059d87d155dc63c1d67efc38f5d9) in every place
+-- (a) the Kafka message on p06.memory.session_ended: headers and body (kafka-console-consumer)
+event_id:7163bc9d-0afb-46d8-9795-ec19d1c1f80b,event_type:memory.session_ended,trace_id:2bfd059d87d155dc63c1d67efc38f5d9	1	{"event_id":"7163bc9d-0afb-46d8-9795-ec19d1c1f80b","event_type":"memory.session_ended","timestamp":"2026-11-16T00:05:47.141264Z","trace_id":"2bfd059d87d155dc63c1d67efc38f5d9","payload":{"student_id":1,"conversation_id":"adca869300d745ae9ef8641b089a43da"},"producer":"p06-assistant","schema_version":1}
+-- (b) the assistant service log (the API side)
+2026-11-16 00:05:47,799 INFO handshake.events event=published type=memory.session_ended event_id=7163bc9d-0afb-46d8-9795-ec19d1c1f80b key=1 trace_id=2bfd059d87d155dc63c1d67efc38f5d9
+2026-11-16 00:05:47,803 INFO handshake.trace event=assistant_chat trace_id=2bfd059d87d155dc63c1d67efc38f5d9 status=ok total_ms=683.1 model_ms=0.0 db_ms=12.0 db_calls=2 tool_ms=0.0 tool_db_ms=0.0 tool_compute_ms=0.0
+-- (c) the memory worker log (the consumer side)
+2026-11-16 00:06:33,898 INFO handshake.trace event=assistant_memory_worker trace_id=2bfd059d87d155dc63c1d67efc38f5d9 status=ok total_ms=45282.1 model_ms=45200.0 db_ms=55.6 db_calls=4 tool_ms=0.0 tool_db_ms=0.0 tool_compute_ms=0.0 queue_wait_ms=1476.8 model_calls=1 prompt_tokens=456 completion_tokens=24 context_percent=5.9
+2026-11-16 00:06:33,902 INFO handshake.memory event=memory.session_ended student_id=1 learned=1 trace_id=2bfd059d87d155dc63c1d67efc38f5d9
+2026-11-16 00:06:33,973 INFO handshake.worker worker=memory event=processed type=memory.session_ended event_id=7163bc9d-0afb-46d8-9795-ec19d1c1f80b trace_id=2bfd059d87d155dc63c1d67efc38f5d9 message=p06.memory.session_ended[2]@0
+-- (d) the gateway access log (the request that carried it in)
+172.28.0.1 - - [16/Nov/2026:00:05:46 +0000] "POST /assistant/chat HTTP/1.1" 200 2013 "-" "python-httpx/0.27.2" "-"
+172.28.0.1 - - [16/Nov/2026:00:05:47 +0000] "POST /assistant/chat HTTP/1.1" 200 748 "-" "python-httpx/0.27.2" "-"
+172.28.0.1 - - [16/Nov/2026:00:05:47 +0000] "POST /assistant/chat HTTP/1.1" 200 446 "-" "python-httpx/0.27.2" "-"
+   (the gateway log has no trace id of its own; it shows the requests)
+-- (e) MongoDB: the documents saved with the trace id (the `traces` and `memory_runs` collections)
+   traces where trace_id=b339ddb7028eac3833a325ed806e15ef:
+   {"trace_id": "b339ddb7028eac3833a325ed806e15ef", "kind": "chat", "student_id": 1, "at": "2026-11-16 00:05:46.861000", "status": "ok", "total_ms": 381758.2, "stages": {"model_ms": 381502.3, "db_ms": 145.5, "db_calls": 21, "tool_ms": 129.8, "tool_db_ms": 101.1, "tool_compute_ms": 28.7}, "model_calls": 2, "prompt_tokens": 4280, "completion_tokens": 338, "context_percent": 32.0, "tools": ["search_jobs"], "detail": null}
+   traces where trace_id=2bfd059d87d155dc63c1d67efc38f5d9:
+   {"trace_id": "2bfd059d87d155dc63c1d67efc38f5d9", "kind": "chat", "student_id": 1, "at": "2026-11-16 00:05:47.803000", "status": "ok", "total_ms": 683.1, "stages": {"model_ms": 0.0, "db_ms": 12.0, "db_calls": 2, "tool_ms": 0.0, "tool_db_ms": 0.0, "tool_compute_ms": 0.0}, "model_calls": 0, "prompt_tokens": 0, "completion_tokens": 0, "context_percent": null, "tools": [], "detail": "command /memory"}
+   traces where trace_id=2bfd059d87d155dc63c1d67efc38f5d9:
+   {"trace_id": "2bfd059d87d155dc63c1d67efc38f5d9", "kind": "memory_worker", "student_id": 1, "at": "2026-11-16 00:06:33.898000", "status": "ok", "total_ms": 45282.1, "stages": {"model_ms": 45200.0, "db_ms": 55.6, "db_calls": 4, "tool_ms": 0.0, "tool_db_ms": 0.0, "tool_compute_ms": 0.0, "queue_wait_ms": 1476.8}, "model_calls": 1, "prompt_tokens": 456, "completion_tokens": 24, "context_percent": 5.9, "tools": [], "detail": "memory.session_ended"}
+   memory_runs where trace_id=2bfd059d87d155dc63c1d67efc38f5d9:
+   {"event_type": "memory.session_ended", "student_id": 1, "trace_id": "2bfd059d87d155dc63c1d67efc38f5d9", "at": "2026-11-16 00:06:33.903000", "learned": 1, "learned_ids": [1]}
+
+Done. Chat trace b339ddb7028eac3833a325ed806e15ef; Kafka trace 2bfd059d87d155dc63c1d67efc38f5d9.
+
+== 7. afterwards (separate commands, same run)
+-- "/memory" through the API: what the worker learned from the chat (a real model answer)
+What I remember about you (1 notes, oldest first; date | category | note):
+2026-11-16 | goal | Student is looking for a data internship.
+I follow 6 standing rules.
+-- the dead-letter topic p06.dlq (kafka-console-consumer, 6 s): no message was read (the consumer ended with a TimeoutException), so nothing failed for good
+-- kafka-consumer-groups --describe --group p06-memory-worker
+GROUP             TOPIC                            PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
+p06-memory-worker p06.memory.session_ended         2          1               1               0
+(the other partitions of p06.memory.session_ended and p06.memory.consolidate_requested hold no message: offset 0, nothing to read)
+
+Notes on this run (not produced by the script):
+* The times in the logs are UTC (00:05 on 16 Nov); the first line of this file is the local time of the run (15:59, Pacific).
+* The chat answer took 381.6 s: the model ran on a CPU while Docker and the stack used most of the memory (about 0.7 GB free), so this is slower than the 158 s median of docs/lab2/trace_analysis.md.
