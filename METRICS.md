@@ -300,7 +300,55 @@ results (pass and fail counts, reliability before and after repair). -->
 <!-- Part 6: guardrails and harness. The table below is pasted from docs/lab2/agent_harness_summary.md (a real run of
 python -m scripts.agent_harness). The other items listed above are still to be added. -->
 
-PLACEHOLDER (partner): AWS, memory consolidation, Redux, JMeter, assistant load, token tracking and compaction, traces. Not run yet.
+### AWS (ECR and EKS), 2026-11-15 (`docs/lab2/aws_evidence.txt`; RUN_LOG P.1)
+
+| Item | Result |
+|---|---|
+| Images in ECR | 8 repositories `p06-<service>`, tag `1.0.0` |
+| Cluster | EKS, Kubernetes 1.34, 2 nodes `m7i-flex.large` (the Free plan refused the first type), both Ready |
+| Pods / volumes | 19 pods Running; `data-p06-mongo-0` and `data-p06-kafka-0` Bound (2Gi, gp3) |
+| Entry points | two LoadBalancer addresses: gateway :9060, website :9061 |
+| End to end | login, `GET /jobs`, apply answered 202; the worker wrote the application (ids 1501, 1502) |
+| Cost | about $0.39 per hour (my estimate, not a bill); the cluster was deleted after the evidence was taken |
+
+### Memory consolidation (real model `qwen3:8b`, 62 notes, three runs; RUN_LOG P.2)
+
+| Run | Notes before | After | Checks | What went wrong |
+|---|---|---|---|---|
+| 1 (before the fix) | 62 | 23 | not all | both copies of one duplicate removed |
+| 2 (one call for all notes) | 62 | 34 | not all | newer fact of one contradiction lost |
+| 3 (main, 1,171 s, 5 model calls) | 62 | 30 | 8 of 9 | CS vs Data Science left unresolved; one false contradiction; one model call timed out |
+
+The run used an in-memory database and called the worker's handler directly (no broker).
+
+### Redux
+
+233 frontend tests pass in 18 files (2026-11-16); `store.test.jsx` covers the six slices. The DevTools screenshots are not taken yet.
+
+### JMeter (run by Uday; `docs/lab2/jmeter/results.md`; machine specs not recorded)
+
+| Test | 100 to 500 users | Errors |
+|---|---|---|
+| Login | average 190 to 259 ms | 0.0% |
+| Job search | average about 7 ms | 0.0% |
+| Apply (202) | average 12 to 372 ms | 0.0% |
+| Event search + registration | average about 9 ms | 0.0% |
+
+| Assistant chat users | p50 ms | p95 ms | Error rate |
+|---|---|---|---|
+| 5 | 48,277 | 63,925 | 0.0% |
+| 10 | 158,732 | 230,147 | 0.0% |
+| 20 | 464,951 | 568,107 | 25.0% |
+| 50 | 569,306 | 569,646 | 62.0% |
+
+### Assistant stage timing, token tracking and compaction (real model; RUN_LOG P.3 to P.5)
+
+| Item | Result |
+|---|---|
+| 50 requests (49 answered, 1 failed on purpose) | mean 193,160 ms, median 157,555 ms, p95 297,140 ms; model inference 99.98% of the time |
+| Compaction | 41 messages and 72.4% of the window before; 2 messages and 35.7% after; recall 2 of 2 |
+| End-to-end chat trace | 381,758 ms, 4,280 prompt + 338 completion tokens, context 32.0% |
+| `/memory learn` trace | same trace id in API, Kafka header and body, worker log and MongoDB; dead-letter topic empty |
 
 ### Agent harness (scripted model, production guardrails)
 

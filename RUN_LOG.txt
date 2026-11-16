@@ -2151,3 +2151,73 @@ $ POST /auth/login (demo student)  -> token (219 characters);  GET /applications
 $ kafka-topics.sh --list in p06-kafka -> __consumer_offsets, the five p06.* topics, p06.dlq (the Kafka volume kept its topics)
 The Kubernetes test used its own MongoDB and Kafka volumes inside the kind cluster; nothing in the Compose volumes was written by it.
 ### end of Lab 2, PHASE 6 (addendum)
+
+
+======================================================================================================================================
+LAB 2: partner (Sreeramachandra Sai Achutuni): AWS, memory, Redux, JMeter, token tracking, traces, guardrails and harness (2026-11-14 to 16)
+======================================================================================================================================
+Everything below was run for real; the long outputs are kept in the files named, this log gives the commands and the results.
+
+--- P.1  AWS: ECR and EKS (2026-11-15)  (full output: docs/lab2/aws_evidence.txt, scripts: k8s/eks/)
+$ aws ecr describe-images (every p06 repository)   -> 8 repositories p06-<service>, each with the tag 1.0.0 (account 858444017481, us-east-1)
+$ eksctl create cluster -f k8s/eks/cluster.yaml     -> FAILED the first time: the account is on the AWS Free plan and refuses instance types that are not
+                                                       free-tier; the node group never launched a node. Changed to m7i-flex.large (2 nodes, Kubernetes 1.34).
+$ (the stuck node group deleted very slowly: a second node group p06-nodes-b was created next to it)
+$ eksctl failed before installing the EBS CSI add-on and gp2 was not the default class -> PVCs stayed Pending. Fixed by hand:
+  aws eks create-addon --addon-name aws-ebs-csi-driver, StorageClass gp3 as default (k8s/eks/storageclass.yaml); deploy.py now checks the add-on.
+$ docker login to ECR from PowerShell                -> HTTP 400. Worked in Git Bash:  aws ecr get-login-password | tr -d '\r\n' | docker login --password-stdin
+$ python k8s/eks/deploy.py                           -> nodes Ready, 19 pods Running, two LoadBalancer addresses (gateway :9060, website :9061),
+                                                       PVCs data-p06-mongo-0 and data-p06-kafka-0 Bound (2Gi, gp3), database seeded
+$ curl POST /auth/login, GET /jobs, POST /jobs/{id}/apply on the gateway LoadBalancer -> apply answered 202; the worker pod wrote the application; applications
+                                                       1501 and 1502 appeared (the seed holds 1,500); trace ids in docs/lab2/aws_evidence.txt
+Problem found in the browser: "Cannot reach the server" on the website. Cause: new nodes reused an old cached frontend image (imagePullPolicy IfNotPresent)
+built for an earlier load balancer address. Fix: imagePullPolicy: Always (k8s/overlays/eks/frontend-pull.yaml); read the served JavaScript bundle to confirm
+the new address; the login and dashboard then worked (screenshots aws_website_*.png).
+$ eksctl delete cluster                              -> cluster deleted after the screenshots (AWS charges by the hour); checked that no cluster, node group or
+                                                       load balancer was left. The cluster was created again once more to take the console screenshots
+                                                       (aws_eks_*.png) and deleted again. The cost of about $0.39 per hour is my estimate, not a bill.
+Not done: the three Kafka failure demos on EKS (they ran on Compose, PHASE 5).
+
+--- P.2  Memory consolidation, real model qwen3:8b (docs/lab2/memory_consolidation*.md/.json; script backend/scripts/memory_demo.py)
+$ python -m scripts.memory_demo       (three runs on the same 62 notes, in-memory MongoDB, the worker's handler called directly: NO broker in these runs)
+  run 1 (before the fix): 62 -> 23 notes; both copies of dup2 removed (a fact lost); old3/new3 unresolved
+  run 2 (one model call for all notes): 62 -> 34; old1/new1 unresolved; both old3 and new3 gone (newer fact lost)
+  run 3 (main, 2026-11-14, 1,171.2 s, 5 model calls): 62 -> 30 notes; 8 of 9 checks pass; old3/new3 (CS vs Data Science) FAIL (both still there);
+  a model call timed out ("Could not reach the model ... timed out"); the model paired "Prefers internships over full-time jobs" with
+  "Prefers small companies" as a contradiction (false), and the safety-net cap removed useful notes (for example "Cannot work on Tuesday evenings").
+$ /memory learn through the real stack (Compose, Kafka, memory worker): see P.5 (learned 1 note, same trace id, empty dead-letter topic).
+Not run: consolidating the 62 notes through the broker.
+
+--- P.3  Token compaction, real model (docs/lab2/compaction_demo.md; the two earlier runs are kept as *_run1_64pct and *_run2_68pct)
+  2026-11-14 12:38:  history 41 messages, 5,934 tokens in the model's last call (72.4% of 8,192)  ->  after compaction 2 messages, 2,922 tokens (35.7%).
+  Recall after compaction: 2 of 2 PASS ("Cloud Platform Intern 13" -> Acme Data; its id -> 13).
+Website (2026-11-16): a real answer showed "Tokens used: 4,942 · Context window: 34.4% full (2,822 of 8,192 tokens)" (screenshot chat_tokens_line.png).
+Problem found there: the chat said "The server took too long to respond" because the browser's request limit was 120 s and a real answer needed about 380 s
+(the gateway waits 600 s). Fix: CHAT_TIMEOUT_MS = 620000 in frontend/src/services/assistantService.js (test updated); the next real answer arrived.
+
+--- P.4  Stage timing over 50 assistant requests, real model (docs/lab2/trace_analysis.md, 2026-11-14)
+  49 answered, 1 failed on purpose (a model address that does not answer). Request time: mean 193,160 ms, median 157,555 ms, p95 297,140 ms.
+  Model inference 99.98% of the time, tool execution 0.01%. The database time reads 0 because the run used an in-memory database (no command events).
+
+--- P.5  One real end-to-end trace through the Compose stack (backend/scripts/e2e_trace.py -> docs/lab2/e2e_trace_output.txt, 2026-11-16 00:05)
+  chat trace b339ddb7028eac3833a325ed806e15ef: 381,758 ms (model 381,502 ms), 2 model calls, 4,280 prompt + 338 completion tokens, context 32.0%.
+  /memory learn trace 2bfd059d87d155dc63c1d67efc38f5d9: the same id in the API response, the Kafka header and body, the assistant log, the worker log
+  (event=processed, queue_wait 1,476.8 ms, model 45,200 ms, learned=1) and the traces / memory_runs documents. The dead-letter topic p06.dlq was empty.
+
+--- P.6  Guardrails and harness (docs/lab2/agent_harness.json, agent_harness_summary.md; the model is a scripted mock, the loop and guardrails are production code)
+$ python -m scripts.agent_harness   (2026-11-15 15:55)  -> 16 of 16 cases PASS
+  reliability before / after the repair path (4 scripted failures): 0 of 4 recovered / 4 of 4 recovered.
+  These come from scripted failures; they are not an estimate of how often a real model fails.
+
+--- P.7  Redux (frontend/src/store/, tests in frontend/src/test/)
+$ npm test   (2026-11-16 11:05)   -> Test Files 18 passed (18), Tests 233 passed (233), 33 s
+  Redux DevTools screenshots: NOT taken yet (placeholder in report section 9.4).
+
+--- P.8  JMeter (run by Uday on Windows against Compose, 2026-11-14; plans jmeter/plans/, generated by jmeter/generate_plans.py; docs/lab2/jmeter/)
+  Login 100 to 500 users: 0.0% errors, average 190 to 259 ms.  Job search 100 to 500: 0.0%, average about 7 ms.  Apply (202): 0.0%, average 12 to 372 ms.
+  Event search + registration: 0.0%.  Assistant chat: 5 users 0.0% errors (p50 48,277 ms); 10 users 0.0% (p50 158,732 ms); 20 users 25.0% errors; 50 users 62.0%
+  errors (the assistant answers 504 at about 568 s). Machine specs: NOT recorded (placeholder in report section 10).
+
+--- P.9  Backend tests (2026-11-16, a new virtual environment with Python 3.12: Python 3.14 could not build the packages)
+$ cd backend; python -m pytest -q   -> 657 passed in 291.93 s (0:04:51)
+### end of Lab 2, partner entries
