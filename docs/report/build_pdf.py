@@ -32,9 +32,9 @@ DIAGRAM_NAMES = ["architecture_containers", "architecture_apply_sequence", "arch
 MERMAID_URL = "https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.esm.min.mjs"
 
 BROWSERS = [
+    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
     r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
-    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
     "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe",
 ]
@@ -48,8 +48,10 @@ def find_browser() -> str:
 
 
 def run_browser(*args: str, timeout: int = 180) -> subprocess.CompletedProcess:
-    cmd = [find_browser(), "--headless=new", "--disable-gpu", "--no-first-run", *args]
-    return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, encoding="utf-8", errors="replace")
+    # a fresh profile folder, so the build also works while the same browser is open for normal use
+    with tempfile.TemporaryDirectory() as profile:
+        cmd = [find_browser(), "--headless=new", "--disable-gpu", "--no-first-run", f"--user-data-dir={profile}", *args]
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, encoding="utf-8", errors="replace")
 
 
 # ---------------------------------------------------------------------------------------------- 1. diagrams
