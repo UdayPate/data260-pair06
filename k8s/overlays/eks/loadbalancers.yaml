@@ -4,6 +4,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: p06-gateway
+  annotations:
+    # the load balancer closes a request after 60 s by default; an assistant answer can take minutes
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "600"
 spec:
   type: LoadBalancer
   ports:
